@@ -10,6 +10,8 @@
 		CA6868A81F9D1BFA00C96D99 /* Shapeshifter_Swift_Transports.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CA68689E1F9D1BFA00C96D99 /* Shapeshifter_Swift_Transports.framework */; };
 		CA6868AD1F9D1BFA00C96D99 /* Shapeshifter_Swift_TransportsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA6868AC1F9D1BFA00C96D99 /* Shapeshifter_Swift_TransportsTests.swift */; };
 		CA6868AF1F9D1BFA00C96D99 /* Shapeshifter_Swift_Transports.h in Headers */ = {isa = PBXBuildFile; fileRef = CA6868A11F9D1BFA00C96D99 /* Shapeshifter_Swift_Transports.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		CA6868B91F9D1D9500C96D99 /* Rot13TCPConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA6868B81F9D1D9500C96D99 /* Rot13TCPConnection.swift */; };
+		CA6868BC1F9D1E9100C96D99 /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CA6868BB1F9D1E8100C96D99 /* NetworkExtension.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -29,6 +31,8 @@
 		CA6868A71F9D1BFA00C96D99 /* Shapeshifter-Swift-TransportsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Shapeshifter-Swift-TransportsTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		CA6868AC1F9D1BFA00C96D99 /* Shapeshifter_Swift_TransportsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Shapeshifter_Swift_TransportsTests.swift; sourceTree = "<group>"; };
 		CA6868AE1F9D1BFA00C96D99 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		CA6868B81F9D1D9500C96D99 /* Rot13TCPConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Rot13TCPConnection.swift; sourceTree = "<group>"; };
+		CA6868BB1F9D1E8100C96D99 /* NetworkExtension.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NetworkExtension.framework; path = System/Library/Frameworks/NetworkExtension.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -36,6 +40,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CA6868BC1F9D1E9100C96D99 /* NetworkExtension.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -56,6 +61,7 @@
 				CA6868A01F9D1BFA00C96D99 /* Shapeshifter-Swift-Transports */,
 				CA6868AB1F9D1BFA00C96D99 /* Shapeshifter-Swift-TransportsTests */,
 				CA68689F1F9D1BFA00C96D99 /* Products */,
+				CA6868BA1F9D1E8100C96D99 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -72,6 +78,7 @@
 			isa = PBXGroup;
 			children = (
 				CA6868A11F9D1BFA00C96D99 /* Shapeshifter_Swift_Transports.h */,
+				CA6868B81F9D1D9500C96D99 /* Rot13TCPConnection.swift */,
 				CA6868A21F9D1BFA00C96D99 /* Info.plist */,
 			);
 			path = "Shapeshifter-Swift-Transports";
@@ -84,6 +91,14 @@
 				CA6868AE1F9D1BFA00C96D99 /* Info.plist */,
 			);
 			path = "Shapeshifter-Swift-TransportsTests";
+			sourceTree = "<group>";
+		};
+		CA6868BA1F9D1E8100C96D99 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				CA6868BB1F9D1E8100C96D99 /* NetworkExtension.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -148,6 +163,7 @@
 				TargetAttributes = {
 					CA68689D1F9D1BFA00C96D99 = {
 						CreatedOnToolsVersion = 9.0.1;
+						LastSwiftMigration = 0900;
 						ProvisioningStyle = Automatic;
 					};
 					CA6868A61F9D1BFA00C96D99 = {
@@ -196,6 +212,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CA6868B91F9D1D9500C96D99 /* Rot13TCPConnection.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -333,6 +350,7 @@
 		CA6868B31F9D1BFA00C96D99 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -348,6 +366,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.operatorfoundation.Shapeshifter-Swift-Transports";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 4.0;
 			};
 			name = Debug;
@@ -355,6 +374,7 @@
 		CA6868B41F9D1BFA00C96D99 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -377,6 +397,7 @@
 		CA6868B61F9D1BFA00C96D99 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = 67Y4NSLDQ3;
@@ -391,6 +412,7 @@
 		CA6868B71F9D1BFA00C96D99 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = 67Y4NSLDQ3;
