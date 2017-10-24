@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		CA4C843D1F9FDBD000264548 /* FakeTCPConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA4C843C1F9FDBD000264548 /* FakeTCPConnection.swift */; };
+		CA4C84421F9FEB1300264548 /* MeekTCPConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA4C84411F9FEB1300264548 /* MeekTCPConnection.swift */; };
 		CA6868A81F9D1BFA00C96D99 /* Shapeshifter_Swift_Transports.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CA68689E1F9D1BFA00C96D99 /* Shapeshifter_Swift_Transports.framework */; };
 		CA6868AD1F9D1BFA00C96D99 /* Shapeshifter_Swift_TransportsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA6868AC1F9D1BFA00C96D99 /* Shapeshifter_Swift_TransportsTests.swift */; };
 		CA6868AF1F9D1BFA00C96D99 /* Shapeshifter_Swift_Transports.h in Headers */ = {isa = PBXBuildFile; fileRef = CA6868A11F9D1BFA00C96D99 /* Shapeshifter_Swift_Transports.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -27,6 +28,7 @@
 
 /* Begin PBXFileReference section */
 		CA4C843C1F9FDBD000264548 /* FakeTCPConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeTCPConnection.swift; sourceTree = "<group>"; };
+		CA4C84411F9FEB1300264548 /* MeekTCPConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeekTCPConnection.swift; sourceTree = "<group>"; };
 		CA68689E1F9D1BFA00C96D99 /* Shapeshifter_Swift_Transports.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Shapeshifter_Swift_Transports.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		CA6868A11F9D1BFA00C96D99 /* Shapeshifter_Swift_Transports.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Shapeshifter_Swift_Transports.h; sourceTree = "<group>"; };
 		CA6868A21F9D1BFA00C96D99 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -68,6 +70,7 @@
 		CA4C843F1F9FDCB700264548 /* Transports */ = {
 			isa = PBXGroup;
 			children = (
+				CA4C84411F9FEB1300264548 /* MeekTCPConnection.swift */,
 			);
 			path = Transports;
 			sourceTree = "<group>";
@@ -240,6 +243,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CA4C843D1F9FDBD000264548 /* FakeTCPConnection.swift in Sources */,
+				CA4C84421F9FEB1300264548 /* MeekTCPConnection.swift in Sources */,
 				CA6868B91F9D1D9500C96D99 /* Rot13TCPConnection.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
