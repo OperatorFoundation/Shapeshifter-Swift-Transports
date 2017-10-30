@@ -9,72 +9,74 @@
 import Foundation
 import NetworkExtension
 
-func createRot13TCPConnection(provider: NEPacketTunnelProvider, to: NWEndpoint, key: Int) -> Rot13TCPConnection {
-    return Rot13TCPConnection(provider: provider, to: to, key: key)
+func createMeekTCPConnection(provider: NEPacketTunnelProvider, to: URL, serverURL: URL) -> MeekTCPConnection
+{
+    return MeekTCPConnection(provider: provider, to: to, url: serverURL)
 }
 
-func createRot13TCPConnection(connection: NWTCPConnection, key: Int) -> Rot13TCPConnection {
-    return Rot13TCPConnection(connection: connection, key: key)
-}
+//func createMeekTCPConnection(connection: NWTCPConnection) -> MeekTCPConnection
+//{
+//    return MeekTCPConnection(connection: connection)
+//}
 
-class Rot13TCPConnection: NWTCPConnection {
-    var rotkey: Int
+class MeekTCPConnection: NWTCPConnection
+{
+    var serverURL: URL
+    var frontURL: URL
     var network: NWTCPConnection
+    var writeClosed = false
     
-    init(provider: NEPacketTunnelProvider, to: NWEndpoint, key: Int) {
-        rotkey = key
-        network = provider.createTCPConnectionThroughTunnel(to: to, enableTLS: false, tlsParameters: nil, delegate: nil)
+    let minLength = 1
+    let maxLength = MemoryLayout<UInt32>.size
+    
+    init(provider: NEPacketTunnelProvider, to front: URL, url: URL)
+    {
+        serverURL = url
+        frontURL = front
+        
+        let frontHostname = frontURL.host!
+        
+        let endpoint: NWEndpoint = NWHostEndpoint(hostname: frontHostname, port: "80")
+        network = provider.createTCPConnectionThroughTunnel(to: endpoint, enableTLS: true, tlsParameters: nil, delegate: nil)
         
         super.init()
     }
     
-    init(connection: NWTCPConnection, key: Int) {
-        rotkey = key
-        network = connection
+//    init(connection: NWTCPConnection)
+//    {
+//        network = connection
+//
+//        super.init()
+//    }
+    
+    override func readMinimumLength(_ minimum: Int, maximumLength maximum: Int, completionHandler completion: @escaping (Data?, Error?) -> Void)
+    {
         
-        super.init()
-    }
-    
-    //    init(upgradeFor connection: NWTCPConnection)
-    
-    override func readMinimumLength(_ minimum: Int, maximumLength maximum: Int, completionHandler completion: @escaping (Data?, Error?) -> Void) {
-        network.readMinimumLength(minimum, maximumLength: maximum) {
+        network.readMinimumLength(minimum, maximumLength: maximum)
+        {
             (data, error) in
             
-            guard error == nil else {
+            guard error == nil else
+            {
                 completion(nil, error)
                 return
             }
             
-            guard data != nil else {
+            guard data != nil else
+            {
                 completion(nil, nil)
                 return
             }
             
-            let decoded = self.decode(data!)
+            let decoded = self.decodeResponse(data!)
             
             completion(decoded, nil)
         }
     }
     
-    override func readLength(_ length: Int, completionHandler completion: @escaping (Data?, Error?) -> Void) {
-        network.readLength(length) {
-            (data, error) in
-            
-            guard error == nil else {
-                completion(nil, error)
-                return
-            }
-            
-            guard data != nil else {
-                completion(nil, nil)
-                return
-            }
-            
-            let decoded = self.decode(data!)
-            
-            completion(decoded, nil)
-        }
+    override func readLength(_ length: Int, completionHandler completion: @escaping (Data?, Error?) -> Void)
+    {
+        readMinimumLength(length, maximumLength: length, completionHandler: completion)
     }
 
 /*
@@ -123,43 +125,104 @@ class Rot13TCPConnection: NWTCPConnection {
      return
      }
 */
-    override func write(_ data: Data, completionHandler completion: @escaping (Error?) -> Void) {
-        let encoded = encode(data)!
-        network.write(encoded) {
+    override func write(_ data: Data, completionHandler completion: @escaping (Error?) -> Void)
+    {
+        let encoded = encodePOST(data)!
+        network.write(encoded)
+        {
             (error) in
-            
+
             completion(error)
         }
     }
     
-    override func writeClose() {
+    override func writeClose()
+    {
         network.writeClose()
     }
     
-    override func cancel() {
+    override func cancel()
+    {
         network.cancel()
     }
     
-    func encode(_ data: Data) -> Data? {
-        return transform(data, key: rotkey)
+    func encodePOST(_ data: Data) -> Data?
+    {
+        guard let host = serverURL.host
+        else
+        {
+            print("Unable to resolver server host.")
+            return nil
+        }
+        
+        let sessionID = ""
+        let header1 = "Host: \(host)"
+        let header2 = "X-Session-Id: \(sessionID)"
+        let header3 = "User-Agent: "
+        let header4 = "Content-Type: application/x-www-form-urlencoded"
+        let httpRequestString = "POST \(frontURL.path) HTTP/1.1 \r\n\(header1)\r\n\(header2)\r\n\(header3)\r\n\(header4)\r\n\r\n"
+        
+        var postData = httpRequestString.data(using: .utf8)
+        if postData != nil
+        {
+            postData!.append(data)
+        }
+
+        return postData
     }
     
-    func decode(_ data: Data) -> Data? {
-        return transform(data, key: -rotkey)
-    }
-    
-    func transform(_ data: Data, key: Int) -> Data {
-        var mutdata = data
-        mutdata.withUnsafeMutableBytes {
-            (bytePtr: UnsafeMutablePointer<UInt8>) in
-            
-            let byteBuffer = UnsafeMutableBufferPointer(start: bytePtr, count: data.count/MemoryLayout<Int8>.stride)
-            
-            for index in 1...byteBuffer.count {
-                byteBuffer[index]=UInt8(byteBuffer[index])+UInt8(key)
+    func decodeResponse(_ data: Data) -> Data?
+    {
+        guard let emptyLineIndex = findEmptyLineIndex(data: data)
+        else
+        {
+            print("Unable to find empty line.")
+            return nil
+        }
+        
+        let headerData = data.prefix(through: emptyLineIndex - 1)
+        if let headerString = String(data: headerData, encoding: .ascii)
+        {
+            let lines = headerString.components(separatedBy: "\r\n")
+            if let statusLine = lines.first
+            {
+                let statusComponents = statusLine.components(separatedBy: " ")
+                print(statusComponents)
             }
         }
         
-        return mutdata
+        let bodyData = data.suffix(from: emptyLineIndex)
+        return bodyData
     }
+    
+    func findEmptyLineIndex(data: Data) -> Int?
+    {
+        var dataToCheck = data
+        
+        if let newlineIndex = dataToCheck.index(of: 10)
+        {
+            let next = dataToCheck[newlineIndex + 1]
+            if next == 13
+            {
+                return newlineIndex + 1
+            }
+            else
+            {
+                if dataToCheck.count > 2
+                {
+                    dataToCheck = dataToCheck.suffix(from: newlineIndex + 1)
+                    return findEmptyLineIndex(data: dataToCheck)
+                }
+                else
+                {
+                    return nil
+                }
+            }
+        }
+        else
+        {
+            return nil
+        }
+    }
+    
 }
