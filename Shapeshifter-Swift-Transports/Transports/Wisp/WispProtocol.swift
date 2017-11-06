@@ -17,7 +17,7 @@ import NetworkExtension
 struct Keypair {
     let publicKey: Data
     let privateKey: Data
-    let representative: Data
+    let representative: Data // The Elligator-compressed public key
 }
 
 struct WispProtocol {
@@ -53,8 +53,8 @@ struct WispProtocol {
          serverMinHandshakeLength = ntor.RepresentativeLength + ntor.AuthLength +
          markLength + macLength
          
-         markLength = sha256.Size / 2
-         macLength  = sha256.Size / 2
+         markLength = sha256.Size / 2 // 32 / 2
+         macLength  = sha256.Size / 2 // 32 / 2
          
          inlineSeedFrameLength = framing.FrameOverhead + packetOverhead + seedPacketPayloadLength
          )
@@ -155,7 +155,13 @@ struct WispProtocol {
     }
 }
 
-func unpackCert(cert: String) -> (Data, Data) {
+let nodeIDLength = 20
+
+/// Takes an encoded cert string and returns a node id and public key.
+// Base64 decode the cert string into a Data
+// Slice Data into 0..nodeIDLength (exclusive) and nodeIDLength...end
+// Should be 20 bytes and 32 bytes
+func unpackCert(cert: String) -> (nodeID: Data, publicKey: Data) {
 /*
      const (
      // PublicKeyLength is the length of a Curve25519 public key.
@@ -170,9 +176,6 @@ func unpackCert(cert: String) -> (Data, Data) {
      // SharedSecretLength is the length of a Curve25519 shared secret.
      SharedSecretLength = 32
      
-     // NodeIDLength is the length of a ntor node identifier.
-     NodeIDLength = 20
-     
      // KeySeedLength is the length of the derived KEY_SEED.
      KeySeedLength = sha256.Size
      
@@ -185,12 +188,12 @@ func unpackCert(cert: String) -> (Data, Data) {
      var nodeID *ntor.NodeID
      var publicKey *ntor.PublicKey
      
-     // The "new" (version >= 0.0.3) bridge lines use a unified "cert" argument
-     // for the Node ID and Public Key.
+     // Base64 decode the cert string
      cert, err := serverCertFromString(certString)
      if err != nil {
      return nil
      }
+     
      nodeID, publicKey = cert.unpack()
      
 ...
@@ -215,7 +218,10 @@ func unpackCert(cert: String) -> (Data, Data) {
      panic(fmt.Sprintf("cert length %d is invalid", len(cert.raw)))
      }
      
+     // Get bytes from cert starting with 0 and ending with NodeIDLength
      nodeID, _ := ntor.NewNodeID(cert.raw[:ntor.NodeIDLength])
+     
+     // Get bytes from cert starting with NodeIDLength and ending at the end of the string
      pubKey, _ := ntor.NewPublicKey(cert.raw[ntor.NodeIDLength:])
      
      return nodeID, pubKey
@@ -230,41 +236,41 @@ func newKeypair() -> Keypair {
      // NewKeypair generates a new Curve25519 keypair, and optionally also generates
      // an Elligator representative of the public key.
      func NewKeypair(elligator bool) (*Keypair, error) {
-     keypair := new(Keypair)
-     keypair.private = new(PrivateKey)
-     keypair.public = new(PublicKey)
-     if elligator {
-     keypair.representative = new(Representative)
-     }
+         keypair := new(Keypair)
+         keypair.private = new(PrivateKey)
+         keypair.public = new(PublicKey)
      
-     for {
-     // Generate a Curve25519 private key.  Like everyone who does this,
-     // run the CSPRNG output through SHA256 for extra tinfoil hattery.
-     priv := keypair.private.Bytes()[:]
-     if err := csrand.Bytes(priv); err != nil {
-     return nil, err
-     }
-     digest := sha256.Sum256(priv)
-     digest[0] &= 248
-     digest[31] &= 127
-     digest[31] |= 64
-     copy(priv, digest[:])
+         if elligator {
+            keypair.representative = new(Representative)
+         }
      
-     if elligator {
-     // Apply the Elligator transform.  This fails ~50% of the time.
-     if !extra25519.ScalarBaseMult(keypair.public.Bytes(),
-     keypair.representative.Bytes(),
-     keypair.private.Bytes()) {
-     continue
-     }
-     } else {
-     // Generate the corresponding Curve25519 public key.
-     curve25519.ScalarBaseMult(keypair.public.Bytes(),
-     keypair.private.Bytes())
-     }
+         for {
+             // Generate a Curve25519 private key.  Like everyone who does this,
+             // run the CSPRNG output through SHA256 for extra tinfoil hattery.
+             priv := keypair.private.Bytes()[:]
+             if err := csrand.Bytes(priv); err != nil {
+                return nil, err
+             }
+             digest := sha256.Sum256(priv)
+             digest[0] &= 248
+             digest[31] &= 127
+             digest[31] |= 64
+             copy(priv, digest[:])
      
-     return keypair, nil
-     }
+             if elligator {
+             // Apply the Elligator transform.  This fails ~50% of the time.
+                 if !extra25519.ScalarBaseMult(keypair.public.Bytes(), keypair.representative.Bytes(), keypair.private.Bytes())
+                 {
+                    continue
+                 }
+             } else {
+                 // Generate the corresponding Curve25519 public key.
+                 curve25519.ScalarBaseMult(keypair.public.Bytes(),
+                 keypair.private.Bytes())
+             }
+     
+             return keypair, nil
+         }
      }
 */
     
