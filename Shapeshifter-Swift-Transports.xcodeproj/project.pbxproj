@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-<<<<<<< HEAD
 		CA18AAB61FA82AB30077AADD /* PassthroughTCPConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA18AAB51FA82AB30077AADD /* PassthroughTCPConnection.swift */; };
 		CA3718221FA9774C002F7228 /* Shapeshifter_Wisp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CA3718191FA9774C002F7228 /* Shapeshifter_Wisp.framework */; };
 		CA3718271FA9774C002F7228 /* Shapeshifter_WispTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA3718261FA9774C002F7228 /* Shapeshifter_WispTests.swift */; };
@@ -21,12 +20,10 @@
 		CA3718361FA9779D002F7228 /* FakeNEPacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA7C16FD1FA7AD7E007EF28C /* FakeNEPacketTunnelProvider.swift */; };
 		CA3718381FACD626002F7228 /* WispCoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA3718371FACD626002F7228 /* WispCoding.swift */; };
 		CA4C843D1F9FDBD000264548 /* FakeTCPConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA4C843C1F9FDBD000264548 /* FakeTCPConnection.swift */; };
-=======
 		46580E7A1FAC019000C87A1B /* CommonCrypto.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 46580E791FAC010300C87A1B /* CommonCrypto.framework */; };
 		46580E7B1FAD041500C87A1B /* CommonCrypto.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 46580E791FAC010300C87A1B /* CommonCrypto.framework */; };
 		466C9E001FAD50D300A4144A /* CommonCrypto.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 46580E791FAC010300C87A1B /* CommonCrypto.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		466C9E021FAD516500A4144A /* CommonCrypto.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 46580E791FAC010300C87A1B /* CommonCrypto.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
->>>>>>> 709cac88586d431e48d6a9ef82dc6c6ae6963d40
 		CA4C84421F9FEB1300264548 /* MeekTCPConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA4C84411F9FEB1300264548 /* MeekTCPConnection.swift */; };
 		CA6868A81F9D1BFA00C96D99 /* Shapeshifter_Swift_Transports.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CA68689E1F9D1BFA00C96D99 /* Shapeshifter_Swift_Transports.framework */; };
 		CA6868AD1F9D1BFA00C96D99 /* Shapeshifter_Swift_TransportsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA6868AC1F9D1BFA00C96D99 /* Shapeshifter_Swift_TransportsTests.swift */; };
@@ -78,7 +75,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-<<<<<<< HEAD
 		CA18AAB31FA8269D0077AADD /* WispTCPConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WispTCPConnection.swift; sourceTree = "<group>"; };
 		CA18AAB51FA82AB30077AADD /* PassthroughTCPConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PassthroughTCPConnection.swift; sourceTree = "<group>"; };
 		CA18AAB71FA82B940077AADD /* WispProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WispProtocol.swift; sourceTree = "<group>"; };
@@ -89,9 +85,7 @@
 		CA3718261FA9774C002F7228 /* Shapeshifter_WispTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Shapeshifter_WispTests.swift; sourceTree = "<group>"; };
 		CA3718281FA9774C002F7228 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CA3718371FACD626002F7228 /* WispCoding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WispCoding.swift; sourceTree = "<group>"; };
-=======
 		46580E791FAC010300C87A1B /* CommonCrypto.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = CommonCrypto.framework; sourceTree = "<group>"; };
->>>>>>> 709cac88586d431e48d6a9ef82dc6c6ae6963d40
 		CA4C843C1F9FDBD000264548 /* FakeTCPConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeTCPConnection.swift; sourceTree = "<group>"; };
 		CA4C84411F9FEB1300264548 /* MeekTCPConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeekTCPConnection.swift; sourceTree = "<group>"; };
 		CA68689E1F9D1BFA00C96D99 /* Shapeshifter_Swift_Transports.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Shapeshifter_Swift_Transports.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -455,14 +449,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-<<<<<<< HEAD
 				CA7C16FE1FA7AD7E007EF28C /* FakeNEPacketTunnelProvider.swift in Sources */,
 				CA7C17001FA7B009007EF28C /* FakeUDPSession.swift in Sources */,
 				CA3718381FACD626002F7228 /* WispCoding.swift in Sources */,
 				CA4C843D1F9FDBD000264548 /* FakeTCPConnection.swift in Sources */,
 				CA18AAB61FA82AB30077AADD /* PassthroughTCPConnection.swift in Sources */,
-=======
->>>>>>> 709cac88586d431e48d6a9ef82dc6c6ae6963d40
 				CA4C84421F9FEB1300264548 /* MeekTCPConnection.swift in Sources */,
 				CA6868B91F9D1D9500C96D99 /* Rot13TCPConnection.swift in Sources */,
 			);
