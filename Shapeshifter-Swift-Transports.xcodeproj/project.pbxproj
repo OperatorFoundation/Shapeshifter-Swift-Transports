@@ -7,7 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		CA4C843D1F9FDBD000264548 /* FakeTCPConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA4C843C1F9FDBD000264548 /* FakeTCPConnection.swift */; };
+		46580E7A1FAC019000C87A1B /* CommonCrypto.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 46580E791FAC010300C87A1B /* CommonCrypto.framework */; };
+		46580E7B1FAD041500C87A1B /* CommonCrypto.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 46580E791FAC010300C87A1B /* CommonCrypto.framework */; };
+		466C9E001FAD50D300A4144A /* CommonCrypto.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 46580E791FAC010300C87A1B /* CommonCrypto.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		466C9E021FAD516500A4144A /* CommonCrypto.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 46580E791FAC010300C87A1B /* CommonCrypto.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		CA4C84421F9FEB1300264548 /* MeekTCPConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA4C84411F9FEB1300264548 /* MeekTCPConnection.swift */; };
 		CA6868A81F9D1BFA00C96D99 /* Shapeshifter_Swift_Transports.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CA68689E1F9D1BFA00C96D99 /* Shapeshifter_Swift_Transports.framework */; };
 		CA6868AD1F9D1BFA00C96D99 /* Shapeshifter_Swift_TransportsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA6868AC1F9D1BFA00C96D99 /* Shapeshifter_Swift_TransportsTests.swift */; };
@@ -26,7 +29,31 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		466C9DFF1FAD50A500A4144A /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				466C9E001FAD50D300A4144A /* CommonCrypto.framework in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		466C9E011FAD515C00A4144A /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				466C9E021FAD516500A4144A /* CommonCrypto.framework in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		46580E791FAC010300C87A1B /* CommonCrypto.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = CommonCrypto.framework; sourceTree = "<group>"; };
 		CA4C843C1F9FDBD000264548 /* FakeTCPConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeTCPConnection.swift; sourceTree = "<group>"; };
 		CA4C84411F9FEB1300264548 /* MeekTCPConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeekTCPConnection.swift; sourceTree = "<group>"; };
 		CA68689E1F9D1BFA00C96D99 /* Shapeshifter_Swift_Transports.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Shapeshifter_Swift_Transports.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -44,6 +71,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				46580E7A1FAC019000C87A1B /* CommonCrypto.framework in Frameworks */,
 				CA6868BC1F9D1E9100C96D99 /* NetworkExtension.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -52,6 +80,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				46580E7B1FAD041500C87A1B /* CommonCrypto.framework in Frameworks */,
 				CA6868A81F9D1BFA00C96D99 /* Shapeshifter_Swift_Transports.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -126,6 +155,7 @@
 		CA6868BA1F9D1E8100C96D99 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				46580E791FAC010300C87A1B /* CommonCrypto.framework */,
 				CA6868BB1F9D1E8100C96D99 /* NetworkExtension.framework */,
 			);
 			name = Frameworks;
@@ -153,6 +183,7 @@
 				CA68689A1F9D1BFA00C96D99 /* Frameworks */,
 				CA68689B1F9D1BFA00C96D99 /* Headers */,
 				CA68689C1F9D1BFA00C96D99 /* Resources */,
+				466C9DFF1FAD50A500A4144A /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -170,6 +201,7 @@
 				CA6868A31F9D1BFA00C96D99 /* Sources */,
 				CA6868A41F9D1BFA00C96D99 /* Frameworks */,
 				CA6868A51F9D1BFA00C96D99 /* Resources */,
+				466C9E011FAD515C00A4144A /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -242,7 +274,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CA4C843D1F9FDBD000264548 /* FakeTCPConnection.swift in Sources */,
 				CA4C84421F9FEB1300264548 /* MeekTCPConnection.swift in Sources */,
 				CA6868B91F9D1D9500C96D99 /* Rot13TCPConnection.swift in Sources */,
 			);
@@ -321,7 +352,9 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				TEST_HOST = "";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -373,7 +406,9 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = macosx;
+				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				TEST_HOST = "";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -391,10 +426,14 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				FRAMEWORK_VERSION = A;
 				INFOPLIST_FILE = "Shapeshifter-Swift-Transports/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.operatorfoundation.Shapeshifter-Swift-Transports";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -415,10 +454,14 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				FRAMEWORK_VERSION = A;
 				INFOPLIST_FILE = "Shapeshifter-Swift-Transports/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.operatorfoundation.Shapeshifter-Swift-Transports";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -433,8 +476,14 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = 67Y4NSLDQ3;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				INFOPLIST_FILE = "Shapeshifter-Swift-TransportsTests/Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				LD_DYLIB_INSTALL_NAME = "$(DYLIB_INSTALL_NAME_BASE:standardizepath)/$(EXECUTABLE_PATH)";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.operatorfoundation.Shapeshifter-Swift-TransportsTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;
@@ -448,8 +497,14 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = 67Y4NSLDQ3;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				INFOPLIST_FILE = "Shapeshifter-Swift-TransportsTests/Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				LD_DYLIB_INSTALL_NAME = "$(DYLIB_INSTALL_NAME_BASE:standardizepath)/$(EXECUTABLE_PATH)";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.operatorfoundation.Shapeshifter-Swift-TransportsTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;

@@ -96,7 +96,8 @@ class FakeTCPConnection: NWTCPConnection
     
     override func readMinimumLength(_ minimum: Int, maximumLength maximum: Int, completionHandler completion: @escaping (Data?, Error?) -> Void)
     {
-        network.readData(ofMinLength: 0, maxLength: 100000, timeout: 60) {
+        network.readData(ofMinLength: 0, maxLength: 100000, timeout: 60)
+        {
             (data, bool, error) in
             
             guard error == nil else {
@@ -114,7 +115,8 @@ class FakeTCPConnection: NWTCPConnection
     }
     
     override func readLength(_ length: Int, completionHandler completion: @escaping (Data?, Error?) -> Void) {
-        readMinimumLength(length, maximumLength: length) {
+        readMinimumLength(length, maximumLength: length)
+        {
             (data, error) in
             
             guard error == nil else {
@@ -133,7 +135,8 @@ class FakeTCPConnection: NWTCPConnection
     
     override func write(_ data: Data, completionHandler completion: @escaping (Error?) -> Void)
     {
-        network.write(data, timeout: 0) {
+        network.write(data, timeout: 0)
+        {
             (error) in
 
             completion(error)
