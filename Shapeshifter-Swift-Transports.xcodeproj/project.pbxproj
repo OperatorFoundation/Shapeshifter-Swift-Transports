@@ -7,6 +7,18 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CA18AAB61FA82AB30077AADD /* PassthroughTCPConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA18AAB51FA82AB30077AADD /* PassthroughTCPConnection.swift */; };
+		CA3718221FA9774C002F7228 /* Shapeshifter_Wisp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CA3718191FA9774C002F7228 /* Shapeshifter_Wisp.framework */; };
+		CA3718271FA9774C002F7228 /* Shapeshifter_WispTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA3718261FA9774C002F7228 /* Shapeshifter_WispTests.swift */; };
+		CA3718291FA9774C002F7228 /* Shapeshifter_Wisp.h in Headers */ = {isa = PBXBuildFile; fileRef = CA37181B1FA9774C002F7228 /* Shapeshifter_Wisp.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		CA3718301FA97769002F7228 /* WispTCPConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA18AAB31FA8269D0077AADD /* WispTCPConnection.swift */; };
+		CA3718311FA9776A002F7228 /* WispTCPConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA18AAB31FA8269D0077AADD /* WispTCPConnection.swift */; };
+		CA3718321FA9776E002F7228 /* WispProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA18AAB71FA82B940077AADD /* WispProtocol.swift */; };
+		CA3718331FA9776F002F7228 /* WispProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA18AAB71FA82B940077AADD /* WispProtocol.swift */; };
+		CA3718341FA97798002F7228 /* FakeTCPConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA4C843C1F9FDBD000264548 /* FakeTCPConnection.swift */; };
+		CA3718351FA9779A002F7228 /* FakeUDPSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA7C16FF1FA7B009007EF28C /* FakeUDPSession.swift */; };
+		CA3718361FA9779D002F7228 /* FakeNEPacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA7C16FD1FA7AD7E007EF28C /* FakeNEPacketTunnelProvider.swift */; };
+		CA3718381FACD626002F7228 /* WispCoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA3718371FACD626002F7228 /* WispCoding.swift */; };
 		CA4C843D1F9FDBD000264548 /* FakeTCPConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA4C843C1F9FDBD000264548 /* FakeTCPConnection.swift */; };
 		CA4C84421F9FEB1300264548 /* MeekTCPConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA4C84411F9FEB1300264548 /* MeekTCPConnection.swift */; };
 		CA6868A81F9D1BFA00C96D99 /* Shapeshifter_Swift_Transports.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CA68689E1F9D1BFA00C96D99 /* Shapeshifter_Swift_Transports.framework */; };
@@ -14,9 +26,18 @@
 		CA6868AF1F9D1BFA00C96D99 /* Shapeshifter_Swift_Transports.h in Headers */ = {isa = PBXBuildFile; fileRef = CA6868A11F9D1BFA00C96D99 /* Shapeshifter_Swift_Transports.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		CA6868B91F9D1D9500C96D99 /* Rot13TCPConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA6868B81F9D1D9500C96D99 /* Rot13TCPConnection.swift */; };
 		CA6868BC1F9D1E9100C96D99 /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CA6868BB1F9D1E8100C96D99 /* NetworkExtension.framework */; };
+		CA7C16FE1FA7AD7E007EF28C /* FakeNEPacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA7C16FD1FA7AD7E007EF28C /* FakeNEPacketTunnelProvider.swift */; };
+		CA7C17001FA7B009007EF28C /* FakeUDPSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA7C16FF1FA7B009007EF28C /* FakeUDPSession.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		CA3718231FA9774C002F7228 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CA6868951F9D1BF900C96D99 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CA3718181FA9774C002F7228;
+			remoteInfo = "Shapeshifter-Wisp";
+		};
 		CA6868A91F9D1BFA00C96D99 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = CA6868951F9D1BF900C96D99 /* Project object */;
@@ -27,6 +48,16 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		CA18AAB31FA8269D0077AADD /* WispTCPConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WispTCPConnection.swift; sourceTree = "<group>"; };
+		CA18AAB51FA82AB30077AADD /* PassthroughTCPConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PassthroughTCPConnection.swift; sourceTree = "<group>"; };
+		CA18AAB71FA82B940077AADD /* WispProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WispProtocol.swift; sourceTree = "<group>"; };
+		CA3718191FA9774C002F7228 /* Shapeshifter_Wisp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Shapeshifter_Wisp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		CA37181B1FA9774C002F7228 /* Shapeshifter_Wisp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Shapeshifter_Wisp.h; sourceTree = "<group>"; };
+		CA37181C1FA9774C002F7228 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		CA3718211FA9774C002F7228 /* Shapeshifter-WispTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Shapeshifter-WispTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		CA3718261FA9774C002F7228 /* Shapeshifter_WispTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Shapeshifter_WispTests.swift; sourceTree = "<group>"; };
+		CA3718281FA9774C002F7228 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		CA3718371FACD626002F7228 /* WispCoding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WispCoding.swift; sourceTree = "<group>"; };
 		CA4C843C1F9FDBD000264548 /* FakeTCPConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeTCPConnection.swift; sourceTree = "<group>"; };
 		CA4C84411F9FEB1300264548 /* MeekTCPConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeekTCPConnection.swift; sourceTree = "<group>"; };
 		CA68689E1F9D1BFA00C96D99 /* Shapeshifter_Swift_Transports.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Shapeshifter_Swift_Transports.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -37,9 +68,26 @@
 		CA6868AE1F9D1BFA00C96D99 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CA6868B81F9D1D9500C96D99 /* Rot13TCPConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Rot13TCPConnection.swift; sourceTree = "<group>"; };
 		CA6868BB1F9D1E8100C96D99 /* NetworkExtension.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NetworkExtension.framework; path = System/Library/Frameworks/NetworkExtension.framework; sourceTree = SDKROOT; };
+		CA7C16FD1FA7AD7E007EF28C /* FakeNEPacketTunnelProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeNEPacketTunnelProvider.swift; sourceTree = "<group>"; };
+		CA7C16FF1FA7B009007EF28C /* FakeUDPSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeUDPSession.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		CA3718151FA9774C002F7228 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CA37181E1FA9774C002F7228 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CA3718221FA9774C002F7228 /* Shapeshifter_Wisp.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		CA68689A1F9D1BFA00C96D99 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -59,9 +107,38 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		CA18AAB21FA826820077AADD /* Wisp */ = {
+			isa = PBXGroup;
+			children = (
+				CA18AAB31FA8269D0077AADD /* WispTCPConnection.swift */,
+				CA18AAB71FA82B940077AADD /* WispProtocol.swift */,
+				CA3718371FACD626002F7228 /* WispCoding.swift */,
+			);
+			path = Wisp;
+			sourceTree = "<group>";
+		};
+		CA37181A1FA9774C002F7228 /* Shapeshifter-Wisp */ = {
+			isa = PBXGroup;
+			children = (
+				CA37181B1FA9774C002F7228 /* Shapeshifter_Wisp.h */,
+				CA37181C1FA9774C002F7228 /* Info.plist */,
+			);
+			path = "Shapeshifter-Wisp";
+			sourceTree = "<group>";
+		};
+		CA3718251FA9774C002F7228 /* Shapeshifter-WispTests */ = {
+			isa = PBXGroup;
+			children = (
+				CA3718261FA9774C002F7228 /* Shapeshifter_WispTests.swift */,
+				CA3718281FA9774C002F7228 /* Info.plist */,
+			);
+			path = "Shapeshifter-WispTests";
+			sourceTree = "<group>";
+		};
 		CA4C843E1F9FDCAE00264548 /* Examples */ = {
 			isa = PBXGroup;
 			children = (
+				CA18AAB51FA82AB30077AADD /* PassthroughTCPConnection.swift */,
 				CA6868B81F9D1D9500C96D99 /* Rot13TCPConnection.swift */,
 			);
 			path = Examples;
@@ -70,6 +147,7 @@
 		CA4C843F1F9FDCB700264548 /* Transports */ = {
 			isa = PBXGroup;
 			children = (
+				CA18AAB21FA826820077AADD /* Wisp */,
 				CA4C84411F9FEB1300264548 /* MeekTCPConnection.swift */,
 			);
 			path = Transports;
@@ -79,6 +157,8 @@
 			isa = PBXGroup;
 			children = (
 				CA4C843C1F9FDBD000264548 /* FakeTCPConnection.swift */,
+				CA7C16FF1FA7B009007EF28C /* FakeUDPSession.swift */,
+				CA7C16FD1FA7AD7E007EF28C /* FakeNEPacketTunnelProvider.swift */,
 			);
 			path = Testing;
 			sourceTree = "<group>";
@@ -88,6 +168,8 @@
 			children = (
 				CA6868A01F9D1BFA00C96D99 /* Shapeshifter-Swift-Transports */,
 				CA6868AB1F9D1BFA00C96D99 /* Shapeshifter-Swift-TransportsTests */,
+				CA37181A1FA9774C002F7228 /* Shapeshifter-Wisp */,
+				CA3718251FA9774C002F7228 /* Shapeshifter-WispTests */,
 				CA68689F1F9D1BFA00C96D99 /* Products */,
 				CA6868BA1F9D1E8100C96D99 /* Frameworks */,
 			);
@@ -98,6 +180,8 @@
 			children = (
 				CA68689E1F9D1BFA00C96D99 /* Shapeshifter_Swift_Transports.framework */,
 				CA6868A71F9D1BFA00C96D99 /* Shapeshifter-Swift-TransportsTests.xctest */,
+				CA3718191FA9774C002F7228 /* Shapeshifter_Wisp.framework */,
+				CA3718211FA9774C002F7228 /* Shapeshifter-WispTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -134,6 +218,14 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
+		CA3718161FA9774C002F7228 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CA3718291FA9774C002F7228 /* Shapeshifter_Wisp.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		CA68689B1F9D1BFA00C96D99 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -145,6 +237,42 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		CA3718181FA9774C002F7228 /* Shapeshifter-Wisp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CA37182E1FA9774C002F7228 /* Build configuration list for PBXNativeTarget "Shapeshifter-Wisp" */;
+			buildPhases = (
+				CA3718141FA9774C002F7228 /* Sources */,
+				CA3718151FA9774C002F7228 /* Frameworks */,
+				CA3718161FA9774C002F7228 /* Headers */,
+				CA3718171FA9774C002F7228 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Shapeshifter-Wisp";
+			productName = "Shapeshifter-Wisp";
+			productReference = CA3718191FA9774C002F7228 /* Shapeshifter_Wisp.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		CA3718201FA9774C002F7228 /* Shapeshifter-WispTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CA37182F1FA9774C002F7228 /* Build configuration list for PBXNativeTarget "Shapeshifter-WispTests" */;
+			buildPhases = (
+				CA37181D1FA9774C002F7228 /* Sources */,
+				CA37181E1FA9774C002F7228 /* Frameworks */,
+				CA37181F1FA9774C002F7228 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				CA3718241FA9774C002F7228 /* PBXTargetDependency */,
+			);
+			name = "Shapeshifter-WispTests";
+			productName = "Shapeshifter-WispTests";
+			productReference = CA3718211FA9774C002F7228 /* Shapeshifter-WispTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		CA68689D1F9D1BFA00C96D99 /* Shapeshifter-Swift-Transports */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = CA6868B21F9D1BFA00C96D99 /* Build configuration list for PBXNativeTarget "Shapeshifter-Swift-Transports" */;
@@ -187,10 +315,18 @@
 		CA6868951F9D1BF900C96D99 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 0900;
+				LastSwiftUpdateCheck = 0910;
 				LastUpgradeCheck = 0900;
 				ORGANIZATIONNAME = "Operator Foundation";
 				TargetAttributes = {
+					CA3718181FA9774C002F7228 = {
+						CreatedOnToolsVersion = 9.1;
+						ProvisioningStyle = Automatic;
+					};
+					CA3718201FA9774C002F7228 = {
+						CreatedOnToolsVersion = 9.1;
+						ProvisioningStyle = Automatic;
+					};
 					CA68689D1F9D1BFA00C96D99 = {
 						CreatedOnToolsVersion = 9.0.1;
 						LastSwiftMigration = 0900;
@@ -216,11 +352,27 @@
 			targets = (
 				CA68689D1F9D1BFA00C96D99 /* Shapeshifter-Swift-Transports */,
 				CA6868A61F9D1BFA00C96D99 /* Shapeshifter-Swift-TransportsTests */,
+				CA3718181FA9774C002F7228 /* Shapeshifter-Wisp */,
+				CA3718201FA9774C002F7228 /* Shapeshifter-WispTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		CA3718171FA9774C002F7228 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CA37181F1FA9774C002F7228 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		CA68689C1F9D1BFA00C96D99 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -238,11 +390,37 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		CA3718141FA9774C002F7228 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CA3718321FA9776E002F7228 /* WispProtocol.swift in Sources */,
+				CA3718301FA97769002F7228 /* WispTCPConnection.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CA37181D1FA9774C002F7228 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CA3718341FA97798002F7228 /* FakeTCPConnection.swift in Sources */,
+				CA3718351FA9779A002F7228 /* FakeUDPSession.swift in Sources */,
+				CA3718331FA9776F002F7228 /* WispProtocol.swift in Sources */,
+				CA3718311FA9776A002F7228 /* WispTCPConnection.swift in Sources */,
+				CA3718361FA9779D002F7228 /* FakeNEPacketTunnelProvider.swift in Sources */,
+				CA3718271FA9774C002F7228 /* Shapeshifter_WispTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		CA6868991F9D1BFA00C96D99 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CA7C16FE1FA7AD7E007EF28C /* FakeNEPacketTunnelProvider.swift in Sources */,
+				CA7C17001FA7B009007EF28C /* FakeUDPSession.swift in Sources */,
+				CA3718381FACD626002F7228 /* WispCoding.swift in Sources */,
 				CA4C843D1F9FDBD000264548 /* FakeTCPConnection.swift in Sources */,
+				CA18AAB61FA82AB30077AADD /* PassthroughTCPConnection.swift in Sources */,
 				CA4C84421F9FEB1300264548 /* MeekTCPConnection.swift in Sources */,
 				CA6868B91F9D1D9500C96D99 /* Rot13TCPConnection.swift in Sources */,
 			);
@@ -259,6 +437,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		CA3718241FA9774C002F7228 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CA3718181FA9774C002F7228 /* Shapeshifter-Wisp */;
+			targetProxy = CA3718231FA9774C002F7228 /* PBXContainerItemProxy */;
+		};
 		CA6868AA1F9D1BFA00C96D99 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = CA68689D1F9D1BFA00C96D99 /* Shapeshifter-Swift-Transports */;
@@ -267,6 +450,80 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		CA37182A1FA9774C002F7228 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = 67Y4NSLDQ3;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_VERSION = A;
+				INFOPLIST_FILE = "Shapeshifter-Wisp/Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.operatorfoundation.Shapeshifter-Wisp";
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 4.0;
+			};
+			name = Debug;
+		};
+		CA37182B1FA9774C002F7228 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = 67Y4NSLDQ3;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_VERSION = A;
+				INFOPLIST_FILE = "Shapeshifter-Wisp/Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.operatorfoundation.Shapeshifter-Wisp";
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 4.0;
+			};
+			name = Release;
+		};
+		CA37182C1FA9774C002F7228 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 67Y4NSLDQ3;
+				INFOPLIST_FILE = "Shapeshifter-WispTests/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.operatorfoundation.Shapeshifter-WispTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.0;
+			};
+			name = Debug;
+		};
+		CA37182D1FA9774C002F7228 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 67Y4NSLDQ3;
+				INFOPLIST_FILE = "Shapeshifter-WispTests/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.operatorfoundation.Shapeshifter-WispTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.0;
+			};
+			name = Release;
+		};
 		CA6868B01F9D1BFA00C96D99 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -459,6 +716,24 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		CA37182E1FA9774C002F7228 /* Build configuration list for PBXNativeTarget "Shapeshifter-Wisp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CA37182A1FA9774C002F7228 /* Debug */,
+				CA37182B1FA9774C002F7228 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CA37182F1FA9774C002F7228 /* Build configuration list for PBXNativeTarget "Shapeshifter-WispTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CA37182C1FA9774C002F7228 /* Debug */,
+				CA37182D1FA9774C002F7228 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		CA6868981F9D1BF900C96D99 /* Build configuration list for PBXProject "Shapeshifter-Swift-Transports" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
