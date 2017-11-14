@@ -14,7 +14,7 @@
 import Foundation
 import NetworkExtension
 
-func createWispTCPConnection(provider: NEPacketTunnelProvider, to: NWEndpoint, cert: String, iatMode: Bool) -> WispTCPConnection?
+func createWispTCPConnection(provider: PacketTunnelProvider, to: NWEndpoint, cert: String, iatMode: Bool) -> WispTCPConnection?
 {
     return WispTCPConnection(provider: provider, to: to, cert: cert, iatMode: iatMode)
 }
