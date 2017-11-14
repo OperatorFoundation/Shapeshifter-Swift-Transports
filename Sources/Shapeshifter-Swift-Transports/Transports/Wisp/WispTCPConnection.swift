@@ -16,7 +16,7 @@ import NetworkExtension
 
 func createWispTCPConnection(provider: PacketTunnelProvider, to: NWEndpoint, cert: String, iatMode: Bool) -> WispTCPConnection?
 {
-    return WispTCPConnection(provider: provider, to: to, cert: cert, iatMode: iatMode)
+    return WispTCPConnection(provider: provider as! NEPacketTunnelProvider, to: to, cert: cert, iatMode: iatMode)
 }
 
 func createWispTCPConnection(connection: NWTCPConnection, cert: String, iatMode: Bool) -> WispTCPConnection?
@@ -97,12 +97,7 @@ class WispTCPConnection: NWTCPConnection
         }
         
         wisp = newWisp
-        wisp.handshake()
-        {
-            (maybeError) in
-            
-            NSLog("Wisp handshake complete")
-        }
+        _ = wisp.generateClientHandshake()
         
         super.init()
     }
@@ -118,12 +113,7 @@ class WispTCPConnection: NWTCPConnection
         }
         
         wisp = newWisp
-        wisp.handshake()
-        {
-            (maybeError) in
-            
-            NSLog("Wisp handshake complete")
-        }
+        _ = wisp.generateClientHandshake()
 
         super.init()
     }

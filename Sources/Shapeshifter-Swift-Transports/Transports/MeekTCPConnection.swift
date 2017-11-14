@@ -13,7 +13,7 @@ import CommonCrypto
 
 func createMeekTCPConnection(provider: PacketTunnelProvider, to: URL, serverURL: URL) -> MeekTCPConnection
 {
-    return MeekTCPConnection(provider: provider, to: to, url: serverURL)
+    return MeekTCPConnection(provider: provider as! NEPacketTunnelProvider, to: to, url: serverURL)
 }
 
 class MeekTCPConnection: NWTCPConnection

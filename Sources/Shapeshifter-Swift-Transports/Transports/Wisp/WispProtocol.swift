@@ -207,7 +207,7 @@ struct WispProtocol
          
          return buf.Bytes(), nil
          }*/
-        completionHandler(nil)
+        return Data()
     }
     
     func parseServerHandshake(someData: Data)
