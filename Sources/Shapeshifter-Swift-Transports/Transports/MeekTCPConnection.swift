@@ -11,7 +11,7 @@ import NetworkExtension
 import SecurityFoundation
 import CommonCrypto
 
-func createMeekTCPConnection(provider: NEPacketTunnelProvider, to: URL, serverURL: URL) -> MeekTCPConnection
+func createMeekTCPConnection(provider: PacketTunnelProvider, to: URL, serverURL: URL) -> MeekTCPConnection
 {
     return MeekTCPConnection(provider: provider, to: to, url: serverURL)
 }
