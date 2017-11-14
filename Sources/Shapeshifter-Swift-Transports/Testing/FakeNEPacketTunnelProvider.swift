@@ -9,6 +9,9 @@
 import Foundation
 import NetworkExtension
 
+extension NEPacketTunnelProvider: PacketTunnelProvider {
+}
+
 class FakeNEPacketTunnelProvider: NEPacketTunnelProvider
 {
     override var appRules: [NEAppRule]? {
@@ -45,7 +48,7 @@ class FakeNEPacketTunnelProvider: NEPacketTunnelProvider
     }
     
     override init() {
-        super.init()
+//        super.init()
     }
 
     override func startTunnel(options: [String : NSObject]? = nil, completionHandler: @escaping (Error?) -> Void) {
