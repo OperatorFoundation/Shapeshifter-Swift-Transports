@@ -16,11 +16,6 @@ func createMeekTCPConnection(provider: NEPacketTunnelProvider, to: URL, serverUR
     return MeekTCPConnection(provider: provider, to: to, url: serverURL)
 }
 
-//func createMeekTCPConnection(connection: NWTCPConnection) -> MeekTCPConnection
-//{
-//    return MeekTCPConnection(connection: connection)
-//}
-
 class MeekTCPConnection: NWTCPConnection
 {
     var serverURL: URL
@@ -93,13 +88,6 @@ class MeekTCPConnection: NWTCPConnection
         let fURL = URL(string: "http://TestFront.com")!
         self.init(provider: provider, to: fURL, url: sURL)
     }
-    
-//    init(connection: NWTCPConnection)
-//    {
-//        network = connection
-//
-//        super.init()
-//    }
     
     ///Currrently this function ignores the minimum and maximum lengths provided.
     override func readMinimumLength(_ minimum: Int, maximumLength maximum: Int, completionHandler completion: @escaping (Data?, Error?) -> Void)

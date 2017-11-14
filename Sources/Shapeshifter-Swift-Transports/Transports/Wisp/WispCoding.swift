@@ -8,16 +8,19 @@
 
 import Foundation
 
-struct Nonce {
+struct Nonce
+{
     let prefix: Data
     var counter: Int
 }
 
-struct WispEncoder {
+struct WispEncoder
+{
     let key: Data
     var nonce: Nonce
     
-    init(withKey: Data) {
+    init(withKey: Data)
+    {
         key=withKey
         
         nonce = Nonce(prefix: Data(), counter: 0)
@@ -33,13 +36,15 @@ struct WispEncoder {
  */
     }
     
-    mutating func encode(data: Data) -> Data {
+    mutating func encode(data: Data) -> Data
+    {
         
         return data
     }
 }
 
-struct WispDecoder {
+struct WispDecoder
+{
     let key: Data
     var nonce: Nonce
     

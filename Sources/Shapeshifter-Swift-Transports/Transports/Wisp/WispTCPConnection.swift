@@ -14,12 +14,12 @@
 import Foundation
 import NetworkExtension
 
-func createWispTCPConnection(provider: NEPacketTunnelProvider, to: NWEndpoint, cert: String, iatMode: Bool) -> WispTCPConnection
+func createWispTCPConnection(provider: NEPacketTunnelProvider, to: NWEndpoint, cert: String, iatMode: Bool) -> WispTCPConnection?
 {
     return WispTCPConnection(provider: provider, to: to, cert: cert, iatMode: iatMode)
 }
 
-func createWispTCPConnection(connection: NWTCPConnection, cert: String, iatMode: Bool) -> WispTCPConnection
+func createWispTCPConnection(connection: NWTCPConnection, cert: String, iatMode: Bool) -> WispTCPConnection?
 {
     return WispTCPConnection(connection: connection, cert: cert, iatMode: iatMode)
 }
@@ -29,10 +29,11 @@ class WispTCPConnection: NWTCPConnection
     var network: NWTCPConnection
     var writeClosed = false
     
-    var Wisp: WispProtocol
+    var wisp: WispProtocol
     
     override var state: NWTCPConnectionState {
-        get {
+        get
+        {
             return network.state
         }
     }
@@ -85,11 +86,19 @@ class WispTCPConnection: NWTCPConnection
         }
     }
     
-    init(provider: NEPacketTunnelProvider, to: NWEndpoint, cert: String, iatMode: Bool) {
+    init?(provider: NEPacketTunnelProvider, to: NWEndpoint, cert: String, iatMode: Bool)
+    {
         network = provider.createTCPConnectionThroughTunnel(to: to, enableTLS: true, tlsParameters: nil, delegate: nil)
         
-        Wisp = WispProtocol(connection: network, cert: cert, iatMode: iatMode)
-        Wisp.handshake() {
+        guard let newWisp = WispProtocol(connection: network, cert: cert, iatMode: iatMode)
+        else
+        {
+            return nil
+        }
+        
+        wisp = newWisp
+        wisp.handshake()
+        {
             (maybeError) in
             
             NSLog("Wisp handshake complete")
@@ -98,11 +107,19 @@ class WispTCPConnection: NWTCPConnection
         super.init()
     }
     
-    init(connection: NWTCPConnection, cert: String, iatMode: Bool) {
+    init?(connection: NWTCPConnection, cert: String, iatMode: Bool)
+    {
         network = connection
         
-        Wisp = WispProtocol(connection: network, cert: cert, iatMode: iatMode)
-        Wisp.handshake() {
+        guard let newWisp = WispProtocol(connection: network, cert: cert, iatMode: iatMode)
+        else
+        {
+            return nil
+        }
+        
+        wisp = newWisp
+        wisp.handshake()
+        {
             (maybeError) in
             
             NSLog("Wisp handshake complete")
@@ -129,7 +146,7 @@ class WispTCPConnection: NWTCPConnection
                 return
             }
             
-            let decoded = self.Wisp.decode(data)
+            let decoded = self.wisp.decode(data)
             
             completion(decoded, nil)
         }
@@ -142,7 +159,7 @@ class WispTCPConnection: NWTCPConnection
     
     override func write(_ data: Data, completionHandler completion: @escaping (Error?) -> Void)
     {
-        let encoded = Wisp.encode(data)
+        let encoded = wisp.encode(data)
         
         network.write(encoded)
         {

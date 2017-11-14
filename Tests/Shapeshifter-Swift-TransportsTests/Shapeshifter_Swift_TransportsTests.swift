@@ -7,6 +7,7 @@
 //
 
 import XCTest
+
 @testable import Shapeshifter_Swift_Transports
 
 class Shapeshifter_Swift_TransportsTests: XCTestCase
@@ -79,6 +80,37 @@ class Shapeshifter_Swift_TransportsTests: XCTestCase
         if let statusCode = maybeStatusCode
         {
             XCTAssertEqual(statusCode, "200")
+        }
+    }
+    
+    func testMeekConnection()
+    {
+        let packetTunnelProvider = FakeNEPacketTunnelProvider()
+        let frontURL = URL(string: "https://www.google.com")
+        let serverURL = URL(string: "https://transport-canary-meek.appspot.com/")
+
+        let meekConnection: MeekTCPConnection = createMeekTCPConnection(provider: packetTunnelProvider, to: frontURL!, serverURL: serverURL!)
+
+        let requestData = "HTTP/1.1 GET /\r\n\r\n".data(using: .ascii)
+
+        meekConnection.write(requestData!)
+        {
+            (maybeError) in
+
+            meekConnection.readMinimumLength(6, maximumLength: 60 + 65536, completionHandler:
+            {
+                (maybeData, maybeError) in
+
+                if let data = maybeData
+                {
+                    print("Received data from http get \(data as NSData)")
+                }
+                else
+                {
+                    print("Failed to receive a response from the server.")
+                }
+
+            })
         }
     }
     

@@ -13,14 +13,65 @@
 
 import Foundation
 import NetworkExtension
+import CommonCrypto
+import Sodium
 
-struct Keypair {
+// PublicKeyLength is the length of a Curve25519 public key.
+let publicKeyLength = 32
+let certLength = nodeIDLength + publicKeyLength
+let markLength = 16
+let nodeIDLength = 20
+let certSuffix = "=="
+
+enum WispError: Error
+{
+    case unknownError
+    case unableToDecodeServerCert
+    case incorrectCertLength
+}
+
+enum WispPacketType: UInt8
+{
+    case payload = 0
+    case seed    = 1
+}
+
+struct WispPacket
+{
+    var type:    WispPacketType // will always be 0 for packets made by the client
+    var length:  UInt16         // Length of the payload (serialize as Big Endian).
+    var payload: Data
+    var padding: Data
+}
+
+struct Keypair
+{
     let publicKey: Data
     let privateKey: Data
     let representative: Data // The Elligator-compressed public key
 }
 
-struct WispProtocol {
+struct MAC
+{
+    let secret: Data
+    
+    
+    init(serverIdentity: Data, nodeID: Data)
+    {
+        var newSecret = serverIdentity
+        newSecret.append(nodeID)
+        
+        secret = newSecret
+    }
+    
+//    func computeMAC(someData: Data) -> Data
+//    {
+//        
+//    }
+}
+
+struct WispProtocol
+{
     let nodeID:     Data
     let publicKey:  Data
     let sessionKey: Keypair
@@ -28,16 +79,30 @@ struct WispProtocol {
     let iatMode: Bool
     var network: NWTCPConnection
     
-    init(connection: NWTCPConnection, cert: String, iatMode enableIAT: Bool) {
+    init?(connection: NWTCPConnection, cert: String, iatMode enableIAT: Bool)
+    {
         network = connection
         iatMode = enableIAT
-
-        (nodeID, publicKey) = unpackCert(cert: cert)
         
-        sessionKey = newKeypair()
+        guard let (certNodeID, certPublicKey) = unpack(cert: cert)
+        else
+        {
+            return nil
+        }
+        
+        (nodeID, publicKey) = (certNodeID, certPublicKey)
+        
+        guard let keypair = newKeypair()
+        else
+        {
+            return nil
+        }
+        
+        sessionKey = keypair
     }
     
-    func handshake(completionHandler: (Error?) -> Void) {
+    func handshake(completionHandler: (Error?) -> Void)
+    {
 /*
          const (
          maxHandshakeLength = 8192
@@ -106,7 +171,8 @@ struct WispProtocol {
          
 ...
          
-         func (hs *clientHandshake) generateHandshake() ([]byte, error) {
+         func (hs *clientHandshake) generateHandshake() ([]byte, error)
+         {
          var buf bytes.Buffer
          
          hs.mac.Reset()
@@ -123,8 +189,9 @@ struct WispProtocol {
          
          // Generate the padding
          pad, err := makePad(hs.padLen)
-         if err != nil {
-         return nil, err
+         if err != nil
+         {
+             return nil, err
          }
          
          // Write X, P_C, M_C.
@@ -155,129 +222,152 @@ struct WispProtocol {
     }
 }
 
-let nodeIDLength = 20
-
 /// Takes an encoded cert string and returns a node id and public key.
-// Base64 decode the cert string into a Data
-// Slice Data into 0..nodeIDLength (exclusive) and nodeIDLength...end
-// Should be 20 bytes and 32 bytes
-func unpackCert(cert: String) -> (nodeID: Data, publicKey: Data) {
-/*
-     const (
-     // PublicKeyLength is the length of a Curve25519 public key.
-     PublicKeyLength = 32
-     
-     // RepresentativeLength is the length of an Elligator representative.
-     RepresentativeLength = 32
-     
-     // PrivateKeyLength is the length of a Curve25519 private key.
-     PrivateKeyLength = 32
-     
-     // SharedSecretLength is the length of a Curve25519 shared secret.
-     SharedSecretLength = 32
-     
-     // KeySeedLength is the length of the derived KEY_SEED.
-     KeySeedLength = sha256.Size
-     
-     // AuthLength is the lenght of the derived AUTH.
-     AuthLength = sha256.Size
-     )
-
-...
-     
-     var nodeID *ntor.NodeID
-     var publicKey *ntor.PublicKey
-     
-     // Base64 decode the cert string
-     cert, err := serverCertFromString(certString)
-     if err != nil {
-     return nil
-     }
-     
-     nodeID, publicKey = cert.unpack()
-     
-...
-     
-     func serverCertFromString(encoded string) (*WispServerCert, error) {
-     decoded, err := base64.StdEncoding.DecodeString(encoded + certSuffix)
-     if err != nil {
-     return nil, fmt.Errorf("failed to decode cert: %s", err)
-     }
-     
-     if len(decoded) != certLength {
-     return nil, fmt.Errorf("cert length %d is invalid", len(decoded))
-     }
-     
-     return &WispServerCert{raw: decoded}, nil
-     }
-
- ...
-
-     func (cert *WispServerCert) unpack() (*ntor.NodeID, *ntor.PublicKey) {
-     if len(cert.raw) != certLength {
-     panic(fmt.Sprintf("cert length %d is invalid", len(cert.raw)))
-     }
-     
-     // Get bytes from cert starting with 0 and ending with NodeIDLength
-     nodeID, _ := ntor.NewNodeID(cert.raw[:ntor.NodeIDLength])
-     
-     // Get bytes from cert starting with NodeIDLength and ending at the end of the string
-     pubKey, _ := ntor.NewPublicKey(cert.raw[ntor.NodeIDLength:])
-     
-     return nodeID, pubKey
-     }
- */
+func unpack(cert certString: String) -> (nodeID: Data, publicKey: Data)?
+{
+    // RepresentativeLength is the length of an Elligator representative.
+    let representativeLength = 32
     
-    return (Data(), Data())
+    // PrivateKeyLength is the length of a Curve25519 private key.
+    let privateKeyLength = 32
+    
+    // SharedSecretLength is the length of a Curve25519 shared secret.
+    let sharedSecretLength = 32
+    
+    // KeySeedLength is the length of the derived KEY_SEED.
+    //let keySeedLength = sha256
+    
+    // AuthLength is the lenght of the derived AUTH.
+    //let authLength = sha256.Size
+    
+    //var nodeID: ntor.NodeID
+    //var publicKey: ntor.PublicKey
+
+    // Base64 decode the cert string
+    let (maybeCert, maybeError) = serverCert(fromString: certString)
+    
+    if let error = maybeError
+    {
+        print("Error decoding cert from string: \(error)")
+        return nil
+    }
+    
+    guard let cert = maybeCert
+    else
+    {
+        return nil
+    }
+    
+    guard let (nodeID, publicKey) = unpack(cert: cert)
+    else
+    {
+        print("Unable to unpack cert.")
+        return nil
+    }
+    
+    return (nodeID, publicKey)
 }
 
-func newKeypair() -> Keypair {
+// Slice Data into 0..nodeIDLength (exclusive) and nodeIDLength...end
+// Should be 20 bytes and 32 bytes
+func unpack(cert: Data) -> (nodeID: Data, publicKey: Data)?
+{
+    guard cert.count == certLength else
+    {
+        print("Cert length \(cert.count) is invalid.")
+        return nil
+    }
+
+    // Get bytes from cert starting with 0 and ending with NodeIDLength
+    let nodeIDArray = cert.prefix(upTo: nodeIDLength)
+    let nodeID = Data(nodeIDArray)
+    
+    // Get bytes from cert starting with NodeIDLength and ending at the end of the string
+    let pubKeyArray = cert.suffix(from: nodeIDLength)
+    let pubKey = Data(pubKeyArray)
+    
+    guard nodeID.count == nodeIDLength, pubKey.count == publicKeyLength
+    else
+    {
+        return nil
+    }
+    
+    return (nodeID, pubKey)
+}
+
+// Base64 decode the cert string into a Data
+func serverCert(fromString encodedString: String) -> (Data?, Error?)
+{
+//    func serverCertFromString(encoded string) (*WispServerCert, error) {
+//        **decoded, err := base64.StdEncoding.DecodeString(encoded + certSuffix)**
+//        if err != nil {
+//            return nil, fmt.Errorf("failed to decode cert: %s", err)
+//        }
+//
+//        if len(decoded) != certLength {
+//            return nil, fmt.Errorf("cert length %d is invalid", len(decoded))
+//        }
+//
+//        return &WispServerCert{raw: decoded}, nil
+//    }
+    
+    guard let plainData = Data(base64Encoded: encodedString + certSuffix, options: [])
+    else
+    {
+        return (nil, WispError.unableToDecodeServerCert)
+    }
+    
+    if plainData.count != certLength
+    {
+        return (nil, WispError.incorrectCertLength)
+    }
+    
+    return (plainData, nil)
+}
+
+// NewKeypair generates a new Curve25519 keypair, and optionally also generates
+// an Elligator representative of the public key.
+func newKeypair() -> Keypair?
+{
+    let sodium = Sodium()
+    
+    guard let sodiumKeypair = sodium.box.keyPair()
+    else
+    {
+        return nil
+    }
+    
+    //TODO: elligator compression of public key to get representative
+    let newKeypair = Keypair(publicKey: sodiumKeypair.publicKey, privateKey: sodiumKeypair.secretKey, representative: sodiumKeypair.publicKey)
+    
+    
+    // Generate a Curve25519 private key.  Like everyone who does this,
+    // run the CSPRNG output through SHA256 for extra tinfoil hattery.
+    
 /*
      // NewKeypair generates a new Curve25519 keypair, and optionally also generates
      // an Elligator representative of the public key.
-     func NewKeypair(elligator bool) (*Keypair, error) {
-         keypair := new(Keypair)
-         keypair.private = new(PrivateKey)
-         keypair.public = new(PublicKey)
-     
-         if elligator {
-            keypair.representative = new(Representative)
-         }
-     
-         for {
-             // Generate a Curve25519 private key.  Like everyone who does this,
-             // run the CSPRNG output through SHA256 for extra tinfoil hattery.
-             priv := keypair.private.Bytes()[:]
-             if err := csrand.Bytes(priv); err != nil {
-                return nil, err
-             }
-             digest := sha256.Sum256(priv)
-             digest[0] &= 248
-             digest[31] &= 127
-             digest[31] |= 64
-             copy(priv, digest[:])
-     
-             if elligator {
+     func NewKeypair(elligator bool) (*Keypair, error)
+     {
+         for
+         {
+             //Generate keypair
+
              // Apply the Elligator transform.  This fails ~50% of the time.
-                 if !extra25519.ScalarBaseMult(keypair.public.Bytes(), keypair.representative.Bytes(), keypair.private.Bytes())
-                 {
-                    continue
-                 }
-             } else {
-                 // Generate the corresponding Curve25519 public key.
-                 curve25519.ScalarBaseMult(keypair.public.Bytes(),
-                 keypair.private.Bytes())
+             if !extra25519.ScalarBaseMult(keypair.public.Bytes(), keypair.representative.Bytes(), keypair.private.Bytes())
+             {
+                continue
              }
      
              return keypair, nil
          }
      }
 */
-    
-    return Keypair(publicKey: Data(), privateKey: Data(), representative: Data())
+    return newKeypair
 }
 
-func sha256(data : Data) -> Data {
+func sha256(data : Data) -> Data
+{
     var hash = [UInt8](repeating: 0,  count: Int(CC_SHA256_DIGEST_LENGTH))
     data.withUnsafeBytes {
         _ = CC_SHA256($0, CC_LONG(data.count), &hash)
@@ -285,19 +375,8 @@ func sha256(data : Data) -> Data {
     return Data(bytes: hash)
 }
 
-enum WispPacketType: UInt8 {
-    case payload = 0
-    case seed    = 1
-}
-
-struct WispPacket {
-   type:    WispPacketType // will always be 0 for packets made by the client
-   length:  UInt16         // Length of the payload (serialize as Big Endian).
-   payload: Data
-   padding: Data
-}
-
-func makePacket(data: Data, padLen: Int) -> Data {
+func makePacket(data: Data, padLen: Int) -> Data
+{
 /*
      func (conn *obfs4Conn) makePacket(w io.Writer, pktType uint8, data []byte, padLen uint16) error {
      var pkt [framing.MaximumFramePayloadLength]byte
