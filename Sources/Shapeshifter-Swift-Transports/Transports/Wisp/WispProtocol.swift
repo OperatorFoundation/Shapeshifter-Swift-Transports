@@ -101,77 +101,76 @@ struct WispProtocol
         sessionKey = keypair
     }
     
-    func handshake(completionHandler: (Error?) -> Void)
+    /*
+     const (
+     maxHandshakeLength = 8192
+     
+     clientMinPadLength = (serverMinHandshakeLength + inlineSeedFrameLength) -
+     clientMinHandshakeLength
+     clientMaxPadLength       = maxHandshakeLength - clientMinHandshakeLength
+     clientMinHandshakeLength = ntor.RepresentativeLength + markLength + macLength
+     
+     serverMinPadLength = 0
+     serverMaxPadLength = maxHandshakeLength - (serverMinHandshakeLength +
+     inlineSeedFrameLength)
+     serverMinHandshakeLength = ntor.RepresentativeLength + ntor.AuthLength +
+     markLength + macLength
+     
+     markLength = sha256.Size / 2 // 32 / 2
+     macLength  = sha256.Size / 2 // 32 / 2
+     
+     inlineSeedFrameLength = framing.FrameOverhead + packetOverhead + seedPacketPayloadLength
+     )
+     
+     ...
+     
+     func (conn *obfs4Conn) clientHandshake(nodeID *ntor.NodeID, peerIdentityKey *ntor.PublicKey, sessionKey *ntor.Keypair) error {
+     if conn.isServer {
+     return fmt.Errorf("clientHandshake called on server connection")
+     }
+     
+     // Generate and send the client handshake.
+     hs := newClientHandshake(nodeID, peerIdentityKey, sessionKey)
+     blob, err := hs.generateHandshake()
+     if err != nil {
+     return err
+     }
+     if _, err = conn.Conn.Write(blob); err != nil {
+     return err
+     }
+     
+     // Consume the server handshake.
+     var hsBuf [maxHandshakeLength]byte
+     for {
+     n, err := conn.Conn.Read(hsBuf[:])
+     if err != nil {
+     // The Read() could have returned data and an error, but there is
+     // no point in continuing on an EOF or whatever.
+     return err
+     }
+     conn.receiveBuffer.Write(hsBuf[:n])
+     
+     n, seed, err := hs.parseServerHandshake(conn.receiveBuffer.Bytes())
+     if err == ErrMarkNotFoundYet {
+     continue
+     } else if err != nil {
+     return err
+     }
+     _ = conn.receiveBuffer.Next(n)
+     
+     // Use the derived key material to intialize the link crypto.
+     okm := ntor.Kdf(seed, framing.KeyLength*2)
+     conn.encoder = framing.NewEncoder(okm[:framing.KeyLength])
+     conn.decoder = framing.NewDecoder(okm[framing.KeyLength:])
+     
+     return nil
+     }
+     }
+     */
+    
+    func generateClientHandshake() -> Data
     {
-/*
-         const (
-         maxHandshakeLength = 8192
-         
-         clientMinPadLength = (serverMinHandshakeLength + inlineSeedFrameLength) -
-         clientMinHandshakeLength
-         clientMaxPadLength       = maxHandshakeLength - clientMinHandshakeLength
-         clientMinHandshakeLength = ntor.RepresentativeLength + markLength + macLength
-         
-         serverMinPadLength = 0
-         serverMaxPadLength = maxHandshakeLength - (serverMinHandshakeLength +
-         inlineSeedFrameLength)
-         serverMinHandshakeLength = ntor.RepresentativeLength + ntor.AuthLength +
-         markLength + macLength
-         
-         markLength = sha256.Size / 2 // 32 / 2
-         macLength  = sha256.Size / 2 // 32 / 2
-         
-         inlineSeedFrameLength = framing.FrameOverhead + packetOverhead + seedPacketPayloadLength
-         )
-         
-...
-
-         func (conn *obfs4Conn) clientHandshake(nodeID *ntor.NodeID, peerIdentityKey *ntor.PublicKey, sessionKey *ntor.Keypair) error {
-         if conn.isServer {
-         return fmt.Errorf("clientHandshake called on server connection")
-         }
-         
-         // Generate and send the client handshake.
-         hs := newClientHandshake(nodeID, peerIdentityKey, sessionKey)
-         blob, err := hs.generateHandshake()
-         if err != nil {
-         return err
-         }
-         if _, err = conn.Conn.Write(blob); err != nil {
-         return err
-         }
-         
-         // Consume the server handshake.
-         var hsBuf [maxHandshakeLength]byte
-         for {
-         n, err := conn.Conn.Read(hsBuf[:])
-         if err != nil {
-         // The Read() could have returned data and an error, but there is
-         // no point in continuing on an EOF or whatever.
-         return err
-         }
-         conn.receiveBuffer.Write(hsBuf[:n])
-         
-         n, seed, err := hs.parseServerHandshake(conn.receiveBuffer.Bytes())
-         if err == ErrMarkNotFoundYet {
-         continue
-         } else if err != nil {
-         return err
-         }
-         _ = conn.receiveBuffer.Next(n)
-         
-         // Use the derived key material to intialize the link crypto.
-         okm := ntor.Kdf(seed, framing.KeyLength*2)
-         conn.encoder = framing.NewEncoder(okm[:framing.KeyLength])
-         conn.decoder = framing.NewDecoder(okm[framing.KeyLength:])
-         
-         return nil
-         }
-         }
-         
-...
-         
-         func (hs *clientHandshake) generateHandshake() ([]byte, error)
+        /*func (hs *clientHandshake) generateHandshake() ([]byte, error)
          {
          var buf bytes.Buffer
          
@@ -191,7 +190,7 @@ struct WispProtocol
          pad, err := makePad(hs.padLen)
          if err != nil
          {
-             return nil, err
+         return nil, err
          }
          
          // Write X, P_C, M_C.
@@ -207,10 +206,13 @@ struct WispProtocol
          buf.Write(hs.mac.Sum(nil)[:macLength])
          
          return buf.Bytes(), nil
-         }
- */
-        
+         }*/
         completionHandler(nil)
+    }
+    
+    func parseServerHandshake(someData: Data)
+    {
+        
     }
     
     func encode(_ data: Data) -> Data {
@@ -221,6 +223,8 @@ struct WispProtocol
         return data
     }
 }
+
+
 
 /// Takes an encoded cert string and returns a node id and public key.
 func unpack(cert certString: String) -> (nodeID: Data, publicKey: Data)?

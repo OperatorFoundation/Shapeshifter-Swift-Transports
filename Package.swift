@@ -14,7 +14,7 @@ let package = Package(
     dependencies: [
         // Dependencies declare other packages that this package depends on.
          .package(url: "https://github.com/IBM-Swift/CommonCrypto.git", from: "0.1.5"),
-         .package(url: "https://github.com/nixberg/swift-sodium.git", from: "0.5.0"),
+         .package(url: "https://github.com/OperatorFoundation/swift-sodium.git", from: "0.5.2"),
          /*.package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", from: "0.7.2"),*/
     ],
     targets: [
@@ -22,7 +22,7 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages which this package depends on.
         .target(
             name: "Shapeshifter-Swift-Transports",
-            dependencies: ["CommonCrypto", "swift-sodium"/*, "CryptoSwift"*/]),
+            dependencies: ["CommonCrypto", "Sodium"/*, "CryptoSwift"*/]),
         .testTarget(
             name: "Shapeshifter-Swift-TransportsTests",
             dependencies: ["Shapeshifter-Swift-Transports"]),
