@@ -9,10 +9,13 @@
 import Foundation
 import NetworkExtension
 import SecurityFoundation
-import CommonCrypto
+import CryptoSwift
+//import CommonCrypto
 
 func createMeekTCPConnection(provider: PacketTunnelProvider, to: URL, serverURL: URL) -> MeekTCPConnection
 {
+    /*Test Case '-[Shapeshifter_Swift_TransportsTests.Shapeshifter_Swift_TransportsTests testMeekConnection]' started.
+     Could not cast value of type 'Shapeshifter_Swift_Transports.FakePacketTunnelProvider' (0x106973738) to 'NEPacketTunnelProvider' (0x7fffe18adbb0).*/
     return MeekTCPConnection(provider: provider as! NEPacketTunnelProvider, to: to, url: serverURL)
 }
 
@@ -438,13 +441,14 @@ class MeekTCPConnection: NWTCPConnection
         if result == errSecSuccess
         {
             //Create data from bytes array.
-            var randomBytes = Data(bytes: randomBytesArray)
+            let randomBytes = Data(bytes: randomBytesArray)
             
             //SHA256 random bytes.
-            var hash = [UInt8](repeating: 0, count: Int(CC_SHA256_DIGEST_LENGTH))
-            randomBytes.withUnsafeBytes {
-                _ = CC_SHA256($0, CC_LONG(randomBytes.count), &hash)
-            }
+//            var hash = [UInt8](repeating: 0, count: Int(CC_SHA256_DIGEST_LENGTH))
+//            randomBytes.withUnsafeBytes {
+//                _ = CC_SHA256($0, CC_LONG(randomBytes.count), &hash)
+//            }
+            let hash = randomBytes.sha256()
 
             //Create hex from the first 16 values of the hash array.
             let first16Hash = hash.prefix(16)
@@ -460,13 +464,13 @@ class MeekTCPConnection: NWTCPConnection
         }
     }
     
-    func sha256(data: Data) -> Data
-    {
-        var hash = [UInt8](repeating: 0, count: Int(CC_SHA256_DIGEST_LENGTH))
-        data.withUnsafeBytes {
-            _ = CC_SHA256($0, CC_LONG(data.count), &hash)
-        }
-        
-        return Data(bytes: hash)
-    }
+//    func sha256(data: Data) -> Data
+//    {
+//        var hash = [UInt8](repeating: 0, count: Int(CC_SHA256_DIGEST_LENGTH))
+//        data.withUnsafeBytes {
+//            _ = CC_SHA256($0, CC_LONG(data.count), &hash)
+//        }
+//
+//        return Data(bytes: hash)
+//    }
 }

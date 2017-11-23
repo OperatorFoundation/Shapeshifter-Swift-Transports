@@ -9,7 +9,7 @@
 /* Begin PBXAggregateTarget section */
 		"CommonCrypto::CommonCrypto::ProductTarget" /* CommonCrypto */ = {
 			isa = PBXAggregateTarget;
-			buildConfigurationList = OBJ_117 /* Build configuration list for PBXAggregateTarget "CommonCrypto" */;
+			buildConfigurationList = OBJ_266 /* Build configuration list for PBXAggregateTarget "CommonCrypto" */;
 			buildPhases = (
 			);
 			dependencies = (
@@ -19,11 +19,11 @@
 		};
 		"Shapeshifter-Swift-Transports::Shapeshifter-Swift-TransportsPackageTests::ProductTarget" /* Shapeshifter-Swift-TransportsPackageTests */ = {
 			isa = PBXAggregateTarget;
-			buildConfigurationList = OBJ_112 /* Build configuration list for PBXAggregateTarget "Shapeshifter-Swift-TransportsPackageTests" */;
+			buildConfigurationList = OBJ_261 /* Build configuration list for PBXAggregateTarget "Shapeshifter-Swift-TransportsPackageTests" */;
 			buildPhases = (
 			);
 			dependencies = (
-				OBJ_115 /* PBXTargetDependency */,
+				OBJ_264 /* PBXTargetDependency */,
 			);
 			name = "Shapeshifter-Swift-TransportsPackageTests";
 			productName = "Shapeshifter-Swift-TransportsPackageTests";
@@ -31,62 +31,144 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
-		OBJ_100 /* KeyExchange.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_35 /* KeyExchange.swift */; };
-		OBJ_101 /* PWHash.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_36 /* PWHash.swift */; };
-		OBJ_102 /* RandomBytes.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_37 /* RandomBytes.swift */; };
-		OBJ_103 /* SecretBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_38 /* SecretBox.swift */; };
-		OBJ_104 /* SecretStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_39 /* SecretStream.swift */; };
-		OBJ_105 /* ShortHash.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_40 /* ShortHash.swift */; };
-		OBJ_106 /* Sign.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_41 /* Sign.swift */; };
-		OBJ_107 /* Sodium.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_42 /* Sodium.swift */; };
-		OBJ_108 /* Stream.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_43 /* Stream.swift */; };
-		OBJ_109 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_44 /* Utils.swift */; };
-		OBJ_54 /* Package.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_6 /* Package.swift */; };
-		OBJ_60 /* Package.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_29 /* Package.swift */; };
-		OBJ_66 /* Shapeshifter_Swift_TransportsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_26 /* Shapeshifter_Swift_TransportsTests.swift */; };
-		OBJ_68 /* Shapeshifter_Swift_Transports.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "Shapeshifter-Swift-Transports::Shapeshifter-Swift-Transports::Product" /* Shapeshifter_Swift_Transports.framework */; };
-		OBJ_69 /* Sodium.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "swift-sodium::Sodium::Product" /* Sodium.framework */; };
-		OBJ_78 /* PassthroughTCPConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_10 /* PassthroughTCPConnection.swift */; };
-		OBJ_79 /* Rot13TCPConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_11 /* Rot13TCPConnection.swift */; };
-		OBJ_80 /* FakeNEPacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_13 /* FakeNEPacketTunnelProvider.swift */; };
-		OBJ_81 /* FakePacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_14 /* FakePacketTunnelProvider.swift */; };
-		OBJ_82 /* FakeTCPConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_15 /* FakeTCPConnection.swift */; };
-		OBJ_83 /* FakeUDPSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_16 /* FakeUDPSession.swift */; };
-		OBJ_84 /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_17 /* PacketTunnelProvider.swift */; };
-		OBJ_85 /* MeekTCPConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_19 /* MeekTCPConnection.swift */; };
-		OBJ_86 /* WispCoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_21 /* WispCoding.swift */; };
-		OBJ_87 /* WispProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_22 /* WispProtocol.swift */; };
-		OBJ_88 /* WispTCPConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_23 /* WispTCPConnection.swift */; };
-		OBJ_90 /* Sodium.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "swift-sodium::Sodium::Product" /* Sodium.framework */; };
-		OBJ_96 /* Auth.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_31 /* Auth.swift */; };
-		OBJ_97 /* Box.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_32 /* Box.swift */; };
-		OBJ_98 /* GenericHash.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_33 /* GenericHash.swift */; };
-		OBJ_99 /* KeyDerivation.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_34 /* KeyDerivation.swift */; };
+		467C85131FBD018D005042CF /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 467C85121FBD018D005042CF /* Foundation.framework */; };
+		4691060D1FC61AAB008F0FC6 /* Elligator.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4691060C1FC61AAB008F0FC6 /* Elligator.framework */; };
+		OBJ_124 /* Package.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_6 /* Package.swift */; };
+		OBJ_130 /* Package.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_96 /* Package.swift */; };
+		OBJ_136 /* Package.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_98 /* Package.swift */; };
+		OBJ_142 /* Shapeshifter_Swift_TransportsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_26 /* Shapeshifter_Swift_TransportsTests.swift */; };
+		OBJ_144 /* Shapeshifter_Swift_Transports.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "Shapeshifter-Swift-Transports::Shapeshifter-Swift-Transports::Product" /* Shapeshifter_Swift_Transports.framework */; };
+		OBJ_145 /* CryptoSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "CryptoSwift::CryptoSwift::Product" /* CryptoSwift.framework */; };
+		OBJ_146 /* Sodium.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "swift-sodium::Sodium::Product" /* Sodium.framework */; };
+		OBJ_157 /* PassthroughTCPConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_10 /* PassthroughTCPConnection.swift */; };
+		OBJ_158 /* Rot13TCPConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_11 /* Rot13TCPConnection.swift */; };
+		OBJ_159 /* FakeNEPacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_13 /* FakeNEPacketTunnelProvider.swift */; };
+		OBJ_160 /* FakePacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_14 /* FakePacketTunnelProvider.swift */; };
+		OBJ_161 /* FakeTCPConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_15 /* FakeTCPConnection.swift */; };
+		OBJ_162 /* FakeUDPSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_16 /* FakeUDPSession.swift */; };
+		OBJ_163 /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_17 /* PacketTunnelProvider.swift */; };
+		OBJ_164 /* MeekTCPConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_19 /* MeekTCPConnection.swift */; };
+		OBJ_165 /* WispCoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_21 /* WispCoding.swift */; };
+		OBJ_166 /* WispProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_22 /* WispProtocol.swift */; };
+		OBJ_167 /* WispTCPConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_23 /* WispTCPConnection.swift */; };
+		OBJ_169 /* CryptoSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "CryptoSwift::CryptoSwift::Product" /* CryptoSwift.framework */; };
+		OBJ_170 /* Sodium.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "swift-sodium::Sodium::Product" /* Sodium.framework */; };
+		OBJ_177 /* AES.Cryptors.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_30 /* AES.Cryptors.swift */; };
+		OBJ_178 /* AES.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_31 /* AES.swift */; };
+		OBJ_179 /* Array+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_32 /* Array+Extension.swift */; };
+		OBJ_180 /* Array+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_33 /* Array+Extensions.swift */; };
+		OBJ_181 /* Authenticator.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_34 /* Authenticator.swift */; };
+		OBJ_182 /* BatchedCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_35 /* BatchedCollection.swift */; };
+		OBJ_183 /* Bit.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_36 /* Bit.swift */; };
+		OBJ_184 /* BlockCipher.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_37 /* BlockCipher.swift */; };
+		OBJ_185 /* BlockMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_39 /* BlockMode.swift */; };
+		OBJ_186 /* BlockModeOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_40 /* BlockModeOptions.swift */; };
+		OBJ_187 /* BlockModeWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_41 /* BlockModeWorker.swift */; };
+		OBJ_188 /* CBC.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_42 /* CBC.swift */; };
+		OBJ_189 /* CFB.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_43 /* CFB.swift */; };
+		OBJ_190 /* CTR.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_44 /* CTR.swift */; };
+		OBJ_191 /* ECB.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_45 /* ECB.swift */; };
+		OBJ_192 /* OFB.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_46 /* OFB.swift */; };
+		OBJ_193 /* PCBC.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_47 /* PCBC.swift */; };
+		OBJ_194 /* RandomAccessBlockModeWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_48 /* RandomAccessBlockModeWorker.swift */; };
+		OBJ_195 /* Blowfish.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_49 /* Blowfish.swift */; };
+		OBJ_196 /* ChaCha20.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_50 /* ChaCha20.swift */; };
+		OBJ_197 /* Checksum.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_51 /* Checksum.swift */; };
+		OBJ_198 /* Cipher.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_52 /* Cipher.swift */; };
+		OBJ_199 /* Collection+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_53 /* Collection+Extension.swift */; };
+		OBJ_200 /* Cryptors.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_54 /* Cryptors.swift */; };
+		OBJ_201 /* Digest.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_55 /* Digest.swift */; };
+		OBJ_202 /* DigestType.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_56 /* DigestType.swift */; };
+		OBJ_203 /* AES+Foundation.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_58 /* AES+Foundation.swift */; };
+		OBJ_204 /* Array+Foundation.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_59 /* Array+Foundation.swift */; };
+		OBJ_205 /* Blowfish+Foundation.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_60 /* Blowfish+Foundation.swift */; };
+		OBJ_206 /* ChaCha20+Foundation.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_61 /* ChaCha20+Foundation.swift */; };
+		OBJ_207 /* Data+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_62 /* Data+Extension.swift */; };
+		OBJ_208 /* HMAC+Foundation.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_63 /* HMAC+Foundation.swift */; };
+		OBJ_209 /* Rabbit+Foundation.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_64 /* Rabbit+Foundation.swift */; };
+		OBJ_210 /* String+FoundationExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_65 /* String+FoundationExtension.swift */; };
+		OBJ_211 /* Utils+Foundation.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_66 /* Utils+Foundation.swift */; };
+		OBJ_212 /* Generics.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_67 /* Generics.swift */; };
+		OBJ_213 /* HMAC.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_68 /* HMAC.swift */; };
+		OBJ_214 /* Int+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_69 /* Int+Extension.swift */; };
+		OBJ_215 /* MD5.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_70 /* MD5.swift */; };
+		OBJ_216 /* NoPadding.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_71 /* NoPadding.swift */; };
+		OBJ_217 /* Operators.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_72 /* Operators.swift */; };
+		OBJ_218 /* PBKDF1.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_74 /* PBKDF1.swift */; };
+		OBJ_219 /* PBKDF2.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_75 /* PBKDF2.swift */; };
+		OBJ_220 /* PKCS5.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_76 /* PKCS5.swift */; };
+		OBJ_221 /* PKCS7.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_77 /* PKCS7.swift */; };
+		OBJ_222 /* PKCS7Padding.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_78 /* PKCS7Padding.swift */; };
+		OBJ_223 /* Padding.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_79 /* Padding.swift */; };
+		OBJ_224 /* Poly1305.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_80 /* Poly1305.swift */; };
+		OBJ_225 /* Rabbit.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_81 /* Rabbit.swift */; };
+		OBJ_226 /* RandomAccessCryptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_82 /* RandomAccessCryptor.swift */; };
+		OBJ_227 /* RandomBytesSequence.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_83 /* RandomBytesSequence.swift */; };
+		OBJ_228 /* SHA1.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_84 /* SHA1.swift */; };
+		OBJ_229 /* SHA2.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_85 /* SHA2.swift */; };
+		OBJ_230 /* SHA3.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_86 /* SHA3.swift */; };
+		OBJ_231 /* SecureBytes.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_87 /* SecureBytes.swift */; };
+		OBJ_232 /* String+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_88 /* String+Extension.swift */; };
+		OBJ_233 /* UInt16+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_89 /* UInt16+Extension.swift */; };
+		OBJ_234 /* UInt32+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_90 /* UInt32+Extension.swift */; };
+		OBJ_235 /* UInt64+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_91 /* UInt64+Extension.swift */; };
+		OBJ_236 /* UInt8+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_92 /* UInt8+Extension.swift */; };
+		OBJ_237 /* Updatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_93 /* Updatable.swift */; };
+		OBJ_238 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_94 /* Utils.swift */; };
+		OBJ_239 /* ZeroPadding.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_95 /* ZeroPadding.swift */; };
+		OBJ_245 /* Auth.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_100 /* Auth.swift */; };
+		OBJ_246 /* Box.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_101 /* Box.swift */; };
+		OBJ_247 /* GenericHash.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_102 /* GenericHash.swift */; };
+		OBJ_248 /* KeyDerivation.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_103 /* KeyDerivation.swift */; };
+		OBJ_249 /* KeyExchange.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_104 /* KeyExchange.swift */; };
+		OBJ_250 /* PWHash.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_105 /* PWHash.swift */; };
+		OBJ_251 /* RandomBytes.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_106 /* RandomBytes.swift */; };
+		OBJ_252 /* SecretBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_107 /* SecretBox.swift */; };
+		OBJ_253 /* SecretStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_108 /* SecretStream.swift */; };
+		OBJ_254 /* ShortHash.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_109 /* ShortHash.swift */; };
+		OBJ_255 /* Sign.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_110 /* Sign.swift */; };
+		OBJ_256 /* Sodium.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_111 /* Sodium.swift */; };
+		OBJ_257 /* Stream.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_112 /* Stream.swift */; };
+		OBJ_258 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_113 /* Utils.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		46C9EF551FBB949700BD047D /* PBXContainerItemProxy */ = {
+		467C850B1FBCEBF8005042CF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = OBJ_1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = "CryptoSwift::CryptoSwift";
+			remoteInfo = CryptoSwift;
+		};
+		467C850C1FBCEBF8005042CF /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = OBJ_1 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = "swift-sodium::Sodium";
 			remoteInfo = Sodium;
 		};
-		46C9EF561FBB949700BD047D /* PBXContainerItemProxy */ = {
+		467C850D1FBCEBF8005042CF /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = OBJ_1 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = "Shapeshifter-Swift-Transports::Shapeshifter-Swift-Transports";
 			remoteInfo = "Shapeshifter-Swift-Transports";
 		};
-		46C9EF571FBB949700BD047D /* PBXContainerItemProxy */ = {
+		467C850E1FBCEBF8005042CF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = OBJ_1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = "CryptoSwift::CryptoSwift";
+			remoteInfo = CryptoSwift;
+		};
+		467C850F1FBCEBF8005042CF /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = OBJ_1 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = "swift-sodium::Sodium";
 			remoteInfo = Sodium;
 		};
-		46C9EF581FBB949800BD047D /* PBXContainerItemProxy */ = {
+		467C85101FBCEBF9005042CF /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = OBJ_1 /* Project object */;
 			proxyType = 1;
@@ -96,8 +178,25 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		467C85121FBD018D005042CF /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		4691060C1FC61AAB008F0FC6 /* Elligator.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Elligator.framework; sourceTree = "<group>"; };
+		"CryptoSwift::CryptoSwift::Product" /* CryptoSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = CryptoSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		OBJ_10 /* PassthroughTCPConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PassthroughTCPConnection.swift; sourceTree = "<group>"; };
+		OBJ_100 /* Auth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Auth.swift; sourceTree = "<group>"; };
+		OBJ_101 /* Box.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Box.swift; sourceTree = "<group>"; };
+		OBJ_102 /* GenericHash.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenericHash.swift; sourceTree = "<group>"; };
+		OBJ_103 /* KeyDerivation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyDerivation.swift; sourceTree = "<group>"; };
+		OBJ_104 /* KeyExchange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyExchange.swift; sourceTree = "<group>"; };
+		OBJ_105 /* PWHash.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PWHash.swift; sourceTree = "<group>"; };
+		OBJ_106 /* RandomBytes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RandomBytes.swift; sourceTree = "<group>"; };
+		OBJ_107 /* SecretBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecretBox.swift; sourceTree = "<group>"; };
+		OBJ_108 /* SecretStream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecretStream.swift; sourceTree = "<group>"; };
+		OBJ_109 /* ShortHash.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortHash.swift; sourceTree = "<group>"; };
 		OBJ_11 /* Rot13TCPConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Rot13TCPConnection.swift; sourceTree = "<group>"; };
+		OBJ_110 /* Sign.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sign.swift; sourceTree = "<group>"; };
+		OBJ_111 /* Sodium.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sodium.swift; sourceTree = "<group>"; };
+		OBJ_112 /* Stream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stream.swift; sourceTree = "<group>"; };
+		OBJ_113 /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		OBJ_13 /* FakeNEPacketTunnelProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeNEPacketTunnelProvider.swift; sourceTree = "<group>"; };
 		OBJ_14 /* FakePacketTunnelProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakePacketTunnelProvider.swift; sourceTree = "<group>"; };
 		OBJ_15 /* FakeTCPConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeTCPConnection.swift; sourceTree = "<group>"; };
@@ -108,55 +207,136 @@
 		OBJ_22 /* WispProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WispProtocol.swift; sourceTree = "<group>"; };
 		OBJ_23 /* WispTCPConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WispTCPConnection.swift; sourceTree = "<group>"; };
 		OBJ_26 /* Shapeshifter_Swift_TransportsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Shapeshifter_Swift_TransportsTests.swift; sourceTree = "<group>"; };
-		OBJ_29 /* Package.swift */ = {isa = PBXFileReference; explicitFileType = sourcecode.swift; name = Package.swift; path = "/Users/Lita/Documents/Dev/Shapeshifter-Swift-Transports/.build/checkouts/swift-sodium.git-4026326239528637742/Package.swift"; sourceTree = "<group>"; };
-		OBJ_31 /* Auth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Auth.swift; sourceTree = "<group>"; };
-		OBJ_32 /* Box.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Box.swift; sourceTree = "<group>"; };
-		OBJ_33 /* GenericHash.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenericHash.swift; sourceTree = "<group>"; };
-		OBJ_34 /* KeyDerivation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyDerivation.swift; sourceTree = "<group>"; };
-		OBJ_35 /* KeyExchange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyExchange.swift; sourceTree = "<group>"; };
-		OBJ_36 /* PWHash.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PWHash.swift; sourceTree = "<group>"; };
-		OBJ_37 /* RandomBytes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RandomBytes.swift; sourceTree = "<group>"; };
-		OBJ_38 /* SecretBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecretBox.swift; sourceTree = "<group>"; };
-		OBJ_39 /* SecretStream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecretStream.swift; sourceTree = "<group>"; };
-		OBJ_40 /* ShortHash.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortHash.swift; sourceTree = "<group>"; };
-		OBJ_41 /* Sign.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sign.swift; sourceTree = "<group>"; };
-		OBJ_42 /* Sodium.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sodium.swift; sourceTree = "<group>"; };
-		OBJ_43 /* Stream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stream.swift; sourceTree = "<group>"; };
-		OBJ_44 /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
+		OBJ_30 /* AES.Cryptors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AES.Cryptors.swift; sourceTree = "<group>"; };
+		OBJ_31 /* AES.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AES.swift; sourceTree = "<group>"; };
+		OBJ_32 /* Array+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Extension.swift"; sourceTree = "<group>"; };
+		OBJ_33 /* Array+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Extensions.swift"; sourceTree = "<group>"; };
+		OBJ_34 /* Authenticator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Authenticator.swift; sourceTree = "<group>"; };
+		OBJ_35 /* BatchedCollection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatchedCollection.swift; sourceTree = "<group>"; };
+		OBJ_36 /* Bit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bit.swift; sourceTree = "<group>"; };
+		OBJ_37 /* BlockCipher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockCipher.swift; sourceTree = "<group>"; };
+		OBJ_39 /* BlockMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockMode.swift; sourceTree = "<group>"; };
+		OBJ_40 /* BlockModeOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockModeOptions.swift; sourceTree = "<group>"; };
+		OBJ_41 /* BlockModeWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockModeWorker.swift; sourceTree = "<group>"; };
+		OBJ_42 /* CBC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CBC.swift; sourceTree = "<group>"; };
+		OBJ_43 /* CFB.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CFB.swift; sourceTree = "<group>"; };
+		OBJ_44 /* CTR.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CTR.swift; sourceTree = "<group>"; };
+		OBJ_45 /* ECB.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ECB.swift; sourceTree = "<group>"; };
+		OBJ_46 /* OFB.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OFB.swift; sourceTree = "<group>"; };
+		OBJ_47 /* PCBC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PCBC.swift; sourceTree = "<group>"; };
+		OBJ_48 /* RandomAccessBlockModeWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RandomAccessBlockModeWorker.swift; sourceTree = "<group>"; };
+		OBJ_49 /* Blowfish.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Blowfish.swift; sourceTree = "<group>"; };
+		OBJ_50 /* ChaCha20.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChaCha20.swift; sourceTree = "<group>"; };
+		OBJ_51 /* Checksum.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Checksum.swift; sourceTree = "<group>"; };
+		OBJ_52 /* Cipher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cipher.swift; sourceTree = "<group>"; };
+		OBJ_53 /* Collection+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Collection+Extension.swift"; sourceTree = "<group>"; };
+		OBJ_54 /* Cryptors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cryptors.swift; sourceTree = "<group>"; };
+		OBJ_55 /* Digest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Digest.swift; sourceTree = "<group>"; };
+		OBJ_56 /* DigestType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DigestType.swift; sourceTree = "<group>"; };
+		OBJ_58 /* AES+Foundation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AES+Foundation.swift"; sourceTree = "<group>"; };
+		OBJ_59 /* Array+Foundation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Foundation.swift"; sourceTree = "<group>"; };
 		OBJ_6 /* Package.swift */ = {isa = PBXFileReference; explicitFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
-		"Shapeshifter-Swift-Transports::Shapeshifter-Swift-Transports::Product" /* Shapeshifter_Swift_Transports.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Shapeshifter_Swift_Transports.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		OBJ_60 /* Blowfish+Foundation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Blowfish+Foundation.swift"; sourceTree = "<group>"; };
+		OBJ_61 /* ChaCha20+Foundation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChaCha20+Foundation.swift"; sourceTree = "<group>"; };
+		OBJ_62 /* Data+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+Extension.swift"; sourceTree = "<group>"; };
+		OBJ_63 /* HMAC+Foundation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HMAC+Foundation.swift"; sourceTree = "<group>"; };
+		OBJ_64 /* Rabbit+Foundation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Rabbit+Foundation.swift"; sourceTree = "<group>"; };
+		OBJ_65 /* String+FoundationExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+FoundationExtension.swift"; sourceTree = "<group>"; };
+		OBJ_66 /* Utils+Foundation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Utils+Foundation.swift"; sourceTree = "<group>"; };
+		OBJ_67 /* Generics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Generics.swift; sourceTree = "<group>"; };
+		OBJ_68 /* HMAC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMAC.swift; sourceTree = "<group>"; };
+		OBJ_69 /* Int+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Int+Extension.swift"; sourceTree = "<group>"; };
+		OBJ_70 /* MD5.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MD5.swift; sourceTree = "<group>"; };
+		OBJ_71 /* NoPadding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoPadding.swift; sourceTree = "<group>"; };
+		OBJ_72 /* Operators.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Operators.swift; sourceTree = "<group>"; };
+		OBJ_74 /* PBKDF1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PBKDF1.swift; sourceTree = "<group>"; };
+		OBJ_75 /* PBKDF2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PBKDF2.swift; sourceTree = "<group>"; };
+		OBJ_76 /* PKCS5.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PKCS5.swift; sourceTree = "<group>"; };
+		OBJ_77 /* PKCS7.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PKCS7.swift; sourceTree = "<group>"; };
+		OBJ_78 /* PKCS7Padding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PKCS7Padding.swift; sourceTree = "<group>"; };
+		OBJ_79 /* Padding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Padding.swift; sourceTree = "<group>"; };
+		OBJ_80 /* Poly1305.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Poly1305.swift; sourceTree = "<group>"; };
+		OBJ_81 /* Rabbit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Rabbit.swift; sourceTree = "<group>"; };
+		OBJ_82 /* RandomAccessCryptor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RandomAccessCryptor.swift; sourceTree = "<group>"; };
+		OBJ_83 /* RandomBytesSequence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RandomBytesSequence.swift; sourceTree = "<group>"; };
+		OBJ_84 /* SHA1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SHA1.swift; sourceTree = "<group>"; };
+		OBJ_85 /* SHA2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SHA2.swift; sourceTree = "<group>"; };
+		OBJ_86 /* SHA3.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SHA3.swift; sourceTree = "<group>"; };
+		OBJ_87 /* SecureBytes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureBytes.swift; sourceTree = "<group>"; };
+		OBJ_88 /* String+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Extension.swift"; sourceTree = "<group>"; };
+		OBJ_89 /* UInt16+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UInt16+Extension.swift"; sourceTree = "<group>"; };
+		OBJ_90 /* UInt32+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UInt32+Extension.swift"; sourceTree = "<group>"; };
+		OBJ_91 /* UInt64+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UInt64+Extension.swift"; sourceTree = "<group>"; };
+		OBJ_92 /* UInt8+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UInt8+Extension.swift"; sourceTree = "<group>"; };
+		OBJ_93 /* Updatable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Updatable.swift; sourceTree = "<group>"; };
+		OBJ_94 /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
+		OBJ_95 /* ZeroPadding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZeroPadding.swift; sourceTree = "<group>"; };
+		OBJ_96 /* Package.swift */ = {isa = PBXFileReference; explicitFileType = sourcecode.swift; name = Package.swift; path = "/Users/Lita/Documents/Dev/Shapeshifter-Swift-Transports/.build/checkouts/CryptoSwift.git--6440749087414195235/Package.swift"; sourceTree = "<group>"; };
+		OBJ_98 /* Package.swift */ = {isa = PBXFileReference; explicitFileType = sourcecode.swift; name = Package.swift; path = "/Users/Lita/Documents/Dev/Shapeshifter-Swift-Transports/.build/checkouts/swift-sodium.git-4026326239528637742/Package.swift"; sourceTree = "<group>"; };
+		"Shapeshifter-Swift-Transports::Shapeshifter-Swift-Transports::Product" /* Shapeshifter_Swift_Transports.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Shapeshifter_Swift_Transports.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		"Shapeshifter-Swift-Transports::Shapeshifter-Swift-TransportsTests::Product" /* Shapeshifter_Swift_TransportsTests.xctest */ = {isa = PBXFileReference; lastKnownFileType = file; name = Shapeshifter_Swift_TransportsTests.xctest; path = "Shapeshifter-Swift-TransportsTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		"swift-sodium::Sodium::Product" /* Sodium.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Sodium.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		OBJ_110 /* Frameworks */ = {
+		OBJ_143 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 0;
+			files = (
+				OBJ_144 /* Shapeshifter_Swift_Transports.framework in Frameworks */,
+				OBJ_145 /* CryptoSwift.framework in Frameworks */,
+				OBJ_146 /* Sodium.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		OBJ_168 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 0;
+			files = (
+				467C85131FBD018D005042CF /* Foundation.framework in Frameworks */,
+				OBJ_169 /* CryptoSwift.framework in Frameworks */,
+				4691060D1FC61AAB008F0FC6 /* Elligator.framework in Frameworks */,
+				OBJ_170 /* Sodium.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		OBJ_240 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 0;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		OBJ_67 /* Frameworks */ = {
+		OBJ_259 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 0;
 			files = (
-				OBJ_68 /* Shapeshifter_Swift_Transports.framework in Frameworks */,
-				OBJ_69 /* Sodium.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		OBJ_89 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 0;
-			files = (
-				OBJ_90 /* Sodium.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		467C85111FBD018D005042CF /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				4691060C1FC61AAB008F0FC6 /* Elligator.framework */,
+				467C85121FBD018D005042CF /* Foundation.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		OBJ_114 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				"Shapeshifter-Swift-Transports::Shapeshifter-Swift-TransportsTests::Product" /* Shapeshifter_Swift_TransportsTests.xctest */,
+				"Shapeshifter-Swift-Transports::Shapeshifter-Swift-Transports::Product" /* Shapeshifter_Swift_Transports.framework */,
+				"CryptoSwift::CryptoSwift::Product" /* CryptoSwift.framework */,
+				"swift-sodium::Sodium::Product" /* Sodium.framework */,
+			);
+			name = Products;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		OBJ_12 /* Testing */ = {
 			isa = PBXGroup;
 			children = (
@@ -208,62 +388,114 @@
 		OBJ_27 /* Dependencies */ = {
 			isa = PBXGroup;
 			children = (
-				OBJ_28 /* swift-sodium 0.5.2 */,
+				OBJ_28 /* CryptoSwift 0.8.0 */,
+				OBJ_97 /* swift-sodium 0.5.2 */,
 			);
 			name = Dependencies;
 			sourceTree = "<group>";
 		};
-		OBJ_28 /* swift-sodium 0.5.2 */ = {
+		OBJ_28 /* CryptoSwift 0.8.0 */ = {
 			isa = PBXGroup;
 			children = (
-				OBJ_29 /* Package.swift */,
-				OBJ_30 /* Sodium */,
+				OBJ_29 /* CryptoSwift */,
+				OBJ_96 /* Package.swift */,
 			);
-			name = "swift-sodium 0.5.2";
-			path = ".build/checkouts/swift-sodium.git-4026326239528637742";
+			name = "CryptoSwift 0.8.0";
 			sourceTree = SOURCE_ROOT;
 		};
-		OBJ_30 /* Sodium */ = {
+		OBJ_29 /* CryptoSwift */ = {
 			isa = PBXGroup;
 			children = (
-				OBJ_31 /* Auth.swift */,
-				OBJ_32 /* Box.swift */,
-				OBJ_33 /* GenericHash.swift */,
-				OBJ_34 /* KeyDerivation.swift */,
-				OBJ_35 /* KeyExchange.swift */,
-				OBJ_36 /* PWHash.swift */,
-				OBJ_37 /* RandomBytes.swift */,
-				OBJ_38 /* SecretBox.swift */,
-				OBJ_39 /* SecretStream.swift */,
-				OBJ_40 /* ShortHash.swift */,
-				OBJ_41 /* Sign.swift */,
-				OBJ_42 /* Sodium.swift */,
-				OBJ_43 /* Stream.swift */,
-				OBJ_44 /* Utils.swift */,
+				OBJ_30 /* AES.Cryptors.swift */,
+				OBJ_31 /* AES.swift */,
+				OBJ_32 /* Array+Extension.swift */,
+				OBJ_33 /* Array+Extensions.swift */,
+				OBJ_34 /* Authenticator.swift */,
+				OBJ_35 /* BatchedCollection.swift */,
+				OBJ_36 /* Bit.swift */,
+				OBJ_37 /* BlockCipher.swift */,
+				OBJ_38 /* BlockMode */,
+				OBJ_49 /* Blowfish.swift */,
+				OBJ_50 /* ChaCha20.swift */,
+				OBJ_51 /* Checksum.swift */,
+				OBJ_52 /* Cipher.swift */,
+				OBJ_53 /* Collection+Extension.swift */,
+				OBJ_54 /* Cryptors.swift */,
+				OBJ_55 /* Digest.swift */,
+				OBJ_56 /* DigestType.swift */,
+				OBJ_57 /* Foundation */,
+				OBJ_67 /* Generics.swift */,
+				OBJ_68 /* HMAC.swift */,
+				OBJ_69 /* Int+Extension.swift */,
+				OBJ_70 /* MD5.swift */,
+				OBJ_71 /* NoPadding.swift */,
+				OBJ_72 /* Operators.swift */,
+				OBJ_73 /* PKCS */,
+				OBJ_79 /* Padding.swift */,
+				OBJ_80 /* Poly1305.swift */,
+				OBJ_81 /* Rabbit.swift */,
+				OBJ_82 /* RandomAccessCryptor.swift */,
+				OBJ_83 /* RandomBytesSequence.swift */,
+				OBJ_84 /* SHA1.swift */,
+				OBJ_85 /* SHA2.swift */,
+				OBJ_86 /* SHA3.swift */,
+				OBJ_87 /* SecureBytes.swift */,
+				OBJ_88 /* String+Extension.swift */,
+				OBJ_89 /* UInt16+Extension.swift */,
+				OBJ_90 /* UInt32+Extension.swift */,
+				OBJ_91 /* UInt64+Extension.swift */,
+				OBJ_92 /* UInt8+Extension.swift */,
+				OBJ_93 /* Updatable.swift */,
+				OBJ_94 /* Utils.swift */,
+				OBJ_95 /* ZeroPadding.swift */,
 			);
-			path = Sodium;
+			name = CryptoSwift;
+			path = ".build/checkouts/CryptoSwift.git--6440749087414195235/Sources/CryptoSwift";
+			sourceTree = SOURCE_ROOT;
+		};
+		OBJ_38 /* BlockMode */ = {
+			isa = PBXGroup;
+			children = (
+				OBJ_39 /* BlockMode.swift */,
+				OBJ_40 /* BlockModeOptions.swift */,
+				OBJ_41 /* BlockModeWorker.swift */,
+				OBJ_42 /* CBC.swift */,
+				OBJ_43 /* CFB.swift */,
+				OBJ_44 /* CTR.swift */,
+				OBJ_45 /* ECB.swift */,
+				OBJ_46 /* OFB.swift */,
+				OBJ_47 /* PCBC.swift */,
+				OBJ_48 /* RandomAccessBlockModeWorker.swift */,
+			);
+			path = BlockMode;
 			sourceTree = "<group>";
 		};
-		OBJ_45 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				"Shapeshifter-Swift-Transports::Shapeshifter-Swift-TransportsTests::Product" /* Shapeshifter_Swift_TransportsTests.xctest */,
-				"Shapeshifter-Swift-Transports::Shapeshifter-Swift-Transports::Product" /* Shapeshifter_Swift_Transports.framework */,
-				"swift-sodium::Sodium::Product" /* Sodium.framework */,
-			);
-			name = Products;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		OBJ_5 /*  */ = {
+		OBJ_5 = {
 			isa = PBXGroup;
 			children = (
 				OBJ_6 /* Package.swift */,
 				OBJ_7 /* Sources */,
 				OBJ_24 /* Tests */,
 				OBJ_27 /* Dependencies */,
-				OBJ_45 /* Products */,
+				OBJ_114 /* Products */,
+				467C85111FBD018D005042CF /* Frameworks */,
 			);
-			name = "";
+			sourceTree = "<group>";
+		};
+		OBJ_57 /* Foundation */ = {
+			isa = PBXGroup;
+			children = (
+				OBJ_58 /* AES+Foundation.swift */,
+				OBJ_59 /* Array+Foundation.swift */,
+				OBJ_60 /* Blowfish+Foundation.swift */,
+				OBJ_61 /* ChaCha20+Foundation.swift */,
+				OBJ_62 /* Data+Extension.swift */,
+				OBJ_63 /* HMAC+Foundation.swift */,
+				OBJ_64 /* Rabbit+Foundation.swift */,
+				OBJ_65 /* String+FoundationExtension.swift */,
+				OBJ_66 /* Utils+Foundation.swift */,
+			);
+			path = Foundation;
 			sourceTree = "<group>";
 		};
 		OBJ_7 /* Sources */ = {
@@ -273,6 +505,18 @@
 			);
 			name = Sources;
 			sourceTree = SOURCE_ROOT;
+		};
+		OBJ_73 /* PKCS */ = {
+			isa = PBXGroup;
+			children = (
+				OBJ_74 /* PBKDF1.swift */,
+				OBJ_75 /* PBKDF2.swift */,
+				OBJ_76 /* PKCS5.swift */,
+				OBJ_77 /* PKCS7.swift */,
+				OBJ_78 /* PKCS7Padding.swift */,
+			);
+			path = PKCS;
+			sourceTree = "<group>";
 		};
 		OBJ_8 /* Shapeshifter-Swift-Transports */ = {
 			isa = PBXGroup;
@@ -294,20 +538,82 @@
 			path = Examples;
 			sourceTree = "<group>";
 		};
+		OBJ_97 /* swift-sodium 0.5.2 */ = {
+			isa = PBXGroup;
+			children = (
+				OBJ_98 /* Package.swift */,
+				OBJ_99 /* Sodium */,
+			);
+			name = "swift-sodium 0.5.2";
+			path = ".build/checkouts/swift-sodium.git-4026326239528637742";
+			sourceTree = SOURCE_ROOT;
+		};
+		OBJ_99 /* Sodium */ = {
+			isa = PBXGroup;
+			children = (
+				OBJ_100 /* Auth.swift */,
+				OBJ_101 /* Box.swift */,
+				OBJ_102 /* GenericHash.swift */,
+				OBJ_103 /* KeyDerivation.swift */,
+				OBJ_104 /* KeyExchange.swift */,
+				OBJ_105 /* PWHash.swift */,
+				OBJ_106 /* RandomBytes.swift */,
+				OBJ_107 /* SecretBox.swift */,
+				OBJ_108 /* SecretStream.swift */,
+				OBJ_109 /* ShortHash.swift */,
+				OBJ_110 /* Sign.swift */,
+				OBJ_111 /* Sodium.swift */,
+				OBJ_112 /* Stream.swift */,
+				OBJ_113 /* Utils.swift */,
+			);
+			path = Sodium;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		"Shapeshifter-Swift-Transports::Shapeshifter-Swift-Transports" /* Shapeshifter-Swift-Transports */ = {
+		"CryptoSwift::CryptoSwift" /* CryptoSwift */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = OBJ_74 /* Build configuration list for PBXNativeTarget "Shapeshifter-Swift-Transports" */;
+			buildConfigurationList = OBJ_173 /* Build configuration list for PBXNativeTarget "CryptoSwift" */;
 			buildPhases = (
-				OBJ_77 /* Sources */,
-				OBJ_89 /* Frameworks */,
+				OBJ_176 /* Sources */,
+				OBJ_240 /* Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				OBJ_91 /* PBXTargetDependency */,
+			);
+			name = CryptoSwift;
+			productName = CryptoSwift;
+			productReference = "CryptoSwift::CryptoSwift::Product" /* CryptoSwift.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		"CryptoSwift::SwiftPMPackageDescription" /* CryptoSwiftPackageDescription */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = OBJ_126 /* Build configuration list for PBXNativeTarget "CryptoSwiftPackageDescription" */;
+			buildPhases = (
+				OBJ_129 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = CryptoSwiftPackageDescription;
+			productName = CryptoSwiftPackageDescription;
+			productType = "com.apple.product-type.framework";
+		};
+		"Shapeshifter-Swift-Transports::Shapeshifter-Swift-Transports" /* Shapeshifter-Swift-Transports */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = OBJ_153 /* Build configuration list for PBXNativeTarget "Shapeshifter-Swift-Transports" */;
+			buildPhases = (
+				OBJ_156 /* Sources */,
+				OBJ_168 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				OBJ_171 /* PBXTargetDependency */,
+				OBJ_172 /* PBXTargetDependency */,
 			);
 			name = "Shapeshifter-Swift-Transports";
 			productName = Shapeshifter_Swift_Transports;
@@ -316,16 +622,17 @@
 		};
 		"Shapeshifter-Swift-Transports::Shapeshifter-Swift-TransportsTests" /* Shapeshifter-Swift-TransportsTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = OBJ_62 /* Build configuration list for PBXNativeTarget "Shapeshifter-Swift-TransportsTests" */;
+			buildConfigurationList = OBJ_138 /* Build configuration list for PBXNativeTarget "Shapeshifter-Swift-TransportsTests" */;
 			buildPhases = (
-				OBJ_65 /* Sources */,
-				OBJ_67 /* Frameworks */,
+				OBJ_141 /* Sources */,
+				OBJ_143 /* Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				OBJ_70 /* PBXTargetDependency */,
-				OBJ_72 /* PBXTargetDependency */,
+				OBJ_147 /* PBXTargetDependency */,
+				OBJ_149 /* PBXTargetDependency */,
+				OBJ_151 /* PBXTargetDependency */,
 			);
 			name = "Shapeshifter-Swift-TransportsTests";
 			productName = Shapeshifter_Swift_TransportsTests;
@@ -334,9 +641,9 @@
 		};
 		"Shapeshifter-Swift-Transports::SwiftPMPackageDescription" /* Shapeshifter-Swift-TransportsPackageDescription */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = OBJ_50 /* Build configuration list for PBXNativeTarget "Shapeshifter-Swift-TransportsPackageDescription" */;
+			buildConfigurationList = OBJ_120 /* Build configuration list for PBXNativeTarget "Shapeshifter-Swift-TransportsPackageDescription" */;
 			buildPhases = (
-				OBJ_53 /* Sources */,
+				OBJ_123 /* Sources */,
 			);
 			buildRules = (
 			);
@@ -348,10 +655,10 @@
 		};
 		"swift-sodium::Sodium" /* Sodium */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = OBJ_92 /* Build configuration list for PBXNativeTarget "Sodium" */;
+			buildConfigurationList = OBJ_241 /* Build configuration list for PBXNativeTarget "Sodium" */;
 			buildPhases = (
-				OBJ_95 /* Sources */,
-				OBJ_110 /* Frameworks */,
+				OBJ_244 /* Sources */,
+				OBJ_259 /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -364,9 +671,9 @@
 		};
 		"swift-sodium::SwiftPMPackageDescription" /* swift-sodiumPackageDescription */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = OBJ_56 /* Build configuration list for PBXNativeTarget "swift-sodiumPackageDescription" */;
+			buildConfigurationList = OBJ_132 /* Build configuration list for PBXNativeTarget "swift-sodiumPackageDescription" */;
 			buildPhases = (
-				OBJ_59 /* Sources */,
+				OBJ_135 /* Sources */,
 			);
 			buildRules = (
 			);
@@ -391,15 +698,17 @@
 			knownRegions = (
 				en,
 			);
-			mainGroup = OBJ_5 /*  */;
-			productRefGroup = OBJ_45 /* Products */;
+			mainGroup = OBJ_5;
+			productRefGroup = OBJ_114 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
 				"Shapeshifter-Swift-Transports::SwiftPMPackageDescription" /* Shapeshifter-Swift-TransportsPackageDescription */,
+				"CryptoSwift::SwiftPMPackageDescription" /* CryptoSwiftPackageDescription */,
 				"swift-sodium::SwiftPMPackageDescription" /* swift-sodiumPackageDescription */,
 				"Shapeshifter-Swift-Transports::Shapeshifter-Swift-TransportsTests" /* Shapeshifter-Swift-TransportsTests */,
 				"Shapeshifter-Swift-Transports::Shapeshifter-Swift-Transports" /* Shapeshifter-Swift-Transports */,
+				"CryptoSwift::CryptoSwift" /* CryptoSwift */,
 				"swift-sodium::Sodium" /* Sodium */,
 				"Shapeshifter-Swift-Transports::Shapeshifter-Swift-TransportsPackageTests::ProductTarget" /* Shapeshifter-Swift-TransportsPackageTests */,
 				"CommonCrypto::CommonCrypto::ProductTarget" /* CommonCrypto */,
@@ -408,114 +717,472 @@
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
-		OBJ_53 /* Sources */ = {
+		OBJ_123 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 0;
 			files = (
-				OBJ_54 /* Package.swift in Sources */,
+				OBJ_124 /* Package.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		OBJ_59 /* Sources */ = {
+		OBJ_129 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 0;
 			files = (
-				OBJ_60 /* Package.swift in Sources */,
+				OBJ_130 /* Package.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		OBJ_65 /* Sources */ = {
+		OBJ_135 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 0;
 			files = (
-				OBJ_66 /* Shapeshifter_Swift_TransportsTests.swift in Sources */,
+				OBJ_136 /* Package.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		OBJ_77 /* Sources */ = {
+		OBJ_141 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 0;
 			files = (
-				OBJ_78 /* PassthroughTCPConnection.swift in Sources */,
-				OBJ_79 /* Rot13TCPConnection.swift in Sources */,
-				OBJ_80 /* FakeNEPacketTunnelProvider.swift in Sources */,
-				OBJ_81 /* FakePacketTunnelProvider.swift in Sources */,
-				OBJ_82 /* FakeTCPConnection.swift in Sources */,
-				OBJ_83 /* FakeUDPSession.swift in Sources */,
-				OBJ_84 /* PacketTunnelProvider.swift in Sources */,
-				OBJ_85 /* MeekTCPConnection.swift in Sources */,
-				OBJ_86 /* WispCoding.swift in Sources */,
-				OBJ_87 /* WispProtocol.swift in Sources */,
-				OBJ_88 /* WispTCPConnection.swift in Sources */,
+				OBJ_142 /* Shapeshifter_Swift_TransportsTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		OBJ_95 /* Sources */ = {
+		OBJ_156 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 0;
 			files = (
-				OBJ_96 /* Auth.swift in Sources */,
-				OBJ_97 /* Box.swift in Sources */,
-				OBJ_98 /* GenericHash.swift in Sources */,
-				OBJ_99 /* KeyDerivation.swift in Sources */,
-				OBJ_100 /* KeyExchange.swift in Sources */,
-				OBJ_101 /* PWHash.swift in Sources */,
-				OBJ_102 /* RandomBytes.swift in Sources */,
-				OBJ_103 /* SecretBox.swift in Sources */,
-				OBJ_104 /* SecretStream.swift in Sources */,
-				OBJ_105 /* ShortHash.swift in Sources */,
-				OBJ_106 /* Sign.swift in Sources */,
-				OBJ_107 /* Sodium.swift in Sources */,
-				OBJ_108 /* Stream.swift in Sources */,
-				OBJ_109 /* Utils.swift in Sources */,
+				OBJ_157 /* PassthroughTCPConnection.swift in Sources */,
+				OBJ_158 /* Rot13TCPConnection.swift in Sources */,
+				OBJ_159 /* FakeNEPacketTunnelProvider.swift in Sources */,
+				OBJ_160 /* FakePacketTunnelProvider.swift in Sources */,
+				OBJ_161 /* FakeTCPConnection.swift in Sources */,
+				OBJ_162 /* FakeUDPSession.swift in Sources */,
+				OBJ_163 /* PacketTunnelProvider.swift in Sources */,
+				OBJ_164 /* MeekTCPConnection.swift in Sources */,
+				OBJ_165 /* WispCoding.swift in Sources */,
+				OBJ_166 /* WispProtocol.swift in Sources */,
+				OBJ_167 /* WispTCPConnection.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		OBJ_176 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 0;
+			files = (
+				OBJ_177 /* AES.Cryptors.swift in Sources */,
+				OBJ_178 /* AES.swift in Sources */,
+				OBJ_179 /* Array+Extension.swift in Sources */,
+				OBJ_180 /* Array+Extensions.swift in Sources */,
+				OBJ_181 /* Authenticator.swift in Sources */,
+				OBJ_182 /* BatchedCollection.swift in Sources */,
+				OBJ_183 /* Bit.swift in Sources */,
+				OBJ_184 /* BlockCipher.swift in Sources */,
+				OBJ_185 /* BlockMode.swift in Sources */,
+				OBJ_186 /* BlockModeOptions.swift in Sources */,
+				OBJ_187 /* BlockModeWorker.swift in Sources */,
+				OBJ_188 /* CBC.swift in Sources */,
+				OBJ_189 /* CFB.swift in Sources */,
+				OBJ_190 /* CTR.swift in Sources */,
+				OBJ_191 /* ECB.swift in Sources */,
+				OBJ_192 /* OFB.swift in Sources */,
+				OBJ_193 /* PCBC.swift in Sources */,
+				OBJ_194 /* RandomAccessBlockModeWorker.swift in Sources */,
+				OBJ_195 /* Blowfish.swift in Sources */,
+				OBJ_196 /* ChaCha20.swift in Sources */,
+				OBJ_197 /* Checksum.swift in Sources */,
+				OBJ_198 /* Cipher.swift in Sources */,
+				OBJ_199 /* Collection+Extension.swift in Sources */,
+				OBJ_200 /* Cryptors.swift in Sources */,
+				OBJ_201 /* Digest.swift in Sources */,
+				OBJ_202 /* DigestType.swift in Sources */,
+				OBJ_203 /* AES+Foundation.swift in Sources */,
+				OBJ_204 /* Array+Foundation.swift in Sources */,
+				OBJ_205 /* Blowfish+Foundation.swift in Sources */,
+				OBJ_206 /* ChaCha20+Foundation.swift in Sources */,
+				OBJ_207 /* Data+Extension.swift in Sources */,
+				OBJ_208 /* HMAC+Foundation.swift in Sources */,
+				OBJ_209 /* Rabbit+Foundation.swift in Sources */,
+				OBJ_210 /* String+FoundationExtension.swift in Sources */,
+				OBJ_211 /* Utils+Foundation.swift in Sources */,
+				OBJ_212 /* Generics.swift in Sources */,
+				OBJ_213 /* HMAC.swift in Sources */,
+				OBJ_214 /* Int+Extension.swift in Sources */,
+				OBJ_215 /* MD5.swift in Sources */,
+				OBJ_216 /* NoPadding.swift in Sources */,
+				OBJ_217 /* Operators.swift in Sources */,
+				OBJ_218 /* PBKDF1.swift in Sources */,
+				OBJ_219 /* PBKDF2.swift in Sources */,
+				OBJ_220 /* PKCS5.swift in Sources */,
+				OBJ_221 /* PKCS7.swift in Sources */,
+				OBJ_222 /* PKCS7Padding.swift in Sources */,
+				OBJ_223 /* Padding.swift in Sources */,
+				OBJ_224 /* Poly1305.swift in Sources */,
+				OBJ_225 /* Rabbit.swift in Sources */,
+				OBJ_226 /* RandomAccessCryptor.swift in Sources */,
+				OBJ_227 /* RandomBytesSequence.swift in Sources */,
+				OBJ_228 /* SHA1.swift in Sources */,
+				OBJ_229 /* SHA2.swift in Sources */,
+				OBJ_230 /* SHA3.swift in Sources */,
+				OBJ_231 /* SecureBytes.swift in Sources */,
+				OBJ_232 /* String+Extension.swift in Sources */,
+				OBJ_233 /* UInt16+Extension.swift in Sources */,
+				OBJ_234 /* UInt32+Extension.swift in Sources */,
+				OBJ_235 /* UInt64+Extension.swift in Sources */,
+				OBJ_236 /* UInt8+Extension.swift in Sources */,
+				OBJ_237 /* Updatable.swift in Sources */,
+				OBJ_238 /* Utils.swift in Sources */,
+				OBJ_239 /* ZeroPadding.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		OBJ_244 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 0;
+			files = (
+				OBJ_245 /* Auth.swift in Sources */,
+				OBJ_246 /* Box.swift in Sources */,
+				OBJ_247 /* GenericHash.swift in Sources */,
+				OBJ_248 /* KeyDerivation.swift in Sources */,
+				OBJ_249 /* KeyExchange.swift in Sources */,
+				OBJ_250 /* PWHash.swift in Sources */,
+				OBJ_251 /* RandomBytes.swift in Sources */,
+				OBJ_252 /* SecretBox.swift in Sources */,
+				OBJ_253 /* SecretStream.swift in Sources */,
+				OBJ_254 /* ShortHash.swift in Sources */,
+				OBJ_255 /* Sign.swift in Sources */,
+				OBJ_256 /* Sodium.swift in Sources */,
+				OBJ_257 /* Stream.swift in Sources */,
+				OBJ_258 /* Utils.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		OBJ_115 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = "Shapeshifter-Swift-Transports::Shapeshifter-Swift-TransportsTests" /* Shapeshifter-Swift-TransportsTests */;
-			targetProxy = 46C9EF581FBB949800BD047D /* PBXContainerItemProxy */;
-		};
-		OBJ_70 /* PBXTargetDependency */ = {
+		OBJ_147 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = "Shapeshifter-Swift-Transports::Shapeshifter-Swift-Transports" /* Shapeshifter-Swift-Transports */;
-			targetProxy = 46C9EF561FBB949700BD047D /* PBXContainerItemProxy */;
+			targetProxy = 467C850D1FBCEBF8005042CF /* PBXContainerItemProxy */;
 		};
-		OBJ_72 /* PBXTargetDependency */ = {
+		OBJ_149 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = "CryptoSwift::CryptoSwift" /* CryptoSwift */;
+			targetProxy = 467C850E1FBCEBF8005042CF /* PBXContainerItemProxy */;
+		};
+		OBJ_151 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = "swift-sodium::Sodium" /* Sodium */;
-			targetProxy = 46C9EF571FBB949700BD047D /* PBXContainerItemProxy */;
+			targetProxy = 467C850F1FBCEBF8005042CF /* PBXContainerItemProxy */;
 		};
-		OBJ_91 /* PBXTargetDependency */ = {
+		OBJ_171 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = "CryptoSwift::CryptoSwift" /* CryptoSwift */;
+			targetProxy = 467C850B1FBCEBF8005042CF /* PBXContainerItemProxy */;
+		};
+		OBJ_172 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = "swift-sodium::Sodium" /* Sodium */;
-			targetProxy = 46C9EF551FBB949700BD047D /* PBXContainerItemProxy */;
+			targetProxy = 467C850C1FBCEBF8005042CF /* PBXContainerItemProxy */;
+		};
+		OBJ_264 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = "Shapeshifter-Swift-Transports::Shapeshifter-Swift-TransportsTests" /* Shapeshifter-Swift-TransportsTests */;
+			targetProxy = 467C85101FBCEBF9005042CF /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		OBJ_113 /* Debug */ = {
+		OBJ_121 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				LD = /usr/bin/true;
+				OTHER_SWIFT_FLAGS = "-swift-version 4 -I /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/pm/4 -target x86_64-apple-macosx10.10 -sdk /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk";
+				SWIFT_VERSION = 4.0;
+			};
+			name = Debug;
+		};
+		OBJ_122 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				LD = /usr/bin/true;
+				OTHER_SWIFT_FLAGS = "-swift-version 4 -I /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/pm/4 -target x86_64-apple-macosx10.10 -sdk /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk";
+				SWIFT_VERSION = 4.0;
+			};
+			name = Release;
+		};
+		OBJ_127 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				LD = /usr/bin/true;
+				OTHER_SWIFT_FLAGS = "-swift-version 4 -I /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/pm/4 -target x86_64-apple-macosx10.10 -sdk /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk";
+				SWIFT_VERSION = 4.0;
+			};
+			name = Debug;
+		};
+		OBJ_128 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				LD = /usr/bin/true;
+				OTHER_SWIFT_FLAGS = "-swift-version 4 -I /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/pm/4 -target x86_64-apple-macosx10.10 -sdk /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk";
+				SWIFT_VERSION = 4.0;
+			};
+			name = Release;
+		};
+		OBJ_133 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				LD = /usr/bin/true;
+				OTHER_SWIFT_FLAGS = "-swift-version 4 -I /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/pm/4 -target x86_64-apple-macosx10.10 -sdk /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk";
+				SWIFT_VERSION = 4.0;
+			};
+			name = Debug;
+		};
+		OBJ_134 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				LD = /usr/bin/true;
+				OTHER_SWIFT_FLAGS = "-swift-version 4 -I /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/pm/4 -target x86_64-apple-macosx10.10 -sdk /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk";
+				SWIFT_VERSION = 4.0;
+			};
+			name = Release;
+		};
+		OBJ_139 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/.build/checkouts/Clibsodium.git-7179824380838366220",
+					"$(SRCROOT)/.build/checkouts/CommonCrypto.git-1219305460334093717",
+				);
+				INFOPLIST_FILE = "Shapeshifter-Swift-Transports.xcodeproj/Shapeshifter_Swift_TransportsTests_Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "@loader_path/../Frameworks @loader_path/Frameworks";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-L/usr/local/Cellar/libsodium/1.0.15/lib",
+					"-lsodium",
+				);
+				OTHER_SWIFT_FLAGS = "$(inherited) -I/usr/local/Cellar/libsodium/1.0.15/include";
+				SWIFT_VERSION = 4.0;
+				TARGET_NAME = "Shapeshifter-Swift-TransportsTests";
+			};
+			name = Debug;
+		};
+		OBJ_140 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/.build/checkouts/Clibsodium.git-7179824380838366220",
+					"$(SRCROOT)/.build/checkouts/CommonCrypto.git-1219305460334093717",
+				);
+				INFOPLIST_FILE = "Shapeshifter-Swift-Transports.xcodeproj/Shapeshifter_Swift_TransportsTests_Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "@loader_path/../Frameworks @loader_path/Frameworks";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-L/usr/local/Cellar/libsodium/1.0.15/lib",
+					"-lsodium",
+				);
+				OTHER_SWIFT_FLAGS = "$(inherited) -I/usr/local/Cellar/libsodium/1.0.15/include";
+				SWIFT_VERSION = 4.0;
+				TARGET_NAME = "Shapeshifter-Swift-TransportsTests";
+			};
+			name = Release;
+		};
+		OBJ_154 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ENABLE_TESTABILITY = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
+					"$(PROJECT_DIR)",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/.build/checkouts/Clibsodium.git-7179824380838366220",
+					"$(SRCROOT)/.build/checkouts/CommonCrypto.git-1219305460334093717",
+				);
+				INFOPLIST_FILE = "Shapeshifter-Swift-Transports.xcodeproj/Shapeshifter_Swift_Transports_Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(TOOLCHAIN_DIR)/usr/lib/swift/macosx";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-L/usr/local/Cellar/libsodium/1.0.15/lib",
+					"-lsodium",
+				);
+				OTHER_SWIFT_FLAGS = "$(inherited) -I/usr/local/Cellar/libsodium/1.0.15/include";
+				PRODUCT_BUNDLE_IDENTIFIER = "Shapeshifter-Swift-Transports";
+				PRODUCT_MODULE_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 4.0;
+				TARGET_NAME = "Shapeshifter-Swift-Transports";
+			};
+			name = Debug;
+		};
+		OBJ_155 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ENABLE_TESTABILITY = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
+					"$(PROJECT_DIR)",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/.build/checkouts/Clibsodium.git-7179824380838366220",
+					"$(SRCROOT)/.build/checkouts/CommonCrypto.git-1219305460334093717",
+				);
+				INFOPLIST_FILE = "Shapeshifter-Swift-Transports.xcodeproj/Shapeshifter_Swift_Transports_Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(TOOLCHAIN_DIR)/usr/lib/swift/macosx";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-L/usr/local/Cellar/libsodium/1.0.15/lib",
+					"-lsodium",
+				);
+				OTHER_SWIFT_FLAGS = "$(inherited) -I/usr/local/Cellar/libsodium/1.0.15/include";
+				PRODUCT_BUNDLE_IDENTIFIER = "Shapeshifter-Swift-Transports";
+				PRODUCT_MODULE_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 4.0;
+				TARGET_NAME = "Shapeshifter-Swift-Transports";
+			};
+			name = Release;
+		};
+		OBJ_174 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ENABLE_TESTABILITY = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
+				);
+				HEADER_SEARCH_PATHS = "$(inherited)";
+				INFOPLIST_FILE = "Shapeshifter-Swift-Transports.xcodeproj/CryptoSwift_Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(TOOLCHAIN_DIR)/usr/lib/swift/macosx";
+				OTHER_LDFLAGS = "$(inherited)";
+				OTHER_SWIFT_FLAGS = "$(inherited)";
+				PRODUCT_BUNDLE_IDENTIFIER = CryptoSwift;
+				PRODUCT_MODULE_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 4.0;
+				TARGET_NAME = CryptoSwift;
+			};
+			name = Debug;
+		};
+		OBJ_175 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ENABLE_TESTABILITY = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
+				);
+				HEADER_SEARCH_PATHS = "$(inherited)";
+				INFOPLIST_FILE = "Shapeshifter-Swift-Transports.xcodeproj/CryptoSwift_Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(TOOLCHAIN_DIR)/usr/lib/swift/macosx";
+				OTHER_LDFLAGS = "$(inherited)";
+				OTHER_SWIFT_FLAGS = "$(inherited)";
+				PRODUCT_BUNDLE_IDENTIFIER = CryptoSwift;
+				PRODUCT_MODULE_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 4.0;
+				TARGET_NAME = CryptoSwift;
+			};
+			name = Release;
+		};
+		OBJ_242 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ENABLE_TESTABILITY = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/.build/checkouts/Clibsodium.git-7179824380838366220",
+				);
+				INFOPLIST_FILE = "Shapeshifter-Swift-Transports.xcodeproj/Sodium_Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(TOOLCHAIN_DIR)/usr/lib/swift/macosx";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-L/usr/local/Cellar/libsodium/1.0.15/lib",
+					"-lsodium",
+				);
+				OTHER_SWIFT_FLAGS = "$(inherited) -I/usr/local/Cellar/libsodium/1.0.15/include";
+				PRODUCT_BUNDLE_IDENTIFIER = Sodium;
+				PRODUCT_MODULE_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 4.0;
+				TARGET_NAME = Sodium;
+			};
+			name = Debug;
+		};
+		OBJ_243 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ENABLE_TESTABILITY = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/.build/checkouts/Clibsodium.git-7179824380838366220",
+				);
+				INFOPLIST_FILE = "Shapeshifter-Swift-Transports.xcodeproj/Sodium_Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(TOOLCHAIN_DIR)/usr/lib/swift/macosx";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-L/usr/local/Cellar/libsodium/1.0.15/lib",
+					"-lsodium",
+				);
+				OTHER_SWIFT_FLAGS = "$(inherited) -I/usr/local/Cellar/libsodium/1.0.15/include";
+				PRODUCT_BUNDLE_IDENTIFIER = Sodium;
+				PRODUCT_MODULE_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 4.0;
+				TARGET_NAME = Sodium;
+			};
+			name = Release;
+		};
+		OBJ_262 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 			};
 			name = Debug;
 		};
-		OBJ_114 /* Release */ = {
+		OBJ_263 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 			};
 			name = Release;
 		};
-		OBJ_118 /* Debug */ = {
+		OBJ_267 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 			};
 			name = Debug;
 		};
-		OBJ_119 /* Release */ = {
+		OBJ_268 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 			};
@@ -563,229 +1230,59 @@
 			};
 			name = Release;
 		};
-		OBJ_51 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				LD = /usr/bin/true;
-				OTHER_SWIFT_FLAGS = "-swift-version 4 -I /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/pm/4 -target x86_64-apple-macosx10.10 -sdk /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk";
-				SWIFT_VERSION = 4.0;
-			};
-			name = Debug;
-		};
-		OBJ_52 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				LD = /usr/bin/true;
-				OTHER_SWIFT_FLAGS = "-swift-version 4 -I /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/pm/4 -target x86_64-apple-macosx10.10 -sdk /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk";
-				SWIFT_VERSION = 4.0;
-			};
-			name = Release;
-		};
-		OBJ_57 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				LD = /usr/bin/true;
-				OTHER_SWIFT_FLAGS = "-swift-version 4 -I /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/pm/4 -target x86_64-apple-macosx10.10 -sdk /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk";
-				SWIFT_VERSION = 4.0;
-			};
-			name = Debug;
-		};
-		OBJ_58 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				LD = /usr/bin/true;
-				OTHER_SWIFT_FLAGS = "-swift-version 4 -I /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/pm/4 -target x86_64-apple-macosx10.10 -sdk /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk";
-				SWIFT_VERSION = 4.0;
-			};
-			name = Release;
-		};
-		OBJ_63 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
-				);
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(SRCROOT)/.build/checkouts/Clibsodium.git-7179824380838366220",
-					"$(SRCROOT)/.build/checkouts/CommonCrypto.git-1219305460334093717",
-				);
-				INFOPLIST_FILE = "Shapeshifter-Swift-Transports.xcodeproj/Shapeshifter_Swift_TransportsTests_Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "@loader_path/../Frameworks @loader_path/Frameworks";
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					"-L/usr/local/Cellar/libsodium/1.0.15/lib",
-					"-lsodium",
-				);
-				OTHER_SWIFT_FLAGS = "$(inherited) -I/usr/local/Cellar/libsodium/1.0.15/include";
-				SWIFT_VERSION = 4.0;
-				TARGET_NAME = "Shapeshifter-Swift-TransportsTests";
-			};
-			name = Debug;
-		};
-		OBJ_64 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
-				);
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(SRCROOT)/.build/checkouts/Clibsodium.git-7179824380838366220",
-					"$(SRCROOT)/.build/checkouts/CommonCrypto.git-1219305460334093717",
-				);
-				INFOPLIST_FILE = "Shapeshifter-Swift-Transports.xcodeproj/Shapeshifter_Swift_TransportsTests_Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "@loader_path/../Frameworks @loader_path/Frameworks";
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					"-L/usr/local/Cellar/libsodium/1.0.15/lib",
-					"-lsodium",
-				);
-				OTHER_SWIFT_FLAGS = "$(inherited) -I/usr/local/Cellar/libsodium/1.0.15/include";
-				SWIFT_VERSION = 4.0;
-				TARGET_NAME = "Shapeshifter-Swift-TransportsTests";
-			};
-			name = Release;
-		};
-		OBJ_75 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ENABLE_TESTABILITY = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
-				);
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(SRCROOT)/.build/checkouts/Clibsodium.git-7179824380838366220",
-					"$(SRCROOT)/.build/checkouts/CommonCrypto.git-1219305460334093717",
-				);
-				INFOPLIST_FILE = "Shapeshifter-Swift-Transports.xcodeproj/Shapeshifter_Swift_Transports_Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(TOOLCHAIN_DIR)/usr/lib/swift/macosx";
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					"-L/usr/local/Cellar/libsodium/1.0.15/lib",
-					"-lsodium",
-				);
-				OTHER_SWIFT_FLAGS = "$(inherited) -I/usr/local/Cellar/libsodium/1.0.15/include";
-				PRODUCT_BUNDLE_IDENTIFIER = "Shapeshifter-Swift-Transports";
-				PRODUCT_MODULE_NAME = "$(TARGET_NAME:c99extidentifier)";
-				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
-				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 4.0;
-				TARGET_NAME = "Shapeshifter-Swift-Transports";
-			};
-			name = Debug;
-		};
-		OBJ_76 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ENABLE_TESTABILITY = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
-				);
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(SRCROOT)/.build/checkouts/Clibsodium.git-7179824380838366220",
-					"$(SRCROOT)/.build/checkouts/CommonCrypto.git-1219305460334093717",
-				);
-				INFOPLIST_FILE = "Shapeshifter-Swift-Transports.xcodeproj/Shapeshifter_Swift_Transports_Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(TOOLCHAIN_DIR)/usr/lib/swift/macosx";
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					"-L/usr/local/Cellar/libsodium/1.0.15/lib",
-					"-lsodium",
-				);
-				OTHER_SWIFT_FLAGS = "$(inherited) -I/usr/local/Cellar/libsodium/1.0.15/include";
-				PRODUCT_BUNDLE_IDENTIFIER = "Shapeshifter-Swift-Transports";
-				PRODUCT_MODULE_NAME = "$(TARGET_NAME:c99extidentifier)";
-				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
-				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 4.0;
-				TARGET_NAME = "Shapeshifter-Swift-Transports";
-			};
-			name = Release;
-		};
-		OBJ_93 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ENABLE_TESTABILITY = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
-				);
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(SRCROOT)/.build/checkouts/Clibsodium.git-7179824380838366220",
-				);
-				INFOPLIST_FILE = "Shapeshifter-Swift-Transports.xcodeproj/Sodium_Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(TOOLCHAIN_DIR)/usr/lib/swift/macosx";
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					"-L/usr/local/Cellar/libsodium/1.0.15/lib",
-					"-lsodium",
-				);
-				OTHER_SWIFT_FLAGS = "$(inherited) -I/usr/local/Cellar/libsodium/1.0.15/include";
-				PRODUCT_BUNDLE_IDENTIFIER = Sodium;
-				PRODUCT_MODULE_NAME = "$(TARGET_NAME:c99extidentifier)";
-				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
-				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 4.0;
-				TARGET_NAME = Sodium;
-			};
-			name = Debug;
-		};
-		OBJ_94 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ENABLE_TESTABILITY = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
-				);
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(SRCROOT)/.build/checkouts/Clibsodium.git-7179824380838366220",
-				);
-				INFOPLIST_FILE = "Shapeshifter-Swift-Transports.xcodeproj/Sodium_Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(TOOLCHAIN_DIR)/usr/lib/swift/macosx";
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					"-L/usr/local/Cellar/libsodium/1.0.15/lib",
-					"-lsodium",
-				);
-				OTHER_SWIFT_FLAGS = "$(inherited) -I/usr/local/Cellar/libsodium/1.0.15/include";
-				PRODUCT_BUNDLE_IDENTIFIER = Sodium;
-				PRODUCT_MODULE_NAME = "$(TARGET_NAME:c99extidentifier)";
-				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
-				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 4.0;
-				TARGET_NAME = Sodium;
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		OBJ_112 /* Build configuration list for PBXAggregateTarget "Shapeshifter-Swift-TransportsPackageTests" */ = {
+		OBJ_120 /* Build configuration list for PBXNativeTarget "Shapeshifter-Swift-TransportsPackageDescription" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				OBJ_113 /* Debug */,
-				OBJ_114 /* Release */,
+				OBJ_121 /* Debug */,
+				OBJ_122 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		OBJ_117 /* Build configuration list for PBXAggregateTarget "CommonCrypto" */ = {
+		OBJ_126 /* Build configuration list for PBXNativeTarget "CryptoSwiftPackageDescription" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				OBJ_118 /* Debug */,
-				OBJ_119 /* Release */,
+				OBJ_127 /* Debug */,
+				OBJ_128 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		OBJ_132 /* Build configuration list for PBXNativeTarget "swift-sodiumPackageDescription" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				OBJ_133 /* Debug */,
+				OBJ_134 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		OBJ_138 /* Build configuration list for PBXNativeTarget "Shapeshifter-Swift-TransportsTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				OBJ_139 /* Debug */,
+				OBJ_140 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		OBJ_153 /* Build configuration list for PBXNativeTarget "Shapeshifter-Swift-Transports" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				OBJ_154 /* Debug */,
+				OBJ_155 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		OBJ_173 /* Build configuration list for PBXNativeTarget "CryptoSwift" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				OBJ_174 /* Debug */,
+				OBJ_175 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
@@ -799,47 +1296,29 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		OBJ_50 /* Build configuration list for PBXNativeTarget "Shapeshifter-Swift-TransportsPackageDescription" */ = {
+		OBJ_241 /* Build configuration list for PBXNativeTarget "Sodium" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				OBJ_51 /* Debug */,
-				OBJ_52 /* Release */,
+				OBJ_242 /* Debug */,
+				OBJ_243 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		OBJ_56 /* Build configuration list for PBXNativeTarget "swift-sodiumPackageDescription" */ = {
+		OBJ_261 /* Build configuration list for PBXAggregateTarget "Shapeshifter-Swift-TransportsPackageTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				OBJ_57 /* Debug */,
-				OBJ_58 /* Release */,
+				OBJ_262 /* Debug */,
+				OBJ_263 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		OBJ_62 /* Build configuration list for PBXNativeTarget "Shapeshifter-Swift-TransportsTests" */ = {
+		OBJ_266 /* Build configuration list for PBXAggregateTarget "CommonCrypto" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				OBJ_63 /* Debug */,
-				OBJ_64 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Debug;
-		};
-		OBJ_74 /* Build configuration list for PBXNativeTarget "Shapeshifter-Swift-Transports" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				OBJ_75 /* Debug */,
-				OBJ_76 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Debug;
-		};
-		OBJ_92 /* Build configuration list for PBXNativeTarget "Sodium" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				OBJ_93 /* Debug */,
-				OBJ_94 /* Release */,
+				OBJ_267 /* Debug */,
+				OBJ_268 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

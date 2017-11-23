@@ -97,7 +97,9 @@ class WispTCPConnection: NWTCPConnection
         }
         
         wisp = newWisp
-        _ = wisp.generateClientHandshake()
+        
+//        let newHandshake = ClientHandshake(nodeID: wisp.nodeID, serverIdentity: , sessionKey: wisp.sessionKey)
+//        _ = wisp.generateClientHandshake(handshake: newHandshake)
         
         super.init()
     }
@@ -113,7 +115,8 @@ class WispTCPConnection: NWTCPConnection
         }
         
         wisp = newWisp
-        _ = wisp.generateClientHandshake()
+//        let newHandshake = ClientHandshake(nodeID: wisp.nodeID, serverIdentity: , sessionKey: wisp.sessionKey)
+//        _ = wisp.generateClientHandshake(handshake: newHandshake)
 
         super.init()
     }
