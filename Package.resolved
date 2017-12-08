@@ -20,6 +20,33 @@
         }
       },
       {
+        "package": "Cryptor",
+        "repositoryURL": "https://github.com/IBM-Swift/BlueCryptor.git",
+        "state": {
+          "branch": null,
+          "revision": "16f9c7ddcbe11bbd32106a791ebef2108a4e9183",
+          "version": "0.8.21"
+        }
+      },
+      {
+        "package": "Elligator",
+        "repositoryURL": "https://github.com/OperatorFoundation/Elligator.git",
+        "state": {
+          "branch": null,
+          "revision": "ac7ae7f3d5b0296f0628691914a66f3652bd3c70",
+          "version": "0.1.0"
+        }
+      },
+      {
+        "package": "HKDF",
+        "repositoryURL": "https://github.com/Bouke/HKDF.git",
+        "state": {
+          "branch": null,
+          "revision": "31f2217e3a648cfac898af70cba4dc44724fcba4",
+          "version": "3.0.1"
+        }
+      },
+      {
         "package": "libsodium",
         "repositoryURL": "https://github.com/OperatorFoundation/Clibsodium.git",
         "state": {
