@@ -32,6 +32,9 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		46EB81651FE4912400496075 /* FakeTCPConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_11 /* FakeTCPConnection.swift */; };
+		46EB81661FE4912900496075 /* FakeTCPConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_11 /* FakeTCPConnection.swift */; };
+		46EB81671FE4914700496075 /* FakeTCPConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_11 /* FakeTCPConnection.swift */; };
 		OBJ_187 /* Package.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_6 /* Package.swift */; };
 		OBJ_193 /* Package.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_66 /* Package.swift */; };
 		OBJ_199 /* Package.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_68 /* Package.swift */; };
@@ -187,202 +190,201 @@
 		OBJ_456 /* ZeroPadding.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_150 /* ZeroPadding.swift */; };
 		OBJ_462 /* FakeNEPacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_9 /* FakeNEPacketTunnelProvider.swift */; };
 		OBJ_463 /* FakePacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_10 /* FakePacketTunnelProvider.swift */; };
-		OBJ_464 /* FakeTCPConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_11 /* FakeTCPConnection.swift */; };
 		OBJ_465 /* FakeUDPSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_12 /* FakeUDPSession.swift */; };
 		OBJ_466 /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_13 /* PacketTunnelProvider.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		4605BC441FDB2C7100E8A9C5 /* PBXContainerItemProxy */ = {
+		46EB81491FDF15A300496075 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = OBJ_1 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = "Elligator::Elligator";
 			remoteInfo = Elligator;
 		};
-		4605BC451FDB2C7100E8A9C5 /* PBXContainerItemProxy */ = {
+		46EB814A1FDF15A300496075 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = OBJ_1 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = "Elligator::ElligatorObjC";
 			remoteInfo = ElligatorObjC;
 		};
-		4605BC461FDB2C7100E8A9C5 /* PBXContainerItemProxy */ = {
+		46EB814B1FDF15A300496075 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = OBJ_1 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = "Elligator::celligator";
 			remoteInfo = celligator;
 		};
-		4605BC471FDB2C7100E8A9C5 /* PBXContainerItemProxy */ = {
+		46EB814C1FDF15A300496075 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = OBJ_1 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = "Elligator::celligator";
 			remoteInfo = celligator;
 		};
-		4605BC481FDB2C7100E8A9C5 /* PBXContainerItemProxy */ = {
+		46EB814D1FDF15A300496075 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = OBJ_1 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = "Elligator::ElligatorObjC";
 			remoteInfo = ElligatorObjC;
 		};
-		4605BC491FDB2C7100E8A9C5 /* PBXContainerItemProxy */ = {
+		46EB814E1FDF15A300496075 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = OBJ_1 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = "Elligator::celligator";
 			remoteInfo = celligator;
 		};
-		4605BC4A1FDB2C7100E8A9C5 /* PBXContainerItemProxy */ = {
+		46EB814F1FDF15A300496075 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = OBJ_1 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = "HKDF::HKDF";
 			remoteInfo = HKDF;
 		};
-		4605BC4B1FDB2C7100E8A9C5 /* PBXContainerItemProxy */ = {
+		46EB81501FDF15A300496075 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = OBJ_1 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = "Cryptor::Cryptor";
 			remoteInfo = Cryptor;
 		};
-		4605BC4C1FDB2C7100E8A9C5 /* PBXContainerItemProxy */ = {
+		46EB81511FDF15A300496075 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = OBJ_1 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = "Cryptor::Cryptor";
 			remoteInfo = Cryptor;
 		};
-		4605BC4D1FDB2C7100E8A9C5 /* PBXContainerItemProxy */ = {
+		46EB81521FDF15A300496075 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = OBJ_1 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = "CryptoSwift::CryptoSwift";
 			remoteInfo = CryptoSwift;
 		};
-		4605BC4E1FDB2C7100E8A9C5 /* PBXContainerItemProxy */ = {
+		46EB81531FDF15A300496075 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = OBJ_1 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = "swift-sodium::Sodium";
 			remoteInfo = Sodium;
 		};
-		4605BC4F1FDB2C7100E8A9C5 /* PBXContainerItemProxy */ = {
+		46EB81541FDF15A300496075 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = OBJ_1 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = "Shapeshifter-Swift-Transports::ShapeshifterTesting";
 			remoteInfo = ShapeshifterTesting;
 		};
-		4605BC501FDB2C7100E8A9C5 /* PBXContainerItemProxy */ = {
+		46EB81551FDF15A300496075 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = OBJ_1 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = "CryptoSwift::CryptoSwift";
 			remoteInfo = CryptoSwift;
 		};
-		4605BC511FDB2C7100E8A9C5 /* PBXContainerItemProxy */ = {
+		46EB81561FDF15A300496075 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = OBJ_1 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = "Shapeshifter-Swift-Transports::ShapeshifterTesting";
 			remoteInfo = ShapeshifterTesting;
 		};
-		4605BC521FDB2C7100E8A9C5 /* PBXContainerItemProxy */ = {
+		46EB81571FDF15A300496075 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = OBJ_1 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = "Shapeshifter-Swift-Transports::Wisp";
 			remoteInfo = Wisp;
 		};
-		4605BC531FDB2C7100E8A9C5 /* PBXContainerItemProxy */ = {
+		46EB81581FDF15A300496075 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = OBJ_1 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = "Elligator::Elligator";
 			remoteInfo = Elligator;
 		};
-		4605BC541FDB2C7100E8A9C5 /* PBXContainerItemProxy */ = {
+		46EB81591FDF15A300496075 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = OBJ_1 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = "Elligator::ElligatorObjC";
 			remoteInfo = ElligatorObjC;
 		};
-		4605BC551FDB2C7100E8A9C5 /* PBXContainerItemProxy */ = {
+		46EB815A1FDF15A300496075 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = OBJ_1 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = "Elligator::celligator";
 			remoteInfo = celligator;
 		};
-		4605BC561FDB2C7100E8A9C5 /* PBXContainerItemProxy */ = {
+		46EB815B1FDF15A300496075 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = OBJ_1 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = "HKDF::HKDF";
 			remoteInfo = HKDF;
 		};
-		4605BC571FDB2C7100E8A9C5 /* PBXContainerItemProxy */ = {
+		46EB815C1FDF15A300496075 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = OBJ_1 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = "Cryptor::Cryptor";
 			remoteInfo = Cryptor;
 		};
-		4605BC581FDB2C7100E8A9C5 /* PBXContainerItemProxy */ = {
+		46EB815D1FDF15A300496075 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = OBJ_1 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = "CryptoSwift::CryptoSwift";
 			remoteInfo = CryptoSwift;
 		};
-		4605BC591FDB2C7100E8A9C5 /* PBXContainerItemProxy */ = {
+		46EB815E1FDF15A300496075 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = OBJ_1 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = "swift-sodium::Sodium";
 			remoteInfo = Sodium;
 		};
-		4605BC5A1FDB2C7100E8A9C5 /* PBXContainerItemProxy */ = {
+		46EB815F1FDF15A300496075 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = OBJ_1 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = "Shapeshifter-Swift-Transports::ShapeshifterTesting";
 			remoteInfo = ShapeshifterTesting;
 		};
-		4605BC5B1FDB2C7100E8A9C5 /* PBXContainerItemProxy */ = {
+		46EB81601FDF15A300496075 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = OBJ_1 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = "Shapeshifter-Swift-Transports::Meek";
 			remoteInfo = Meek;
 		};
-		4605BC5C1FDB2C7100E8A9C5 /* PBXContainerItemProxy */ = {
+		46EB81611FDF15A300496075 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = OBJ_1 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = "CryptoSwift::CryptoSwift";
 			remoteInfo = CryptoSwift;
 		};
-		4605BC5D1FDB2C7100E8A9C5 /* PBXContainerItemProxy */ = {
+		46EB81621FDF15A300496075 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = OBJ_1 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = "Shapeshifter-Swift-Transports::ShapeshifterTesting";
 			remoteInfo = ShapeshifterTesting;
 		};
-		4605BC5E1FDB2C7300E8A9C5 /* PBXContainerItemProxy */ = {
+		46EB81631FDF15A500496075 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = OBJ_1 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = "Shapeshifter-Swift-Transports::MeekTests";
 			remoteInfo = MeekTests;
 		};
-		4605BC5F1FDB2C7300E8A9C5 /* PBXContainerItemProxy */ = {
+		46EB81641FDF15A500496075 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = OBJ_1 /* Project object */;
 			proxyType = 1;
@@ -696,13 +698,13 @@
 			path = Sources/Meek;
 			sourceTree = SOURCE_ROOT;
 		};
-		OBJ_152 /* swift-sodium 0.5.2 */ = {
+		OBJ_152 /* swift-sodium 0.5.3 */ = {
 			isa = PBXGroup;
 			children = (
 				OBJ_153 /* Package.swift */,
 				OBJ_154 /* Sodium */,
 			);
-			name = "swift-sodium 0.5.2";
+			name = "swift-sodium 0.5.3";
 			path = ".build/checkouts/swift-sodium.git-4026326239528637742";
 			sourceTree = SOURCE_ROOT;
 		};
@@ -793,7 +795,7 @@
 				OBJ_67 /* HKDF 3.0.1 */,
 				OBJ_70 /* Cryptor 0.8.21 */,
 				OBJ_83 /* CryptoSwift 0.8.0 */,
-				OBJ_152 /* swift-sodium 0.5.2 */,
+				OBJ_152 /* swift-sodium 0.5.3 */,
 			);
 			name = Dependencies;
 			sourceTree = "<group>";
@@ -841,7 +843,7 @@
 			path = ".build/checkouts/Elligator.git-1685432175989269477/Sources/celligator";
 			sourceTree = SOURCE_ROOT;
 		};
-		OBJ_5 /*  */ = {
+		OBJ_5 = {
 			isa = PBXGroup;
 			children = (
 				OBJ_6 /* Package.swift */,
@@ -851,7 +853,6 @@
 				OBJ_28 /* Dependencies */,
 				OBJ_169 /* Products */,
 			);
-			name = "";
 			sourceTree = "<group>";
 		};
 		OBJ_54 /* include */ = {
@@ -1349,7 +1350,7 @@
 			knownRegions = (
 				en,
 			);
-			mainGroup = OBJ_5 /*  */;
+			mainGroup = OBJ_5;
 			productRefGroup = OBJ_169 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -1431,6 +1432,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 0;
 			files = (
+				46EB81651FE4912400496075 /* FakeTCPConnection.swift in Sources */,
 				OBJ_223 /* WispTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1543,6 +1545,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 0;
 			files = (
+				46EB81661FE4912900496075 /* FakeTCPConnection.swift in Sources */,
 				OBJ_371 /* MeekTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1631,7 +1634,7 @@
 			files = (
 				OBJ_462 /* FakeNEPacketTunnelProvider.swift in Sources */,
 				OBJ_463 /* FakePacketTunnelProvider.swift in Sources */,
-				OBJ_464 /* FakeTCPConnection.swift in Sources */,
+				46EB81671FE4914700496075 /* FakeTCPConnection.swift in Sources */,
 				OBJ_465 /* FakeUDPSession.swift in Sources */,
 				OBJ_466 /* PacketTunnelProvider.swift in Sources */,
 			);
@@ -1643,142 +1646,142 @@
 		OBJ_234 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = "Shapeshifter-Swift-Transports::Wisp" /* Wisp */;
-			targetProxy = 4605BC521FDB2C7100E8A9C5 /* PBXContainerItemProxy */;
+			targetProxy = 46EB81571FDF15A300496075 /* PBXContainerItemProxy */;
 		};
 		OBJ_236 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = "Elligator::Elligator" /* Elligator */;
-			targetProxy = 4605BC531FDB2C7100E8A9C5 /* PBXContainerItemProxy */;
+			targetProxy = 46EB81581FDF15A300496075 /* PBXContainerItemProxy */;
 		};
 		OBJ_238 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = "Elligator::ElligatorObjC" /* ElligatorObjC */;
-			targetProxy = 4605BC541FDB2C7100E8A9C5 /* PBXContainerItemProxy */;
+			targetProxy = 46EB81591FDF15A300496075 /* PBXContainerItemProxy */;
 		};
 		OBJ_240 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = "Elligator::celligator" /* celligator */;
-			targetProxy = 4605BC551FDB2C7100E8A9C5 /* PBXContainerItemProxy */;
+			targetProxy = 46EB815A1FDF15A300496075 /* PBXContainerItemProxy */;
 		};
 		OBJ_242 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = "HKDF::HKDF" /* HKDF */;
-			targetProxy = 4605BC561FDB2C7100E8A9C5 /* PBXContainerItemProxy */;
+			targetProxy = 46EB815B1FDF15A300496075 /* PBXContainerItemProxy */;
 		};
 		OBJ_244 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = "Cryptor::Cryptor" /* Cryptor */;
-			targetProxy = 4605BC571FDB2C7100E8A9C5 /* PBXContainerItemProxy */;
+			targetProxy = 46EB815C1FDF15A300496075 /* PBXContainerItemProxy */;
 		};
 		OBJ_246 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = "CryptoSwift::CryptoSwift" /* CryptoSwift */;
-			targetProxy = 4605BC581FDB2C7100E8A9C5 /* PBXContainerItemProxy */;
+			targetProxy = 46EB815D1FDF15A300496075 /* PBXContainerItemProxy */;
 		};
 		OBJ_248 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = "swift-sodium::Sodium" /* Sodium */;
-			targetProxy = 4605BC591FDB2C7100E8A9C5 /* PBXContainerItemProxy */;
+			targetProxy = 46EB815E1FDF15A300496075 /* PBXContainerItemProxy */;
 		};
 		OBJ_250 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = "Shapeshifter-Swift-Transports::ShapeshifterTesting" /* ShapeshifterTesting */;
-			targetProxy = 4605BC5A1FDB2C7100E8A9C5 /* PBXContainerItemProxy */;
+			targetProxy = 46EB815F1FDF15A300496075 /* PBXContainerItemProxy */;
 		};
 		OBJ_270 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = "Elligator::Elligator" /* Elligator */;
-			targetProxy = 4605BC441FDB2C7100E8A9C5 /* PBXContainerItemProxy */;
+			targetProxy = 46EB81491FDF15A300496075 /* PBXContainerItemProxy */;
 		};
 		OBJ_271 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = "Elligator::ElligatorObjC" /* ElligatorObjC */;
-			targetProxy = 4605BC481FDB2C7100E8A9C5 /* PBXContainerItemProxy */;
+			targetProxy = 46EB814D1FDF15A300496075 /* PBXContainerItemProxy */;
 		};
 		OBJ_272 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = "Elligator::celligator" /* celligator */;
-			targetProxy = 4605BC491FDB2C7100E8A9C5 /* PBXContainerItemProxy */;
+			targetProxy = 46EB814E1FDF15A300496075 /* PBXContainerItemProxy */;
 		};
 		OBJ_273 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = "HKDF::HKDF" /* HKDF */;
-			targetProxy = 4605BC4A1FDB2C7100E8A9C5 /* PBXContainerItemProxy */;
+			targetProxy = 46EB814F1FDF15A300496075 /* PBXContainerItemProxy */;
 		};
 		OBJ_274 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = "Cryptor::Cryptor" /* Cryptor */;
-			targetProxy = 4605BC4C1FDB2C7100E8A9C5 /* PBXContainerItemProxy */;
+			targetProxy = 46EB81511FDF15A300496075 /* PBXContainerItemProxy */;
 		};
 		OBJ_275 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = "CryptoSwift::CryptoSwift" /* CryptoSwift */;
-			targetProxy = 4605BC4D1FDB2C7100E8A9C5 /* PBXContainerItemProxy */;
+			targetProxy = 46EB81521FDF15A300496075 /* PBXContainerItemProxy */;
 		};
 		OBJ_276 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = "swift-sodium::Sodium" /* Sodium */;
-			targetProxy = 4605BC4E1FDB2C7100E8A9C5 /* PBXContainerItemProxy */;
+			targetProxy = 46EB81531FDF15A300496075 /* PBXContainerItemProxy */;
 		};
 		OBJ_277 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = "Shapeshifter-Swift-Transports::ShapeshifterTesting" /* ShapeshifterTesting */;
-			targetProxy = 4605BC4F1FDB2C7100E8A9C5 /* PBXContainerItemProxy */;
+			targetProxy = 46EB81541FDF15A300496075 /* PBXContainerItemProxy */;
 		};
 		OBJ_286 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = "Elligator::ElligatorObjC" /* ElligatorObjC */;
-			targetProxy = 4605BC451FDB2C7100E8A9C5 /* PBXContainerItemProxy */;
+			targetProxy = 46EB814A1FDF15A300496075 /* PBXContainerItemProxy */;
 		};
 		OBJ_287 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = "Elligator::celligator" /* celligator */;
-			targetProxy = 4605BC471FDB2C7100E8A9C5 /* PBXContainerItemProxy */;
+			targetProxy = 46EB814C1FDF15A300496075 /* PBXContainerItemProxy */;
 		};
 		OBJ_295 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = "Elligator::celligator" /* celligator */;
-			targetProxy = 4605BC461FDB2C7100E8A9C5 /* PBXContainerItemProxy */;
+			targetProxy = 46EB814B1FDF15A300496075 /* PBXContainerItemProxy */;
 		};
 		OBJ_331 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = "Cryptor::Cryptor" /* Cryptor */;
-			targetProxy = 4605BC4B1FDB2C7100E8A9C5 /* PBXContainerItemProxy */;
+			targetProxy = 46EB81501FDF15A300496075 /* PBXContainerItemProxy */;
 		};
 		OBJ_376 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = "Shapeshifter-Swift-Transports::Meek" /* Meek */;
-			targetProxy = 4605BC5B1FDB2C7100E8A9C5 /* PBXContainerItemProxy */;
+			targetProxy = 46EB81601FDF15A300496075 /* PBXContainerItemProxy */;
 		};
 		OBJ_378 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = "CryptoSwift::CryptoSwift" /* CryptoSwift */;
-			targetProxy = 4605BC5C1FDB2C7100E8A9C5 /* PBXContainerItemProxy */;
+			targetProxy = 46EB81611FDF15A300496075 /* PBXContainerItemProxy */;
 		};
 		OBJ_379 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = "Shapeshifter-Swift-Transports::ShapeshifterTesting" /* ShapeshifterTesting */;
-			targetProxy = 4605BC5D1FDB2C7100E8A9C5 /* PBXContainerItemProxy */;
+			targetProxy = 46EB81621FDF15A300496075 /* PBXContainerItemProxy */;
 		};
 		OBJ_388 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = "CryptoSwift::CryptoSwift" /* CryptoSwift */;
-			targetProxy = 4605BC501FDB2C7100E8A9C5 /* PBXContainerItemProxy */;
+			targetProxy = 46EB81551FDF15A300496075 /* PBXContainerItemProxy */;
 		};
 		OBJ_389 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = "Shapeshifter-Swift-Transports::ShapeshifterTesting" /* ShapeshifterTesting */;
-			targetProxy = 4605BC511FDB2C7100E8A9C5 /* PBXContainerItemProxy */;
+			targetProxy = 46EB81561FDF15A300496075 /* PBXContainerItemProxy */;
 		};
 		OBJ_472 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = "Shapeshifter-Swift-Transports::MeekTests" /* MeekTests */;
-			targetProxy = 4605BC5E1FDB2C7300E8A9C5 /* PBXContainerItemProxy */;
+			targetProxy = 46EB81631FDF15A500496075 /* PBXContainerItemProxy */;
 		};
 		OBJ_473 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = "Shapeshifter-Swift-Transports::WispTests" /* WispTests */;
-			targetProxy = 4605BC5F1FDB2C7300E8A9C5 /* PBXContainerItemProxy */;
+			targetProxy = 46EB81641FDF15A500496075 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 

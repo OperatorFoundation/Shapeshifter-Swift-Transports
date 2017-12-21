@@ -67,15 +67,15 @@ struct Nonce
 
 struct HashDrbg
 {
-    var sip: Data //hash.Hash64
-    var ofb = Data(capacity: siphashSize) // [Size]byte
+    var sip: Data
+    var ofb = Data(capacity: siphashSize)
 
-    // NextBlock returns the next 8 byte DRBG block.
+    /// NextBlock returns the next 8 byte DRBG block.
     mutating func nextBlock() -> Data
     {
         let sodium = Sodium()
         self.ofb = sodium.shortHash.hash(message: self.ofb, key: self.sip)!
-        return self.ofb
+        return self.ofb[0 ..< 8]
     }
 }
 
@@ -83,7 +83,7 @@ struct WispEncoder
 {
     let secretBoxKey: Data
     let sodium = Sodium()
-    let nonce: Nonce
+    var nonce: Nonce
     var drbg: HashDrbg
     
     init?(withKey key: Data)
@@ -95,11 +95,11 @@ struct WispEncoder
             return nil
         }
         
-        let secretBoxKey = key[0 ..< keyLength]
-        let nonce = Nonce(prefix: key[keyLength ..< keyLength + noncePrefixLength])
-        let seed = key[keyLength + noncePrefixLength ..< key.count]
-        let sipKey: Data = seed[0 ..< 16]
-        let ofb = seed[16 ..< seed.count]
+        let secretBoxKey = Data(key[0 ..< keyLength])
+        let nonce = Nonce(prefix: Data(key[keyLength ..< keyLength + noncePrefixLength]))
+        let seed = Data(key[keyLength + noncePrefixLength ..< key.count])
+        let sipKey = Data(seed[0 ..< 16])
+        let ofb = Data(seed[16 ..< seed.count])
         
         self.secretBoxKey = secretBoxKey
         self.nonce = nonce
@@ -107,7 +107,6 @@ struct WispEncoder
     }
     
     /// Encode encodes a single frame worth of payload and returns the encoded frame.
-    // TODO: InvalidPayloadLengthError is recoverable, all other errors MUST be treated as fatal and the session aborted. <-----
     mutating func encode(payload: Data) -> Data?
     {
         let payloadLength = payload.count
@@ -121,21 +120,22 @@ struct WispEncoder
         // Nonce counter increases by 1 every time we access the nonce.data property
         // Encrypt and MAC payload.
         
-        /// TODO: SecretBox needs to take a nonce <Update API> <<-------------------
-        guard let encodedData: Data = sodium.secretBox.seal(message: payload, secretKey: secretBoxKey)
+        guard let encodedData: Data = sodium.secretBox.seal(message: payload, secretKey: secretBoxKey, nonce: self.nonce.data)
         else
         {
             return nil
         }
         
         // Obfuscate the length.
-        let lengthMask = self.drbg.nextBlock()
+        let lengthMask = self.drbg.nextBlock().bytes
         var length = encodedData.count.bigEndian
-        let lengthData = Data(buffer:UnsafeBufferPointer(start: &length, count: 2))
+        let lengthData = Data(buffer:UnsafeBufferPointer(start: &length, count: 2)).bytes
         
-        var obfuscatedLength = Data(capacity: 2)
-        obfuscatedLength[0] = lengthData[0] ^ lengthMask[0]
-        obfuscatedLength[1] = lengthData[1] ^ lengthMask[1]
+        var obfuscatedLength = Data()
+        let first = lengthData[0] ^ lengthMask[0]
+        let second = lengthData[1] ^ lengthMask[1]
+        obfuscatedLength.append(first)
+        obfuscatedLength.append(second)
         
         var frame = Data()
         frame.append(obfuscatedLength)
@@ -169,9 +169,9 @@ struct WispDecoder
         self.secretBoxKey = key[0 ..< keyLength]
         self.nonce = Nonce(prefix: key[keyLength ..< keyLength + noncePrefixLength])
         
-        let seed = key[keyLength + noncePrefixLength ..< key.count]
-        let sipKey: Data = seed[0 ..< 16]
-        let ofb = seed[16 ..< seed.count]
+        let seed = Data(key[keyLength + noncePrefixLength ..< key.count])
+        let sipKey = Data(seed[0 ..< 16])
+        let ofb = Data(seed[16 ..< seed.count])
         self.drbg = HashDrbg(sip: sipKey, ofb: ofb)
     }
 
@@ -186,7 +186,7 @@ struct WispDecoder
             if lengthLength > framesBuffer.count
             {
                 // If the frame buffer only has one bite, we need to wait for another byte.
-                /// ErrAgain
+                // ErrAgain
                 return .retry
             }
             
@@ -217,17 +217,17 @@ struct WispDecoder
                 */
                 
                 self.nextLengthInvalid = true
-                nextLength = random(minFrameLength ..< maxFrameLength + 1)
+                nextLength = random(inRange: minFrameLength ..< maxFrameLength + 1)
             }
             
             if nextLength! > framesBuffer.count
             {
-                /// ErrAgain
+                // ErrAgain
                 // We expected more data than we got!
                 return .retry
             }
             
-            /// Unseal the frame.
+            // Unseal the frame.
             let box = framesBuffer[UInt16(lengthLength) ..< nextLength!]
             let leftovers = framesBuffer[lengthLength + Int(nextLength!) ..< framesBuffer.count]
             
@@ -243,7 +243,7 @@ struct WispDecoder
                 return .failed
             }
             
-            /// Clean up and prepare for the next frame.
+            // Clean up and prepare for the next frame.
             nextLength = nil
             
             return .success(decodedData: decodedData, leftovers: leftovers)
@@ -252,7 +252,7 @@ struct WispDecoder
         return .failed
     }
     
-    func random(_ range:Range<Int>) -> UInt16
+    func random(inRange range:Range<Int>) -> UInt16
     {
         return UInt16(range.lowerBound + Int(arc4random_uniform(UInt32(range.upperBound - range.lowerBound))))
     }

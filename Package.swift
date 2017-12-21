@@ -17,7 +17,7 @@ let package = Package(
     dependencies: [
         // Dependencies declare other packages that this package depends on.
          .package(url: "https://github.com/IBM-Swift/CommonCrypto.git", from: "0.1.5"),
-         .package(url: "https://github.com/OperatorFoundation/swift-sodium.git", from: "0.5.2"),
+         .package(url: "https://github.com/OperatorFoundation/swift-sodium.git", from: "0.5.3"),
          .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", from: "0.7.2"),
          .package(url: "https://github.com/Bouke/HKDF.git", from: "3.0.1"),
          .package(url: "https://github.com/OperatorFoundation/Elligator.git", from: "0.1.0"),

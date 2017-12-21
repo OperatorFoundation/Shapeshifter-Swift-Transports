@@ -76,26 +76,73 @@ struct Keypair
 {
     let publicKey: Data
     let privateKey: Data
-    let representative: Data // The Elligator-compressed public key
+    /// The Elligator-compressed public key
+    let representative: Data
 }
 
 struct ClientHandshake
 {
     let keypair: Keypair
     let nodeID: Data
-    let serverIdentityPublicKey: Data // *ntor.PublicKey
+    let serverIdentityPublicKey: Data
     let padLength: Int
-    let mac: HMAC // hash.Hash
+    let mac: HMAC
     
-    var serverRepresentative: Data? //*ntor.Representative
-    var serverAuth: Data? // *ntor.Auth
-    var serverMark: Data? // []byte
-    var epochHour: String? // []byte
+    var epochHour: String
+    
+    var data: Data?
+    {
+        get
+        {
+            var handshakeBuffer = Data()
+            
+            // X
+            let publicKeyRepresentative = self.keypair.representative
+            
+            ///TODO: P_C
+            guard let padding = randomBytes(number: self.padLength)
+                else
+            {
+                print("Unable to generate padding for client handshake")
+                return nil
+            }
+            
+            //Mark
+            guard  let mark = try? self.mac.authenticate(self.keypair.representative.bytes)
+                else
+            {
+                print("Unable to create hmac for mark.")
+                return nil
+            }
+            
+            // Write X, P_C, M_C.
+            handshakeBuffer.append(publicKeyRepresentative)
+            handshakeBuffer.append(padding)
+            handshakeBuffer.append(contentsOf: mark[0 ..< markLength])
+            
+            // Calculate and write the MAC.
+            guard let macOfBuffer = try? self.mac.authenticate(handshakeBuffer.bytes + self.epochHour.bytes)
+                else
+            {
+                print("Unable to create hmac for handshake buffer.")
+                return nil
+            }
+            
+            handshakeBuffer.append(contentsOf: macOfBuffer[0 ..< macLength])
+            
+            return handshakeBuffer
+        }
+    }
     
     init?(certString: String, sessionKey: Keypair)
     {
+        self.init(certString: certString, sessionKey: sessionKey, epochHourString: nil)
+    }
+    
+    init?(certString: String, sessionKey: Keypair, epochHourString: String?)
+    {
         guard let (unpackedNodeID, unpackedPublicKey) = unpack(certString: certString)
-        else
+            else
         {
             print("Attempted to init ClientHandshake with invalid cert string.")
             return nil
@@ -113,91 +160,34 @@ struct ClientHandshake
         // HMAC
         let hmac = HMAC(key: unpackedPublicKey.bytes + nodeID.bytes, variant: .sha256)
         self.mac = hmac
+        
+        // E
+        if epochHourString == nil
+        {
+            let epochString = "\(ClientHandshake.getEpochHour())"
+            self.epochHour = epochString
+        }
+        else
+        {
+            self.epochHour = epochHourString!
+        }
     }
     
     /// Returns the number of hours since the UNIX epoch.
-    func getEpochHour() -> Int
+     static func getEpochHour() -> Int
     {
         let secondsSince1970 = Date().timeIntervalSince1970
         let hoursSince1970 = secondsSince1970/3600
         
         return Int(hoursSince1970)
     }
-    
-    mutating func generateClientHandshake() -> Data?
-    {
-        var handshakeBuffer = Data()
-        
-        /// X
-        let publicKeyRepresentative = self.keypair.representative
-        
-        ///TODO: P_C
-        guard let padding = randomBytes(number: self.padLength)
-            else
-        {
-            print("Unable to generate padding for client handshake")
-            return nil
-        }
-        
-        ///Mark
-        guard  let mark = try? self.mac.authenticate(self.keypair.representative.bytes)
-            else
-        {
-            print("Unable to create hmac for mark.")
-            return nil
-        }
-        
-        // Write X, P_C, M_C.
-        handshakeBuffer.append(publicKeyRepresentative)
-        handshakeBuffer.append(padding)
-        handshakeBuffer.append(contentsOf: mark[0 ..< markLength])
-        
-        /// E
-        let epochHourString = "\(getEpochHour())"
-        self.epochHour = epochHourString
-        
-        // Calculate and write the MAC.
-        guard let macOfBuffer = try? self.mac.authenticate(handshakeBuffer.bytes + epochHourString.bytes)
-            else
-        {
-            print("Unable to create hmac for handshake buffer.")
-            return nil
-        }
-        
-        handshakeBuffer.append(contentsOf: macOfBuffer[0 ..< macLength])
-        
-        return handshakeBuffer
-    }
 }
 
 struct ServerHandshake
 {
-    let keypair: Keypair
-    let nodeID: Data
-    let serverIdentityKeypair: Keypair
-    let padLength: Int
-    let mac: HMAC
-    
-    var epochHour: String?
-    var serverAuth: Data?
-    var clientRepresentative: Data?
-    var clientMark: Data?
-    
-    init(nodeID: Data, serverIdentity: Keypair, sessionKey: Keypair)
-    {
-        self.keypair = sessionKey
-        self.nodeID = nodeID
-        self.serverIdentityKeypair = serverIdentity
-        
-        // Pad Length
-        let min = UInt32(serverMinPadLength)
-        let max = UInt32(serverMaxPadLength)
-        self.padLength = Int(arc4random_uniform(1 + max - min)) + clientMinPadLength
-        
-        // HMAC
-        let hmac = HMAC(key: serverIdentityKeypair.publicKey.bytes + nodeID.bytes, variant: .sha256)
-        self.mac = hmac
-    }
+    var serverAuth: Data
+    var serverRepresentative: Data
+    var serverMark: Data
 }
 
 class WispProtocol
@@ -238,7 +228,7 @@ class WispProtocol
     func connectWithHandshake(certString: String, sessionKey: Keypair, completion: @escaping (Error?) -> Void)
     {
         // Generate and send the client handshake.
-        guard var newHandshake = ClientHandshake(certString: certString, sessionKey: sessionKey)
+        guard let newHandshake = ClientHandshake(certString: certString, sessionKey: sessionKey)
         else
         {
             print("Unable to init client handshake.")
@@ -246,7 +236,7 @@ class WispProtocol
             return
         }
         
-        guard let clientHandshakeBytes = newHandshake.generateClientHandshake()
+        guard let clientHandshakeBytes = newHandshake.data
         else
         {
             print("Unable to generate handshake.")
@@ -291,8 +281,7 @@ class WispProtocol
     
     func readServerHandshake(clientHandshake: ClientHandshake, buffer: Data, completion:  @escaping (Error?) -> Void)
     {
-        var thisHandshake = clientHandshake
-        let result = self.parseServerHandshake(clientHandshake: &thisHandshake, response: buffer)
+        let result = self.parseServerHandshake(clientHandshake: clientHandshake, response: buffer)
         
         switch result
         {
@@ -321,7 +310,7 @@ class WispProtocol
                 }
                 
                 let newBuffer = buffer + readData
-                self.readServerHandshake(clientHandshake: thisHandshake, buffer: newBuffer, completion: completion)
+                self.readServerHandshake(clientHandshake: clientHandshake, buffer: newBuffer, completion: completion)
                 return
             }
         case let .success(seed):
@@ -345,31 +334,27 @@ class WispProtocol
         }
     }
     
-    func parseServerHandshake(clientHandshake: inout ClientHandshake, response: Data) -> ParseServerHSResult
+    func parseServerHandshake(clientHandshake: ClientHandshake, response: Data) -> ParseServerHSResult
     {
-        if clientHandshake.serverRepresentative == nil || clientHandshake.serverAuth == nil
-        {
-            // Pull out the representative/AUTH.
-            let serverRepresentative = response[0 ..< representativeLength]
-            clientHandshake.serverRepresentative = serverRepresentative
-            clientHandshake.serverAuth = response[representativeLength ..< representativeLength * 2]
-            
-            // Derive the mark.
-            guard let serverMark = try? clientHandshake.mac.authenticate(serverRepresentative.bytes)
+        // Pull out the representative/AUTH.
+        let serverRepresentative = response[0 ..< representativeLength]
+        let serverAuth = response[representativeLength ..< representativeLength * 2]
+        
+        // Derive the mark.
+        guard let macOfRepresentativeBytes = try? clientHandshake.mac.authenticate(serverRepresentative.bytes)
             else
-            {
-                print("Unable to derive mark from sever handshake.")
-                return .failed
-            }
-            
-            clientHandshake.serverMark = Data(serverMark)
+        {
+            print("Unable to derive mark from sever handshake.")
+            return .failed
         }
         
+        let serverMark = Data(macOfRepresentativeBytes[0 ..< markLength])
+        let serverHandshake = ServerHandshake(serverAuth: serverAuth, serverRepresentative: serverRepresentative, serverMark: serverMark)
+        
         // Attempt to find the mark + MAC.
-        let clientMark = clientHandshake.serverMark!
         let startPosition = representativeLength + authLength + serverMinPadLength
         
-        guard let pos = findMarkMac(mark: clientMark, buf: response, startPos: startPosition, maxPos: maxHandshakeLength)
+        guard let markStartPosition = findMarkMac(mark: serverMark, buf: response, startPos: startPosition, maxPos: maxHandshakeLength)
         else
         {
             if response.count >= maxHandshakeLength
@@ -385,49 +370,54 @@ class WispProtocol
         }
         
         // Validate the MAC.
-        let mark = response[0 ..< pos + markLength]
-        guard let epochHour = clientHandshake.epochHour
-        else
-        {
-            print("Unable to get epoch hour from client handshake.")
-            return .failed
-        }
+        let prefixIncludingMark = response[0 ..< markStartPosition + markLength]
+        let epochHour = clientHandshake.epochHour
+        let providedMac = response[markStartPosition + markLength ..< markStartPosition + markLength + macLength]
         
-        let providedMac = response[pos + markLength ..< pos + markLength + macLength]
-        
-        guard let calculatedMac = try? clientHandshake.mac.authenticate(mark + epochHour.bytes)
+        guard let calculatedMacBytes = try? clientHandshake.mac.authenticate(prefixIncludingMark + epochHour.bytes)
         else
         {
             print("Error with calculating client mac")
             return .failed
         }
         
-        guard providedMac == Data(calculatedMac[0 ..< macLength])
+        let calculatedMac = Data(calculatedMacBytes[0 ..< macLength])
+        
+        guard providedMac == calculatedMac
         else
         {
             print("Server provided mac does not match what we believe the mac should be!")
             return .failed
         }
 
-        // Complete the handshake.
-        let serverPublicKey = publicKey(representative: clientHandshake.serverRepresentative!)
-
-        guard let (seed, auth) = ntorClientHandshake(clientKeypair: clientHandshake.keypair, serverPublicKey: serverPublicKey, idPublicKey: clientHandshake.serverIdentityPublicKey, nodeID: clientHandshake.nodeID)
+        guard let seed = getSeedFromHandshake(clientHandshake: clientHandshake, serverHandshake: serverHandshake)
         else
+        {
+            return .failed
+        }
+
+        return .success(seed: seed)
+    }
+    
+    func getSeedFromHandshake(clientHandshake: ClientHandshake, serverHandshake: ServerHandshake) -> Data?
+    {
+        let serverPublicKey = publicKey(representative: serverHandshake.serverRepresentative)
+        
+        guard let (seed, auth) = ntorClientHandshake(clientKeypair: clientHandshake.keypair, serverPublicKey: serverPublicKey, idPublicKey: clientHandshake.serverIdentityPublicKey, nodeID: clientHandshake.nodeID)
+            else
         {
             print("ntorClientHandshake failed")
-            return .failed
+            return nil
         }
-    
-        guard auth == clientHandshake.serverAuth
-        else
+        
+        guard auth == serverHandshake.serverAuth
+            else
         {
             print("Parse server handshake failed: invalid auth.")
-            return .failed
+            return nil
         }
-
-        let index = pos + markLength + macLength
-        return .success(seed: seed)
+        
+        return seed
     }
     
     func readPackets(minRead: Int, maxRead: Int, completion: @escaping (Data?, Error?) -> Void)
@@ -522,8 +512,6 @@ class WispProtocol
     /// ntorClientHandshake does the client side of a ntor handshake and returns status, KEY_SEED, and AUTH.
     func ntorClientHandshake(clientKeypair: Keypair, serverPublicKey: Data, idPublicKey: Data, nodeID: Data) -> (keySeed: Data, auth: Data)?
     {
-        /// If status is not true or AUTH does not match the value recieved from the server, the handshake MUST be aborted.
-        
         var secretInput = Data()
         
         // Client side uses EXP(Y,x) | EXP(B,x)
@@ -706,22 +694,24 @@ func serverCert(fromString encodedString: String) -> Data?
 func newKeypair() -> Keypair?
 {
     let sodium = Sodium()
-    
-    guard let sodiumKeypair = sodium.box.keyPair()
-    else
-    {
-        return nil
-    }
-    
-    //TODO: elligator compression of public key to get representative
+
+    // Elligator compression of public key to get representative
     var elligatorRepresentative: Data?
+    var maybeKeypair: Box.KeyPair?
     
     // Apply the Elligator transform.  This fails ~50% of the time.
     var count = 0
     while elligatorRepresentative == nil, count < 50
     {
+        guard let sodiumKeypair = sodium.box.keyPair()
+            else
+        {
+            return nil
+        }
+        
         if let result = representative(privateKey: sodiumKeypair.secretKey)
         {
+            maybeKeypair = sodiumKeypair
             elligatorRepresentative = result.representative
         }
         
@@ -734,44 +724,15 @@ func newKeypair() -> Keypair?
         return nil
     }
     
-    if let actualRepresentative = elligatorRepresentative?.bytes
+    if let actualRepresentative = elligatorRepresentative?.bytes, let newKeypair = maybeKeypair
     {
-        let newKeypair = Keypair(publicKey: sodiumKeypair.publicKey, privateKey: sodiumKeypair.secretKey, representative: Data(actualRepresentative))
-        return newKeypair
+        let wispKeypair = Keypair(publicKey: newKeypair.publicKey, privateKey: newKeypair.secretKey, representative: Data(actualRepresentative))
+        return wispKeypair
     }
     else
     {
         return nil
     }
-}
-
-func makePacket(data: Data, padLen: Int) -> Data
-{
-/*
-     func (conn *obfs4Conn) makePacket(w io.Writer, pktType uint8, data []byte, padLen uint16) error
-     {
-     var pkt [framing.MaximumFramePayloadLength]byte
-     
-     if len(data)+int(padLen) > maxPacketPayloadLength {
-     panic(fmt.Sprintf("BUG: makePacket() len(data) + padLen > maxPacketPayloadLength: %d + %d > %d",
-     len(data), padLen, maxPacketPayloadLength))
-     }
-     
-     pkt[0] = pktType
-     binary.BigEndian.PutUint16(pkt[1:], uint16(len(data)))
-     if len(data) > 0 {
-     copy(pkt[3:], data[:])
-     }
-     copy(pkt[3+len(data):], zeroPadBytes[:padLen])
-     
-     pktLen := packetOverhead + len(data) + int(padLen)
-     
-     // Encode the packet in an AEAD frame.
-     var frame [framing.MaximumSegmentLength]byte
-     frameLen, err := conn.encoder.Encode(frame[:], pkt[:pktLen])
- */
-    
-    return Data()
 }
 
 func randomBytes(number: Int) -> Data?
