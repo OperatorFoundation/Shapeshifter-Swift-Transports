@@ -9,8 +9,7 @@
 import Foundation
 import NetworkExtension
 
-extension NEPacketTunnelProvider: PacketTunnelProvider {
-}
+
 
 class FakeNEPacketTunnelProvider: NEPacketTunnelProvider
 {
@@ -63,11 +62,13 @@ class FakeNEPacketTunnelProvider: NEPacketTunnelProvider
         // Do nothing
     }
     
-    override func createTCPConnectionThroughTunnel(to remoteEndpoint: NWEndpoint,
+    func createTCPConnectionThroughTunnel(to remoteEndpoint: NWEndpoint,
                                           enableTLS: Bool,
                                           tlsParameters TLSParameters: NWTLSParameters?,
-                                          delegate: Any?) -> NWTCPConnection {
-        return FakeTCPConnection(to: remoteEndpoint)!
+                                          delegate: Any?,
+                                          stateCallback:@escaping (NWTCPConnectionState, Error?) -> Void) -> TCPConnection?
+    {
+        return FakeTCPConnection(to: remoteEndpoint, callback: stateCallback)
     }
     
     override func createUDPSessionThroughTunnel(to remoteEndpoint: NWEndpoint,

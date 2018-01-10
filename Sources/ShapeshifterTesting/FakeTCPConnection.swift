@@ -9,92 +9,97 @@
 import Foundation
 import NetworkExtension
 
-public func createFakeTCPConnection(to:NWEndpoint) -> FakeTCPConnection {
-    return FakeTCPConnection(to:to)!
+public func createFakeTCPConnection(to:NWEndpoint,
+                                    stateCallback:@escaping (NWTCPConnectionState, Error?) -> Void) -> FakeTCPConnection?
+{
+    return FakeTCPConnection(to: to, callback: stateCallback)
 }
 
-public class FakeTCPConnection: NWTCPConnection
+public class FakeTCPConnection: TCPConnection
 {
     var network: URLSessionStreamTask
     var privEndpoint: NWEndpoint
     var privIsViable: Bool
     var privState: NWTCPConnectionState
+    var stateCallback: (NWTCPConnectionState, Error?) -> Void
     
-    override public var state: NWTCPConnectionState {
+    public var state: NWTCPConnectionState {
         get {
             return privState
         }
     }
     
-    override public var isViable: Bool {
+    public var isViable: Bool {
         get {
             return privIsViable
         }
     }
     
-    override public var error: Error? {
+    public var error: Error? {
         get {
             return nil
         }
     }
     
-    override public var endpoint: NWEndpoint {
+    public var endpoint: NWEndpoint {
         get {
             return privEndpoint
         }
     }
     
-    override public var remoteAddress: NWEndpoint? {
+    public var remoteAddress: NWEndpoint? {
         get {
             return privEndpoint
         }
     }
     
-    override public var localAddress: NWEndpoint? {
+    public var localAddress: NWEndpoint? {
         get {
             return NWHostEndpoint(hostname: "127.0.0.1", port: "1234")
         }
     }
     
-    override public var connectedPath: NWPath? {
+    public var connectedPath: NWPath? {
         get {
             return nil
         }
     }
     
-    override public var txtRecord: Data? {
+    public var txtRecord: Data? {
         get {
             return nil
         }
     }
     
-    override public var hasBetterPath: Bool {
+    public var hasBetterPath: Bool {
         get {
             return false
         }
     }
 
-    init?(to:NWEndpoint) {
-        privEndpoint=to
-        
+    init?(to: NWEndpoint, callback: @escaping (NWTCPConnectionState, Error?) -> Void)
+    {
         if let hostendpoint = to as? NWHostEndpoint
         {
+            privEndpoint = to
             let session = URLSession(configuration: .default, delegate: nil, delegateQueue: nil)
             network = session.streamTask(withHostName: "tcp://\(hostendpoint.hostname)", port: Int(hostendpoint.port)!)
             network.resume()
             
-            privIsViable=true
+            privIsViable = true
             privState = .connected
             
-            super.init()
-        } else {
-            privIsViable=false
-            privState = .disconnected
+            self.stateCallback = callback
+            callback(privState, nil)
+        }
+        else
+        {
+            callback(.disconnected, TCPConnectionError.invalidNWEndpoint)
             return nil
         }
     }
     
-    override public func readMinimumLength(_ minimum: Int, maximumLength maximum: Int, completionHandler completion: @escaping (Data?, Error?) -> Void)
+    public func readMinimumLength(_ minimum: Int, maximumLength maximum: Int, completionHandler completion: @escaping (Data?, Error?) -> Void)
     {
         network.readData(ofMinLength: 0, maxLength: 100000, timeout: 60)
         {
@@ -114,7 +119,7 @@ public class FakeTCPConnection: NWTCPConnection
         }
     }
     
-    override public func readLength(_ length: Int, completionHandler completion: @escaping (Data?, Error?) -> Void) {
+    public func readLength(_ length: Int, completionHandler completion: @escaping (Data?, Error?) -> Void) {
         readMinimumLength(length, maximumLength: length)
         {
             (data, error) in
@@ -133,7 +138,7 @@ public class FakeTCPConnection: NWTCPConnection
         }
     }
     
-    override public func write(_ data: Data, completionHandler completion: @escaping (Error?) -> Void)
+    public func write(_ data: Data, completionHandler completion: @escaping (Error?) -> Void)
     {
         network.write(data, timeout: 0)
         {
@@ -143,12 +148,12 @@ public class FakeTCPConnection: NWTCPConnection
         }
     }
     
-    override public func writeClose()
+    public func writeClose()
     {
         network.closeWrite()
     }
     
-    override public func cancel() {
+    public func cancel() {
         writeClose()
         network.closeRead()
         privState = .cancelled

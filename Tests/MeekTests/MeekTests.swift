@@ -61,11 +61,8 @@ class Shapeshifter_Swift_TransportsTests: XCTestCase
         XCTAssertNotNil(maybeSessionID)
         if let sessionID = maybeSessionID
         {
-            print("Tested session ID generation, result:")
-            print(sessionID)
             XCTAssertTrue(sessionID.count == 32)
         }
-        
     }
     
     func testGetStatusCode()

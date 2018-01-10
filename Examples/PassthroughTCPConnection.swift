@@ -14,14 +14,14 @@ func createPassthroughTCPConnection(provider: NEPacketTunnelProvider, to: NWEndp
     return PassthroughTCPConnection(provider: provider, to: to)
 }
 
-func createPassthroughTCPConnection(connection: NWTCPConnection) -> PassthroughTCPConnection
+func createPassthroughTCPConnection(connection: TCPConnection) -> PassthroughTCPConnection
 {
     return PassthroughTCPConnection(connection: connection)
 }
 
-class PassthroughTCPConnection: NWTCPConnection
+class PassthroughTCPConnection: TCPConnection
 {
-    var network: NWTCPConnection
+    var network: TCPConnection
     var writeClosed = false
     
     override var state: NWTCPConnectionState {
@@ -84,7 +84,7 @@ class PassthroughTCPConnection: NWTCPConnection
         super.init()
     }
     
-    init(connection: NWTCPConnection) {
+    init(connection: TCPConnection) {
         network = connection
         
         super.init()

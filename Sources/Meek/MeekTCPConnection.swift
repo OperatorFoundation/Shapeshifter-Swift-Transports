@@ -12,17 +12,38 @@ import SecurityFoundation
 import CryptoSwift
 import ShapeshifterTesting
 
-func createMeekTCPConnection(provider: PacketTunnelProvider, to: URL, serverURL: URL) -> MeekTCPConnection
+func createMeekTCPConnection(provider: PacketTunnelProvider, to: URL, serverURL: URL, stateCallback: @escaping (NWTCPConnectionState, Error?) -> Void) -> MeekTCPConnection?
 {
-
-    return MeekTCPConnection(provider: provider /* as! NEPacketTunnelProvider */, to: to, url: serverURL)
+    return MeekTCPConnection(provider: provider, to: to, url: serverURL, stateCallback: stateCallback)
 }
 
-class MeekTCPConnection: NWTCPConnection
+class MeekTCPConnection: TCPConnection
 {
+    var hasBetterPath: Bool {
+        get {
+            return network.hasBetterPath
+        }
+    }
+    
+    var endpoint: NWEndpoint {
+        get {
+            return network.endpoint
+        }
+    }
+    
+    var connectedPath: NWPath?
+    
+    var localAddress: NWEndpoint?
+    
+    var remoteAddress: NWEndpoint?
+    
+    var txtRecord: Data?
+    
+    var error: Error?
+    
     var serverURL: URL
     var frontURL: URL
-    var network: NWTCPConnection
+    var network: TCPConnection
     var privIsViable: Bool
     var privState: NWTCPConnectionState
     var bodyBuffer = Data()
@@ -47,8 +68,7 @@ class MeekTCPConnection: NWTCPConnection
         case unsuppotedURL
     }
     
-    ///Whether or not data can be transferred over a tcp connection.
-    override var isViable: Bool
+    var isViable: Bool
     {
         get
         {
@@ -56,7 +76,7 @@ class MeekTCPConnection: NWTCPConnection
         }
     }
     
-    override var state: NWTCPConnectionState
+    var state: NWTCPConnectionState
     {
         get
         {
@@ -64,35 +84,40 @@ class MeekTCPConnection: NWTCPConnection
         }
     }
     
-    init(provider: PacketTunnelProvider, to front: URL, url: URL)
+    init?(provider: PacketTunnelProvider, to front: URL, url: URL, stateCallback: @escaping (NWTCPConnectionState, Error?) -> Void)
     {
         serverURL = url
         frontURL = front
-        privIsViable = true
-        privState = .connected
-        
-        
+
         let frontHostname = frontURL.host!
-        
         let endpoint: NWEndpoint = NWHostEndpoint(hostname: frontHostname, port: "80")
-        network = provider.createTCPConnectionThroughTunnel(to: endpoint, enableTLS: true, tlsParameters: nil, delegate: nil)
         
-        super.init()
-        
+        guard let tcpConnection = provider.createTCPConnectionThroughTunnel(to: endpoint, enableTLS: true, tlsParameters: nil, delegate: nil, stateCallback: stateCallback)
+        else
+        {
+            stateCallback(.disconnected, TCPConnectionError.networkConnectionFailed)
+            return nil
+        }
+
+        network = tcpConnection
+        privState = .connected
+        privIsViable = true
         sessionID = generateSessionID() ?? ""
+        stateCallback(.connected, nil)
+        
     }
     
-    ///Testing Only
-    convenience init(testDate: Date)
+    ///Testing Only <-------------------
+    convenience init?(testDate: Date, stateCallback: @escaping (NWTCPConnectionState, Error?) -> Void)
     {
         let provider = FakePacketTunnelProvider()
         let sURL = URL(string: "http://TestServer.com")!
         let fURL = URL(string: "http://TestFront.com")!
-        self.init(provider: provider, to: fURL, url: sURL)
+        self.init(provider: provider, to: fURL, url: sURL, stateCallback: stateCallback)
     }
     
-    ///Currrently this function ignores the minimum and maximum lengths provided.
-    override func readMinimumLength(_ minimum: Int, maximumLength maximum: Int, completionHandler completion: @escaping (Data?, Error?) -> Void)
+    // Currrently this function ignores the minimum and maximum lengths provided.
+    func readMinimumLength(_ minimum: Int, maximumLength maximum: Int, completionHandler completion: @escaping (Data?, Error?) -> Void)
     {
         guard isViable
         else
@@ -138,7 +163,7 @@ class MeekTCPConnection: NWTCPConnection
         }
     }
     
-    override func readLength(_ length: Int, completionHandler completion: @escaping (Data?, Error?) -> Void)
+    func readLength(_ length: Int, completionHandler completion: @escaping (Data?, Error?) -> Void)
     {
         readMinimumLength(length, maximumLength: length, completionHandler: completion)
     }
@@ -189,7 +214,7 @@ class MeekTCPConnection: NWTCPConnection
      return
      }
 */
-    override func write(_ data: Data, completionHandler completion: @escaping (Error?) -> Void)
+    func write(_ data: Data, completionHandler completion: @escaping (Error?) -> Void)
     {
         guard isViable
         else
@@ -216,12 +241,12 @@ class MeekTCPConnection: NWTCPConnection
         }
     }
     
-    override func writeClose()
+    func writeClose()
     {
         network.writeClose()
     }
     
-    override func cancel()
+    func cancel()
     {
         privIsViable = false
         privState = .cancelled

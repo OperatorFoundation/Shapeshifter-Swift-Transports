@@ -13,13 +13,13 @@ func createRot13TCPConnection(provider: NEPacketTunnelProvider, to: NWEndpoint, 
     return Rot13TCPConnection(provider: provider, to: to, key: key)
 }
 
-func createRot13TCPConnection(connection: NWTCPConnection, key: Int) -> Rot13TCPConnection {
+func createRot13TCPConnection(connection: TCPConnection, key: Int) -> Rot13TCPConnection {
     return Rot13TCPConnection(connection: connection, key: key)
 }
 
-class Rot13TCPConnection: NWTCPConnection {
+class Rot13TCPConnection: TCPConnection {
     var rotkey: Int
-    var network: NWTCPConnection
+    var network: TCPConnection
     
     init(provider: NEPacketTunnelProvider, to: NWEndpoint, key: Int) {
         rotkey = key
@@ -28,14 +28,14 @@ class Rot13TCPConnection: NWTCPConnection {
         super.init()
     }
 
-    init(connection: NWTCPConnection, key: Int) {
+    init(connection: TCPConnection, key: Int) {
         rotkey = key
         network = connection
         
         super.init()
     }
     
-//    init(upgradeFor connection: NWTCPConnection)
+//    init(upgradeFor connection: TCPConnection)
     
     override func readMinimumLength(_ minimum: Int, maximumLength maximum: Int, completionHandler completion: @escaping (Data?, Error?) -> Void) {
         network.readMinimumLength(minimum, maximumLength: maximum) {

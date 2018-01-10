@@ -9,9 +9,17 @@
 import Foundation
 import NetworkExtension
 
+//extension NEPacketTunnelProvider: PacketTunnelProvider {
+//    public func createTCPConnectionThroughTunnel(to remoteEndpoint: NWEndpoint, enableTLS: Bool, tlsParameters TLSParameters: NWTLSParameters?, delegate: Any?) -> TCPConnection {
+//
+//    }
+//
+//}
+
 public protocol PacketTunnelProvider {
     func createTCPConnectionThroughTunnel(to remoteEndpoint: NWEndpoint,
                                           enableTLS: Bool,
                                           tlsParameters TLSParameters: NWTLSParameters?,
-                                          delegate: Any?) -> NWTCPConnection
+                                          delegate: Any?,
+                                          stateCallback: @escaping (NWTCPConnectionState, Error?) -> Void) -> TCPConnection?
 }

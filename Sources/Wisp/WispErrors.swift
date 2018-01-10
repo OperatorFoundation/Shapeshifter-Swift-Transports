@@ -16,7 +16,7 @@ enum ParseServerHSResult
 
 enum DecodeResult
 {
-    case success(decodedData: Data, leftovers: Data)
+    case success(decodedData: Data, leftovers: Data?)
     case retry
     case failed
 }
@@ -25,6 +25,7 @@ enum WispError: Error
 {
     case connectionError
     case invalidServerHandshake
+    case invalidClientHandshake
     case invalidCertString
     case decoderNotFound
     case decoderFailure

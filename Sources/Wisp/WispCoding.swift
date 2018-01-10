@@ -70,6 +70,15 @@ struct HashDrbg
     var sip: Data
     var ofb = Data(capacity: siphashSize)
 
+    init(sip: Data, ofb: Data)
+    {
+        assert(sip.count == 16)
+        self.sip = sip
+        
+        assert(ofb.count == 8)
+        self.ofb = ofb
+    }
+    
     /// NextBlock returns the next 8 byte DRBG block.
     mutating func nextBlock() -> Data
     {
@@ -120,28 +129,51 @@ struct WispEncoder
         // Nonce counter increases by 1 every time we access the nonce.data property
         // Encrypt and MAC payload.
         
+        print("encoder secret key: \(secretBoxKey.bytes)")
+        print("encoder key length: \(secretBoxKey.count)")
+        print("encoder nonce counter: \(self.nonce.counter)")
+        print("encoder nonce key: \(nonce.prefix.count)")
+        
         guard let encodedData: Data = sodium.secretBox.seal(message: payload, secretKey: secretBoxKey, nonce: self.nonce.data)
         else
         {
             return nil
         }
         
-        // Obfuscate the length.
-        let lengthMask = self.drbg.nextBlock().bytes
-        var length = encodedData.count.bigEndian
-        let lengthData = Data(buffer:UnsafeBufferPointer(start: &length, count: 2)).bytes
+        print("encoded data: \(encodedData.bytes)")
+        print("encoded data length: \(encodedData.count)")
         
-        var obfuscatedLength = Data()
-        let first = lengthData[0] ^ lengthMask[0]
-        let second = lengthData[1] ^ lengthMask[1]
-        obfuscatedLength.append(first)
-        obfuscatedLength.append(second)
+        
+        // Obfuscate the length.
+        let length = UInt16(encodedData.count)
+        let obfuscatedLength = obfuscate(length: length)
         
         var frame = Data()
         frame.append(obfuscatedLength)
         frame.append(encodedData)
 
         return frame
+    }
+    
+    mutating func obfuscate(length: UInt16) -> Data
+    {
+        // Obfuscate the length.
+        let lengthMask = self.drbg.nextBlock().bytes
+        var unobfuscatedLength = length.bigEndian
+        let lengthData = Data(buffer:UnsafeBufferPointer(start: &unobfuscatedLength, count: 1))
+        
+        var obfuscatedLength = Data(count: 2)
+        obfuscatedLength[0] = lengthData[0] ^ lengthMask[0]
+        obfuscatedLength[1] = lengthData[1] ^ lengthMask[1]
+        
+//        var obfuscatedLength = Data()
+//        let first = lengthData[0] ^ lengthMask[0]
+//        let second = lengthData[1] ^ lengthMask[1]
+//        obfuscatedLength.append(first)
+//        obfuscatedLength.append(second)
+        
+        print("Obfuscated a length: \(length)")
+        return obfuscatedLength
     }
 }
 
@@ -178,9 +210,8 @@ struct WispDecoder
     /// Decode decodes a stream of data and returns it.
     mutating func decode(framesBuffer: Data) -> DecodeResult
     {
-        // ErrAgain is a temporary failure, all other errors MUST be treated as fatal and the session aborted.
-        // A length of 0 indicates that we do not know how big the next frame is going to be.
-        if nextLength == 0
+        // A length of nil indicates that we do not know how big the next frame is going to be.
+        if nextLength == nil
         {
             // Attempt to pull out the next frame length.
             if lengthLength > framesBuffer.count
@@ -189,18 +220,11 @@ struct WispDecoder
                 // ErrAgain
                 return .retry
             }
-            
-            // Remove the length field from the buffer.
-            let obfsLength = framesBuffer[0 ..< lengthLength]
-            
-            // Deobfuscate the length field.
-            var obfuscatedLengthInt = UInt16(obfsLength.count.bigEndian)
-            let lengthMask = self.drbg.nextBlock()
-            var obfuscatedLengthData = Data(buffer:UnsafeBufferPointer(start: &obfuscatedLengthInt, count: 2))
-            var unobfuscatedLengthData = Data(capacity: 2)
-            unobfuscatedLengthData[0] = obfuscatedLengthData[0] ^ lengthMask[0]
-            unobfuscatedLengthData[1] = obfuscatedLengthData[1] ^ lengthMask[1]
-            nextLength = unobfuscatedLengthData.withUnsafeBytes{$0.pointee}
+        
+        // Remove the length field from the buffer.
+        let obfsLength = framesBuffer[0 ..< lengthLength]
+        let unobfsLength = unobfuscate(obfuscatedLength: obfsLength)
+        nextLength = unobfsLength
             
             if maxFrameLength < nextLength! || minFrameLength > nextLength!
             {
@@ -219,37 +243,74 @@ struct WispDecoder
                 self.nextLengthInvalid = true
                 nextLength = random(inRange: minFrameLength ..< maxFrameLength + 1)
             }
-            
-            if nextLength! > framesBuffer.count
-            {
-                // ErrAgain
-                // We expected more data than we got!
-                return .retry
-            }
-            
-            // Unseal the frame.
-            let box = framesBuffer[UInt16(lengthLength) ..< nextLength!]
-            let leftovers = framesBuffer[lengthLength + Int(nextLength!) ..< framesBuffer.count]
-            
-            guard let decodedData = sodium.secretBox.open(authenticatedCipherText: box, secretKey: secretBoxKey, nonce: nonce.data)
-            else
-            {
-                return .failed
-            }
-            
-            guard !nextLengthInvalid
-            else
-            {
-                return .failed
-            }
-            
-            // Clean up and prepare for the next frame.
-            nextLength = nil
-            
-            return .success(decodedData: decodedData, leftovers: leftovers)
         }
         
-        return .failed
+        guard nextLength! <= framesBuffer.count + 2
+        else
+        {
+            // ErrAgain
+            print("Decode error, next length: \(nextLength!) is greater than the buffer \(framesBuffer.count). We expected more data than we got!")
+            return .retry
+        }
+        
+        // Unseal the frame.
+        let box = framesBuffer[UInt16(lengthLength) ..< nextLength! + 2]
+        assert(UInt16(box.count) == nextLength)
+        
+        var leftovers: Data?
+        if framesBuffer.count > nextLength! + 2
+        {
+            leftovers = framesBuffer[lengthLength + Int(nextLength! + 2) ..< framesBuffer.count]
+        }
+        
+        print("box: \(box.bytes)")
+        print("box count: \(box.count)")
+        print("secret Key: \(secretBoxKey.bytes)")
+        print("secret key count: \(secretBoxKey.count)")
+        print("nonce counter: \(nonce.counter)")
+        print("nonce secret key: \(nonce.prefix.bytes)")
+        
+        guard let decodedData = sodium.secretBox.open(authenticatedCipherText: box, secretKey: secretBoxKey, nonce: nonce.data)
+            else
+        {
+            nextLength = nil
+            return .failed
+        }
+        
+        guard !nextLengthInvalid
+            else
+        {
+            nextLength = nil
+            return .failed
+        }
+        
+        // Clean up and prepare for the next frame.
+        nextLength = nil
+        
+        return .success(decodedData: decodedData, leftovers: leftovers)
+    }
+    
+    mutating func unobfuscate(obfuscatedLength: Data) -> UInt16
+    {
+        assert(obfuscatedLength.count == 2)
+        let lengthMask = self.drbg.nextBlock()
+        var unobfuscatedLengthData = Data(count: 2)
+        unobfuscatedLengthData[0] = obfuscatedLength[0] ^ lengthMask[0]
+        unobfuscatedLengthData[1] = obfuscatedLength[1] ^ lengthMask[1]
+        let unobfuscatedLengthInt = toUInt16(data: unobfuscatedLengthData)
+        
+        print("Unobfuscated a length! \(unobfuscatedLengthInt.bigEndian)")
+        return unobfuscatedLengthInt.bigEndian //This is actually converting to little endian
+    }
+    
+    func toUInt16(data: Data) -> UInt16
+    {
+        let value: UInt16 = data.withUnsafeBytes {
+            (ptr: UnsafePointer<UInt16>) -> UInt16 in
+            return ptr.pointee
+        }
+        
+        return value
     }
     
     func random(inRange range:Range<Int>) -> UInt16

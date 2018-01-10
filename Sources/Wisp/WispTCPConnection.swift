@@ -18,100 +18,111 @@ import ShapeshifterTesting
 let certKey = "cert"
 let iatKey = "iatMode"
 
-func createWispTCPConnection(provider: PacketTunnelProvider, to: NWEndpoint, cert: String, iatMode: Bool) -> WispTCPConnection?
+func createWispTCPConnection(provider: PacketTunnelProvider, to: NWEndpoint, cert: String, iatMode: Bool, stateCallback: @escaping (NWTCPConnectionState, Error?) -> Void) -> WispTCPConnection?
 {
-    return WispTCPConnection(provider: provider as! NEPacketTunnelProvider, to: to, cert: cert, iatMode: iatMode)
+    return WispTCPConnection(provider: provider, to: to, cert: cert, iatMode: iatMode, stateCallback: stateCallback)
 }
 
-func createWispTCPConnection(connection: NWTCPConnection, cert: String, iatMode: Bool) -> WispTCPConnection?
+func createWispTCPConnection(connection: TCPConnection, cert: String, iatMode: Bool, stateCallback: @escaping (NWTCPConnectionState, Error?) -> Void) -> WispTCPConnection?
 {
-    return WispTCPConnection(connection: connection, cert: cert, iatMode: iatMode)
+    return WispTCPConnection(connection: connection, cert: cert, iatMode: iatMode, callback: stateCallback)
 }
 
-class WispTCPConnection: NWTCPConnection
+class WispTCPConnection: TCPConnection
 {
-    var network: NWTCPConnection
+    var network: TCPConnection
     var writeClosed = false
-    
     var wisp: WispProtocol
     var handshakeDone = false
+    var stateCallback: (NWTCPConnectionState, Error?) -> Void
     
-    override var state: NWTCPConnectionState
-    {
-        get
-        {
-            return network.state
-        }
-    }
+    private var _isViable: Bool
+    private var _error: Error?
+    private var _state: NWTCPConnectionState
     
-    override var isViable: Bool
+    var state: NWTCPConnectionState
     {
         get {
-            return network.isViable
+            return _state
         }
     }
     
-    override var error: Error? {
+    var isViable: Bool
+    {
         get {
-            return network.error
+            return _isViable
         }
     }
     
-    override var endpoint: NWEndpoint {
+    var error: Error? {
+        get {
+            return _error
+        }
+    }
+    
+    var endpoint: NWEndpoint {
         get {
             return network.endpoint
         }
     }
     
-    override var remoteAddress: NWEndpoint? {
+    var remoteAddress: NWEndpoint? {
         get {
             return network.remoteAddress
         }
     }
     
-    override var localAddress: NWEndpoint? {
+    var localAddress: NWEndpoint? {
         get {
             return network.localAddress
         }
     }
     
-    override var connectedPath: NWPath? {
+    var connectedPath: NWPath? {
         get {
             return network.connectedPath
         }
     }
     
-    override var txtRecord: Data? {
+    var txtRecord: Data? {
         get {
             return network.txtRecord
         }
     }
     
-    override var hasBetterPath: Bool {
+    var hasBetterPath: Bool {
         get {
             return network.hasBetterPath
         }
     }
     
-    convenience init?(provider: NEPacketTunnelProvider, to: NWEndpoint, cert: String, iatMode: Bool)
+    convenience init?(provider: PacketTunnelProvider, to: NWEndpoint, cert: String, iatMode: Bool, stateCallback: @escaping (NWTCPConnectionState, Error?) -> Void)
     {
-        let connection = provider.createTCPConnectionThroughTunnel(to: to, enableTLS: true, tlsParameters: nil, delegate: nil)
-        
-        self.init(connection: connection, cert: cert, iatMode: iatMode)
+        guard let connection = provider.createTCPConnectionThroughTunnel(to: to, enableTLS: true, tlsParameters: nil, delegate: nil, stateCallback: stateCallback)
+        else
+        {
+            return nil
+        }
+
+        self.init(connection: connection, cert: cert, iatMode: iatMode, callback: stateCallback)
     }
     
-    init?(connection: NWTCPConnection, cert: String, iatMode: Bool)
+    init?(connection: TCPConnection, cert: String, iatMode: Bool, callback: @escaping (NWTCPConnectionState, Error?) -> Void)
     {
         network = connection
+        stateCallback = callback
+        _isViable = false
+        _state = .connecting
+        callback(_state, nil)
         
         guard let newWisp = WispProtocol(connection: network, cert: cert, iatMode: iatMode)
             else
         {
+            callback(.invalid, TCPConnectionError.invalidWispParameters)
             return nil
         }
-        
+
         wisp = newWisp
-        super.init()
         
         wisp.connectWithHandshake(certString: cert, sessionKey: wisp.sessionKey)
         {
@@ -121,15 +132,22 @@ class WispTCPConnection: NWTCPConnection
             {
                 print("Error connecting with handshake: \(error)")
                 self.handshakeDone = false
+                self._error = error
+                self._isViable = false
+                self._state = .invalid
+                callback(.invalid, error)
             }
             else
             {
                 self.handshakeDone = true
+                self._isViable = true
+                self._state = .connected
+                callback(.connected, nil)
             }
         }
     }
     
-    override func readMinimumLength(_ minimum: Int, maximumLength maximum: Int, completionHandler completion: @escaping (Data?, Error?) -> Void)
+    func readMinimumLength(_ minimum: Int, maximumLength maximum: Int, completionHandler completion: @escaping (Data?, Error?) -> Void)
     {
         wisp.readPackets(minRead: minimum, maxRead: maximum)
         {
@@ -153,12 +171,12 @@ class WispTCPConnection: NWTCPConnection
         }
     }
     
-    override func readLength(_ length: Int, completionHandler completion: @escaping (Data?, Error?) -> Void)
+    func readLength(_ length: Int, completionHandler completion: @escaping (Data?, Error?) -> Void)
     {
         readMinimumLength(length, maximumLength: length, completionHandler: completion)
     }
     
-    override func write(_ data: Data, completionHandler completion: @escaping (Error?) -> Void)
+    func write(_ data: Data, completionHandler completion: @escaping (Error?) -> Void)
     {
         guard let frame = wisp.encoder?.encode(payload: data)
         else
@@ -176,13 +194,17 @@ class WispTCPConnection: NWTCPConnection
         }
     }
     
-    override func writeClose()
+    func writeClose()
     {
+        _state = .disconnected
+        _isViable = false
         network.writeClose()
     }
     
-    override func cancel()
+    func cancel()
     {
+        _state = .cancelled
+        _isViable = false
         network.cancel()
-    }    
+    }
 }

@@ -17,6 +17,7 @@ import Sodium
 import CryptoSwift
 import Elligator
 import HKDF
+import ShapeshifterTesting
 
 enum WispPacketType: UInt8
 {
@@ -99,7 +100,7 @@ struct ClientHandshake
             // X
             let publicKeyRepresentative = self.keypair.representative
             
-            ///TODO: P_C
+            // P_C
             guard let padding = randomBytes(number: self.padLength)
                 else
             {
@@ -107,7 +108,7 @@ struct ClientHandshake
                 return nil
             }
             
-            //Mark
+            // Mark
             guard  let mark = try? self.mac.authenticate(self.keypair.representative.bytes)
                 else
             {
@@ -161,6 +162,10 @@ struct ClientHandshake
         let hmac = HMAC(key: unpackedPublicKey.bytes + nodeID.bytes, variant: .sha256)
         self.mac = hmac
         
+        print("\nGenerating mac object for client handshake.")
+        print("unpacked public key: \(unpackedPublicKey.bytes)")
+        print("nodeID: \(nodeID.bytes)")
+        
         // E
         if epochHourString == nil
         {
@@ -197,13 +202,13 @@ class WispProtocol
     let sessionKey: Keypair
     let iatMode: Bool
     
-    var network: NWTCPConnection
+    var network: TCPConnection
     var encoder: WispEncoder?
     var decoder: WispDecoder?
     var receivedBuffer = Data()
     var receivedDecodedBuffer = Data()
     
-    init?(connection: NWTCPConnection, cert: String, iatMode enableIAT: Bool)
+    init?(connection: TCPConnection, cert: String, iatMode enableIAT: Bool)
     {
         network = connection
         iatMode = enableIAT
@@ -240,16 +245,19 @@ class WispProtocol
         else
         {
             print("Unable to generate handshake.")
+            completion(WispError.invalidClientHandshake)
             return
         }
         
         network.write(clientHandshakeBytes)
-        { (maybeWriteError) in
+        {
+            (maybeWriteError) in
             
             if let writeError = maybeWriteError
             {
                 print("Received an error when writing client handshake to the network:")
                 print(writeError.localizedDescription)
+                completion(writeError)
                 return
             }
             
@@ -271,6 +279,7 @@ class WispProtocol
                 else
                 {
                     completion(WispError.invalidResponse)
+                    print("No data received when attempting to read server handshake 🤔")
                     return
                 }
                 
@@ -336,6 +345,13 @@ class WispProtocol
     
     func parseServerHandshake(clientHandshake: ClientHandshake, response: Data) -> ParseServerHSResult
     {
+        guard response.count > representativeLength * 2
+        else
+        {
+            print("Server handshake length is too short. 🤭")
+            return .failed
+        }
+        
         // Pull out the representative/AUTH.
         let serverRepresentative = response[0 ..< representativeLength]
         let serverAuth = response[representativeLength ..< representativeLength * 2]
@@ -354,7 +370,7 @@ class WispProtocol
         // Attempt to find the mark + MAC.
         let startPosition = representativeLength + authLength + serverMinPadLength
         
-        guard let markStartPosition = findMarkMac(mark: serverMark, buf: response, startPos: startPosition, maxPos: maxHandshakeLength)
+        guard let serverMarkRange = response.range(of: serverMark)
         else
         {
             if response.count >= maxHandshakeLength
@@ -369,12 +385,25 @@ class WispProtocol
             }
         }
         
-        // Validate the MAC.
-        let prefixIncludingMark = response[0 ..< markStartPosition + markLength]
-        let epochHour = clientHandshake.epochHour
-        let providedMac = response[markStartPosition + markLength ..< markStartPosition + markLength + macLength]
+        // Make sure that we found the mark within the correct range of data in the server response.
+        guard !serverMarkRange.clamped(to: startPosition ..< maxHandshakeLength).isEmpty
+        else
+        {
+            print("Mark was found but not where we expected it to be.")
+            return .failed
+        }
         
-        guard let calculatedMacBytes = try? clientHandshake.mac.authenticate(prefixIncludingMark + epochHour.bytes)
+        print("Found the mark in the correct range!")
+        
+        // Validate the MAC.
+        let prefixIncludingMark = response[0 ..< serverMarkRange.upperBound]
+        let epochHour = clientHandshake.epochHour
+        let providedMac = response[serverMarkRange.upperBound ..< serverMarkRange.upperBound + macLength]
+        let thingToMac = prefixIncludingMark.bytes + epochHour.bytes
+        
+        
+        
+        guard let calculatedMacBytes = try? clientHandshake.mac.authenticate(thingToMac)
         else
         {
             print("Error with calculating client mac")
@@ -386,9 +415,18 @@ class WispProtocol
         guard providedMac == calculatedMac
         else
         {
-            print("Server provided mac does not match what we believe the mac should be!")
+            print("\nServer provided mac does not match what we believe the mac should be!")
+            print("Calculated Mac:\(calculatedMac.bytes)")
+            print("Server Provided Mac: \(providedMac.bytes)")
+            
+            print("\nThing to mac is \(thingToMac.count) long.")
+            print("prefix length is \(prefixIncludingMark.count)")
+            print("\nprefix including mark: \(prefixIncludingMark.bytes)")
+            print("epoch hour: \(epochHour.bytes)")
             return .failed
         }
+        
+        print("Provided server mac matches calculated mac!")
 
         guard let seed = getSeedFromHandshake(clientHandshake: clientHandshake, serverHandshake: serverHandshake)
         else
@@ -414,6 +452,8 @@ class WispProtocol
             else
         {
             print("Parse server handshake failed: invalid auth.")
+            print("Server provided auth: \(serverHandshake.serverAuth.bytes)")
+            print("Ntor client handshake auth: \(auth.bytes)")
             return nil
         }
         
@@ -460,7 +500,14 @@ class WispProtocol
                 self.readPackets(minRead: minRead, maxRead: maxRead, completion: completion)
                 return
             case let .success(decodedData, leftovers):
-                self.receivedBuffer = leftovers
+                if leftovers != nil
+                {
+                    self.receivedBuffer = leftovers!
+                }
+                else
+                {
+                    self.receivedBuffer = Data()
+                }
                 
                 //Handle packet data writes to the decoded buffer
                 self.handlePacketData(data: decodedData)
@@ -482,6 +529,8 @@ class WispProtocol
                     self.readPackets(minRead: minRead, maxRead: maxRead, completion: completion)
                 }
                 return
+            
+
             }
         }
     }
@@ -512,6 +561,11 @@ class WispProtocol
     /// ntorClientHandshake does the client side of a ntor handshake and returns status, KEY_SEED, and AUTH.
     func ntorClientHandshake(clientKeypair: Keypair, serverPublicKey: Data, idPublicKey: Data, nodeID: Data) -> (keySeed: Data, auth: Data)?
     {
+        print("\nclient public key: \(clientKeypair.publicKey)")
+        print("server public key: \(serverPublicKey.bytes)")
+        print("id public key: \(idPublicKey.bytes)")
+        print("node id: \(nodeID.bytes)\n")
+        
         var secretInput = Data()
         
         // Client side uses EXP(Y,x) | EXP(B,x)
@@ -754,49 +808,4 @@ func randomBytes(number: Int) -> Data?
     {
         return nil
     }
-}
-
-func findMarkMac(mark: Data, buf: Data, startPos: Int, maxPos: Int) -> Int?
-{
-    if mark.count != markLength
-    {
-        print("BUG: Invalid mark length (findMarkMac:): \(mark.count)")
-        return nil
-    }
-    
-    var endPos = buf.count
-    
-    if startPos > endPos
-    {
-        return nil
-    }
-    
-    if endPos > maxPos
-    {
-        endPos = maxPos
-    }
-    
-    if endPos - startPos < markLength + macLength
-    {
-        return nil
-    }
-    
-    // The client has to actually do a substring search since the server can and will send payload trailing the response.
-    let subBuf = buf[startPos...endPos]
-    guard let posRange = subBuf.range(of: mark)
-    else
-    {
-        return nil
-    }
-    
-    // Ensure that there is enough trailing data for the MAC.
-    var pos = posRange.lowerBound
-    if startPos + pos + markLength + macLength > endPos
-    {
-        return nil
-    }
-    
-    // Return the index relative to the start of the slice.
-    pos += startPos
-    return pos
 }

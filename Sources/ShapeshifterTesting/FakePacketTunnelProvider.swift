@@ -11,6 +11,7 @@ import NetworkExtension
 
 public class FakePacketTunnelProvider: PacketTunnelProvider
 {
+
     public init() {
         //        super.init()
     }
@@ -27,12 +28,9 @@ public class FakePacketTunnelProvider: PacketTunnelProvider
         // Do nothing
     }
     
-    public func createTCPConnectionThroughTunnel(to remoteEndpoint: NWEndpoint,
-                                                   enableTLS: Bool,
-                                                   tlsParameters TLSParameters: NWTLSParameters?,
-                                                   delegate: Any?) -> NWTCPConnection
+    public func createTCPConnectionThroughTunnel(to remoteEndpoint: NWEndpoint, enableTLS: Bool, tlsParameters TLSParameters: NWTLSParameters?, delegate: Any?, stateCallback: @escaping (NWTCPConnectionState, Error?) -> Void) -> TCPConnection?
     {
-        return FakeTCPConnection(to: remoteEndpoint)!
+        return FakeTCPConnection(to: remoteEndpoint, callback: stateCallback)
     }
     
     public func createUDPSessionThroughTunnel(to remoteEndpoint: NWEndpoint,

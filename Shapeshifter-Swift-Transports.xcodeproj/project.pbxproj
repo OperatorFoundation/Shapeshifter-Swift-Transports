@@ -32,8 +32,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
-		46EB81651FE4912400496075 /* FakeTCPConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_11 /* FakeTCPConnection.swift */; };
-		46EB81661FE4912900496075 /* FakeTCPConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_11 /* FakeTCPConnection.swift */; };
+		4696323920043D5000168491 /* TCPConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4696323820043D5000168491 /* TCPConnection.swift */; };
 		46EB81671FE4914700496075 /* FakeTCPConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_11 /* FakeTCPConnection.swift */; };
 		OBJ_187 /* Package.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_6 /* Package.swift */; };
 		OBJ_193 /* Package.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_66 /* Package.swift */; };
@@ -394,6 +393,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		4696323820043D5000168491 /* TCPConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TCPConnection.swift; sourceTree = "<group>"; };
 		"CryptoSwift::CryptoSwift::Product" /* CryptoSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = CryptoSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		"Cryptor::Cryptor::Product" /* Cryptor.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Cryptor.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		"Elligator::Elligator::Product" /* Elligator.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Elligator.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -949,6 +949,7 @@
 				OBJ_11 /* FakeTCPConnection.swift */,
 				OBJ_12 /* FakeUDPSession.swift */,
 				OBJ_13 /* PacketTunnelProvider.swift */,
+				4696323820043D5000168491 /* TCPConnection.swift */,
 			);
 			name = ShapeshifterTesting;
 			path = Sources/ShapeshifterTesting;
@@ -1432,7 +1433,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 0;
 			files = (
-				46EB81651FE4912400496075 /* FakeTCPConnection.swift in Sources */,
 				OBJ_223 /* WispTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1545,7 +1545,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 0;
 			files = (
-				46EB81661FE4912900496075 /* FakeTCPConnection.swift in Sources */,
 				OBJ_371 /* MeekTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1635,6 +1634,7 @@
 				OBJ_462 /* FakeNEPacketTunnelProvider.swift in Sources */,
 				OBJ_463 /* FakePacketTunnelProvider.swift in Sources */,
 				46EB81671FE4914700496075 /* FakeTCPConnection.swift in Sources */,
+				4696323920043D5000168491 /* TCPConnection.swift in Sources */,
 				OBJ_465 /* FakeUDPSession.swift in Sources */,
 				OBJ_466 /* PacketTunnelProvider.swift in Sources */,
 			);
