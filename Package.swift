@@ -16,6 +16,7 @@ let package = Package(
         ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
+         .package(url: "https://github.com/OperatorFoundation/Transport.git", from: "0.0.3"),
          .package(url: "https://github.com/IBM-Swift/CommonCrypto.git", from: "0.1.5"),
          .package(url: "https://github.com/OperatorFoundation/swift-sodium.git", from: "0.5.3"),
          .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", from: "0.7.2"),
@@ -28,18 +29,18 @@ let package = Package(
         
         .target(
             name: "Meek",
-            dependencies: ["CryptoSwift", "ShapeshifterTesting"]),
+            dependencies: ["CryptoSwift", "Transport"]),
         .testTarget(
             name: "MeekTests",
-            dependencies: ["Meek"]),
+            dependencies: ["Meek", "ShapeshifterTesting"]),
         .target(
             name: "Wisp",
-            dependencies: ["CommonCrypto", "Sodium", "CryptoSwift", "HKDF", "Elligator", "ShapeshifterTesting"]),
+            dependencies: ["CommonCrypto", "Sodium", "CryptoSwift", "HKDF", "Elligator", "Transport"]),
         .testTarget(
             name: "WispTests",
-            dependencies: ["Wisp"]),
+            dependencies: ["Wisp", "ShapeshifterTesting"]),
         .target(
             name: "ShapeshifterTesting",
-            dependencies: []),
+            dependencies: ["Transport"]),
         ]
 )

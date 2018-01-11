@@ -1,4 +1,4 @@
 module ElligatorObjC {
-    umbrella header "/Users/Lita/Documents/Dev/Shapeshifter-Swift-Transports/.build/checkouts/Elligator.git-1685432175989269477/Sources/ElligatorObjC/include/ElligatorObjC.h"
+    umbrella header "/Users/brandon/Shapeshifter-Swift-Transports/.build/checkouts/Elligator.git-1685432175989269477/Sources/ElligatorObjC/include/ElligatorObjC.h"
     export *
 }

@@ -13,19 +13,19 @@
 
 import Foundation
 import NetworkExtension
-import ShapeshifterTesting
+import Transport
 
 let certKey = "cert"
 let iatKey = "iatMode"
 
-func createWispTCPConnection(provider: PacketTunnelProvider, to: NWEndpoint, cert: String, iatMode: Bool, stateCallback: @escaping (NWTCPConnectionState, Error?) -> Void) -> WispTCPConnection?
+func createWispTCPConnection(provider: PacketTunnelProvider, to: NWEndpoint, cert: String, iatMode: Bool) -> WispTCPConnection?
 {
-    return WispTCPConnection(provider: provider, to: to, cert: cert, iatMode: iatMode, stateCallback: stateCallback)
+    return WispTCPConnection(provider: provider, to: to, cert: cert, iatMode: iatMode)
 }
 
-func createWispTCPConnection(connection: TCPConnection, cert: String, iatMode: Bool, stateCallback: @escaping (NWTCPConnectionState, Error?) -> Void) -> WispTCPConnection?
+func createWispTCPConnection(connection: TCPConnection, cert: String, iatMode: Bool) -> WispTCPConnection?
 {
-    return WispTCPConnection(connection: connection, cert: cert, iatMode: iatMode, callback: stateCallback)
+    return WispTCPConnection(connection: connection, cert: cert, iatMode: iatMode)
 }
 
 class WispTCPConnection: TCPConnection
@@ -34,11 +34,19 @@ class WispTCPConnection: TCPConnection
     var writeClosed = false
     var wisp: WispProtocol
     var handshakeDone = false
-    var stateCallback: (NWTCPConnectionState, Error?) -> Void
+    var stateCallback: ((NWTCPConnectionState, Error?) -> Void)?
     
     private var _isViable: Bool
     private var _error: Error?
-    private var _state: NWTCPConnectionState
+    private var _state: NWTCPConnectionState {
+        didSet {
+            guard let callback = stateCallback else {
+                return
+            }
+            
+            callback(_state, nil)
+        }
+    }
     
     var state: NWTCPConnectionState
     {
@@ -96,29 +104,26 @@ class WispTCPConnection: TCPConnection
         }
     }
     
-    convenience init?(provider: PacketTunnelProvider, to: NWEndpoint, cert: String, iatMode: Bool, stateCallback: @escaping (NWTCPConnectionState, Error?) -> Void)
+    convenience init?(provider: PacketTunnelProvider, to: NWEndpoint, cert: String, iatMode: Bool)
     {
-        guard let connection = provider.createTCPConnectionThroughTunnel(to: to, enableTLS: true, tlsParameters: nil, delegate: nil, stateCallback: stateCallback)
+        guard let connection = provider.createTCPConnectionThroughTunnel(to: to, enableTLS: true, tlsParameters: nil, delegate: nil)
         else
         {
             return nil
         }
 
-        self.init(connection: connection, cert: cert, iatMode: iatMode, callback: stateCallback)
+        self.init(connection: connection, cert: cert, iatMode: iatMode)
     }
     
-    init?(connection: TCPConnection, cert: String, iatMode: Bool, callback: @escaping (NWTCPConnectionState, Error?) -> Void)
+    init?(connection: TCPConnection, cert: String, iatMode: Bool)
     {
         network = connection
-        stateCallback = callback
         _isViable = false
         _state = .connecting
-        callback(_state, nil)
         
         guard let newWisp = WispProtocol(connection: network, cert: cert, iatMode: iatMode)
             else
         {
-            callback(.invalid, TCPConnectionError.invalidWispParameters)
             return nil
         }
 
@@ -135,16 +140,18 @@ class WispTCPConnection: TCPConnection
                 self._error = error
                 self._isViable = false
                 self._state = .invalid
-                callback(.invalid, error)
             }
             else
             {
                 self.handshakeDone = true
                 self._isViable = true
                 self._state = .connected
-                callback(.connected, nil)
             }
         }
+    }
+
+    func observeState(_ callback: @escaping (NWTCPConnectionState, Error?) -> Void) {
+        self.stateCallback=callback
     }
     
     func readMinimumLength(_ minimum: Int, maximumLength maximum: Int, completionHandler completion: @escaping (Data?, Error?) -> Void)

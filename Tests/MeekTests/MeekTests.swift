@@ -17,7 +17,6 @@ class Shapeshifter_Swift_TransportsTests: XCTestCase
     let testString = "a\r\n\r\nb"
     let testData = "a\r\n\r\nb".data(using: .ascii)!
     let httpResponse = "HTTP/1.1 200 Created\r\nLocation: http://localhost/objectserver/restapi/alerts/status/kf/12481%3ANCOMS\r\nCache-Control: no-cache\r\nServer: libnhttpd\r\nDate: Wed Jul 4 15:31:53 2012\r\nConnection: Keep-Alive\r\nContent-Type: application/json;charset=UTF-8\r\nContent-Length: 304\r\n\r\n{\"entry\": {\"affectedRows\": 1,\"keyField\": \"12481%3ANCOMS\",\"uri\": \"http://localhost/objectserver/restapi/alerts/status/kf/12481%3ANCOMS\"}}"
-    var testMeek = MeekTCPConnection(testDate: Date())
     
     override func setUp()
     {
@@ -33,6 +32,20 @@ class Shapeshifter_Swift_TransportsTests: XCTestCase
     
     func testFindEmptyLineIndex()
     {
+        let maybeTestMeek: MeekTCPConnection? = MeekTCPConnection(testDate: Date())
+        XCTAssertNotNil(maybeTestMeek)
+        guard let testMeek = maybeTestMeek else {
+            return
+        }
+
+        // FIXME - needs expectation to deal with async callback
+        testMeek.observeState
+        {
+            (state, maybeError) in
+            
+            XCTAssertNil(maybeError)
+        }
+        
         let maybeIndex = testMeek.findEmptyLineIndex(data: testData)
         XCTAssertNotNil(maybeIndex)
         
@@ -44,6 +57,20 @@ class Shapeshifter_Swift_TransportsTests: XCTestCase
     
     func testSplitOnBlankLine()
     {
+        let maybeTestMeek: MeekTCPConnection? = MeekTCPConnection(testDate: Date())
+        XCTAssertNotNil(maybeTestMeek)
+        guard let testMeek = maybeTestMeek else {
+            return
+        }
+        
+        // FIXME - needs expectation to deal with async callback
+        testMeek.observeState
+            {
+                (state, maybeError) in
+                
+                XCTAssertNil(maybeError)
+        }
+
         let maybeTuple = testMeek.splitOnBlankLine(data: testData)
         
         XCTAssertNotNil(maybeTuple)
@@ -57,6 +84,20 @@ class Shapeshifter_Swift_TransportsTests: XCTestCase
     
     func testSessionIDGeneration()
     {
+        let maybeTestMeek: MeekTCPConnection? = MeekTCPConnection(testDate: Date())
+        XCTAssertNotNil(maybeTestMeek)
+        guard let testMeek = maybeTestMeek else {
+            return
+        }
+        
+        // FIXME - needs expectation to deal with async callback
+        testMeek.observeState
+            {
+                (state, maybeError) in
+                
+                XCTAssertNil(maybeError)
+        }
+
         let maybeSessionID = testMeek.generateSessionID()
         XCTAssertNotNil(maybeSessionID)
         if let sessionID = maybeSessionID
@@ -67,6 +108,20 @@ class Shapeshifter_Swift_TransportsTests: XCTestCase
     
     func testGetStatusCode()
     {
+        let maybeTestMeek: MeekTCPConnection? = MeekTCPConnection(testDate: Date())
+        XCTAssertNotNil(maybeTestMeek)
+        guard let testMeek = maybeTestMeek else {
+            return
+        }
+        
+        // FIXME - needs expectation to deal with async callback
+        testMeek.observeState
+            {
+                (state, maybeError) in
+                
+                XCTAssertNil(maybeError)
+        }
+
         let maybeStatusCode = testMeek.getStatusCode(fromHeader: httpResponse)
         XCTAssertNotNil(maybeStatusCode)
         

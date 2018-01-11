@@ -11,10 +11,26 @@ import NetworkExtension
 import SecurityFoundation
 import CryptoSwift
 import ShapeshifterTesting
+import Transport
 
-func createMeekTCPConnection(provider: PacketTunnelProvider, to: URL, serverURL: URL, stateCallback: @escaping (NWTCPConnectionState, Error?) -> Void) -> MeekTCPConnection?
+func createMeekTCPConnection(provider: PacketTunnelProvider, to: URL, serverURL: URL) -> MeekTCPConnection?
 {
-    return MeekTCPConnection(provider: provider, to: to, url: serverURL, stateCallback: stateCallback)
+    let conn = MeekTCPConnection(provider: provider, to: to, url: serverURL)
+    guard let c = conn else {
+        return nil
+    }
+
+    return c
+}
+
+func createMeekTCPConnection(testDate: Date) -> MeekTCPConnection?
+{
+    let conn = MeekTCPConnection(testDate: testDate)
+    guard let c = conn else {
+        return nil
+    }
+    
+    return c
 }
 
 class MeekTCPConnection: TCPConnection
@@ -44,8 +60,6 @@ class MeekTCPConnection: TCPConnection
     var serverURL: URL
     var frontURL: URL
     var network: TCPConnection
-    var privIsViable: Bool
-    var privState: NWTCPConnectionState
     var bodyBuffer = Data()
     var sessionID = ""
     
@@ -72,7 +86,7 @@ class MeekTCPConnection: TCPConnection
     {
         get
         {
-            return privIsViable
+            return _isViable
         }
     }
     
@@ -80,11 +94,25 @@ class MeekTCPConnection: TCPConnection
     {
         get
         {
-            return privState
+            return _state
+        }
+    }
+
+    var stateCallback: ((NWTCPConnectionState, Error?) -> Void)?
+    
+    private var _isViable: Bool
+    private var _error: Error?
+    private var _state: NWTCPConnectionState {
+        didSet {
+            guard let callback = stateCallback else {
+                return
+            }
+            
+            callback(_state, nil)
         }
     }
     
-    init?(provider: PacketTunnelProvider, to front: URL, url: URL, stateCallback: @escaping (NWTCPConnectionState, Error?) -> Void)
+    init?(provider: PacketTunnelProvider, to front: URL, url: URL)
     {
         serverURL = url
         frontURL = front
@@ -92,28 +120,29 @@ class MeekTCPConnection: TCPConnection
         let frontHostname = frontURL.host!
         let endpoint: NWEndpoint = NWHostEndpoint(hostname: frontHostname, port: "80")
         
-        guard let tcpConnection = provider.createTCPConnectionThroughTunnel(to: endpoint, enableTLS: true, tlsParameters: nil, delegate: nil, stateCallback: stateCallback)
+        guard let tcpConnection = provider.createTCPConnectionThroughTunnel(to: endpoint, enableTLS: true, tlsParameters: nil, delegate: nil)
         else
         {
-            stateCallback(.disconnected, TCPConnectionError.networkConnectionFailed)
             return nil
         }
 
         network = tcpConnection
-        privState = .connected
-        privIsViable = true
+        _state = .connected
+        _isViable = true
         sessionID = generateSessionID() ?? ""
-        stateCallback(.connected, nil)
-        
     }
     
     ///Testing Only <-------------------
-    convenience init?(testDate: Date, stateCallback: @escaping (NWTCPConnectionState, Error?) -> Void)
+    convenience init?(testDate: Date)
     {
         let provider = FakePacketTunnelProvider()
         let sURL = URL(string: "http://TestServer.com")!
         let fURL = URL(string: "http://TestFront.com")!
-        self.init(provider: provider, to: fURL, url: sURL, stateCallback: stateCallback)
+        self.init(provider: provider, to: fURL, url: sURL)
+    }
+    
+    func observeState(_ callback: @escaping (NWTCPConnectionState, Error?) -> Void) {
+        self.stateCallback=callback
     }
     
     // Currrently this function ignores the minimum and maximum lengths provided.
@@ -248,8 +277,8 @@ class MeekTCPConnection: TCPConnection
     
     func cancel()
     {
-        privIsViable = false
-        privState = .cancelled
+        _isViable = false
+        _state = .cancelled
         network.cancel()
     }
     
@@ -382,8 +411,8 @@ class MeekTCPConnection: TCPConnection
     func cleanup()
     {
         network.cancel()
-        privState = .disconnected
-        privIsViable = false
+        _state = .disconnected
+        _isViable = false
     }
     
     func getStatusCode(fromHeader headerString: String) -> String?

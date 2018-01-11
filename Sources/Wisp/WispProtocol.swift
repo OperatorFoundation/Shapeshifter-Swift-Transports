@@ -17,7 +17,7 @@ import Sodium
 import CryptoSwift
 import Elligator
 import HKDF
-import ShapeshifterTesting
+import Transport
 
 enum WispPacketType: UInt8
 {

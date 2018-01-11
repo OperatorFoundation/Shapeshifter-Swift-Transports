@@ -112,6 +112,20 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
+               BlueprintIdentifier = "Shapeshifter-Swift-Transports::ShapeshifterTesting"
+               BuildableName = "ShapeshifterTesting.framework"
+               BlueprintName = "ShapeshifterTesting"
+               ReferencedContainer = "container:Shapeshifter-Swift-Transports.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
                BlueprintIdentifier = "Shapeshifter-Swift-Transports::Meek"
                BuildableName = "Meek.framework"
                BlueprintName = "Meek"
@@ -126,9 +140,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "CryptoSwift::CryptoSwift"
-               BuildableName = "CryptoSwift.framework"
-               BlueprintName = "CryptoSwift"
+               BlueprintIdentifier = "Transport::Transport"
+               BuildableName = "Transport.framework"
+               BlueprintName = "Transport"
                ReferencedContainer = "container:Shapeshifter-Swift-Transports.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -140,9 +154,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "Shapeshifter-Swift-Transports::ShapeshifterTesting"
-               BuildableName = "ShapeshifterTesting.framework"
-               BlueprintName = "ShapeshifterTesting"
+               BlueprintIdentifier = "CryptoSwift::CryptoSwift"
+               BuildableName = "CryptoSwift.framework"
+               BlueprintName = "CryptoSwift"
                ReferencedContainer = "container:Shapeshifter-Swift-Transports.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>

@@ -12,6 +12,7 @@ import Sodium
 import Elligator
 import NetworkExtension
 import ShapeshifterTesting
+import Transport
 
 @testable import Wisp
 
@@ -119,7 +120,7 @@ class Shapeshifter_WispTests: XCTestCase
         {
             switch decodedResult!
             {
-            case let .success(decodedData, leftovers):
+            case let .success(decodedData, _):
                 XCTAssertEqual(decodedData, toEncode)
             default:
                 print(decodedResult.debugDescription)
@@ -152,20 +153,48 @@ class Shapeshifter_WispTests: XCTestCase
     
     func testFakeTCPConnection()
     {
-        let fakeTCPConnection: TCPConnection = createFakeTCPConnection(to: endpoint)
+        let maybeFakeTCPConnection: TCPConnection? = createFakeTCPConnection(to: endpoint)
+        XCTAssertNotNil(maybeFakeTCPConnection)
+        guard let fakeTCPConnection = maybeFakeTCPConnection else {
+            return
+        }
         
-        let promise = expectation(description: "Connect with handshake callback.")
-        
-        fakeTCPConnection.write(Data(repeating: 0x0A, count: 1))
-        { (maybeError) in
-            if let error = maybeError
-            {
-                print("\nTest - FakeTCPConnection write failure:")
-                print(error.localizedDescription)
+        let connected = expectation(description: "Connected to server.")
+        let wrote = expectation(description: "Wrote data to server.")
+
+        fakeTCPConnection.observeState {
+            (state, maybeConnectError) in
+            
+            XCTAssertNil(maybeConnectError)
+            guard maybeConnectError == nil else {
+                return
             }
             
-            XCTAssertNil(maybeError)
-            promise.fulfill()
+            switch state {
+                case .connected:
+                    connected.fulfill()
+                
+                    fakeTCPConnection.write(Data(repeating: 0x0A, count: 1))
+                    {
+                        (maybeWriteError) in
+
+                        XCTAssertNil(maybeWriteError)
+                        
+                        guard maybeWriteError == nil else
+                        {
+                            print("\nTest - FakeTCPConnection write failure:")
+                            if let error = maybeWriteError {
+                                print(error.localizedDescription)
+                            }
+                            
+                            return
+                        }
+                        
+                        wrote.fulfill()
+                }
+                default:
+                    return
+            }
         }
         
         waitForExpectations(timeout: maxWaitSeconds)
@@ -180,18 +209,18 @@ class Shapeshifter_WispTests: XCTestCase
     func testWispTCPConnection()
     {
         let promise = expectation(description: "Connection state changed.")
-        let connection = createFakeTCPConnection(to: endpoint)
+        let maybeConnection = createFakeTCPConnection(to: endpoint)
+        XCTAssertNotNil(maybeConnection)
+        guard let connection = maybeConnection else {
+            return
+        }
+        connection.observeState
         {
             (connectionState, maybeError) in
             
-            let wtcpConnection = createWispTCPConnection(connection: connection, cert: certString, iatMode: false, stateCallback:
-            { (wispConnectionState, maybeError) in
-                
-                
-            })
+            let maybeWtcpConnection = createWispTCPConnection(connection: connection, cert: self.certString, iatMode: false)
+            XCTAssertNotNil(maybeWtcpConnection)
         }
-        XCTAssertNotNil(wtcpConnection)
-        
     }
 
 //    func testConnectWithHandshake()
