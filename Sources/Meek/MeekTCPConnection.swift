@@ -16,7 +16,9 @@ import Transport
 func createMeekTCPConnection(provider: PacketTunnelProvider, to: URL, serverURL: URL) -> MeekTCPConnection?
 {
     let conn = MeekTCPConnection(provider: provider, to: to, url: serverURL)
-    guard let c = conn else {
+    guard let c = conn
+    else
+    {
         return nil
     }
 
@@ -26,7 +28,9 @@ func createMeekTCPConnection(provider: PacketTunnelProvider, to: URL, serverURL:
 func createMeekTCPConnection(testDate: Date) -> MeekTCPConnection?
 {
     let conn = MeekTCPConnection(testDate: testDate)
-    guard let c = conn else {
+    guard let c = conn
+    else
+    {
         return nil
     }
     

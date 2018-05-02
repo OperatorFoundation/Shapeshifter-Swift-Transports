@@ -18,18 +18,6 @@ class Shapeshifter_Swift_TransportsTests: XCTestCase
     let testData = "a\r\n\r\nb".data(using: .ascii)!
     let httpResponse = "HTTP/1.1 200 Created\r\nLocation: http://localhost/objectserver/restapi/alerts/status/kf/12481%3ANCOMS\r\nCache-Control: no-cache\r\nServer: libnhttpd\r\nDate: Wed Jul 4 15:31:53 2012\r\nConnection: Keep-Alive\r\nContent-Type: application/json;charset=UTF-8\r\nContent-Length: 304\r\n\r\n{\"entry\": {\"affectedRows\": 1,\"keyField\": \"12481%3ANCOMS\",\"uri\": \"http://localhost/objectserver/restapi/alerts/status/kf/12481%3ANCOMS\"}}"
     
-    override func setUp()
-    {
-        super.setUp()
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-    }
-    
-    override func tearDown()
-    {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-        super.tearDown()
-    }
-    
     func testFindEmptyLineIndex()
     {
         let maybeTestMeek: MeekTCPConnection? = MeekTCPConnection(testDate: Date())

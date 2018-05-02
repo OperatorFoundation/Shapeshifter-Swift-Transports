@@ -797,7 +797,7 @@ func randomBytes(number: Int) -> Data?
     {
         (mutableBytes) in
 
-        SecRandomCopyBytes(kSecRandomDefault, data.count, mutableBytes)
+        SecRandomCopyBytes(kSecRandomDefault, number, mutableBytes)
     }
 
     if result == errSecSuccess
