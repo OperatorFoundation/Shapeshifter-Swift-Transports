@@ -25,9 +25,9 @@ func createMeekTCPConnection(provider: PacketTunnelProvider, to: URL, serverURL:
     return c
 }
 
-class MeekTCPConnection: TCPConnection
+public class MeekTCPConnection: TCPConnection
 {
-    var hasBetterPath: Bool
+    public var hasBetterPath: Bool
     {
         get
         {
@@ -35,7 +35,7 @@ class MeekTCPConnection: TCPConnection
         }
     }
     
-    var endpoint: NWEndpoint
+    public var endpoint: NWEndpoint
     {
         get
         {
@@ -43,29 +43,29 @@ class MeekTCPConnection: TCPConnection
         }
     }
     
-    var connectedPath: NWPath?
+    public var connectedPath: NWPath?
     
-    var localAddress: NWEndpoint?
+    public var localAddress: NWEndpoint?
     
-    var remoteAddress: NWEndpoint?
+    public var remoteAddress: NWEndpoint?
     
-    var txtRecord: Data?
+    public var txtRecord: Data?
     
-    var error: Error?
+    public var error: Error?
     
-    var serverURL: URL
-    var frontURL: URL
-    var network: TCPConnection
-    var bodyBuffer = Data()
-    var sessionID = ""
+    public var serverURL: URL
+    public var frontURL: URL
+    public var network: TCPConnection
+    public var bodyBuffer = Data()
+    public var sessionID = ""
     
     ///Meek server is no longer accepting POST
-    var meekIsClosed = false
+    public var meekIsClosed = false
     
     let minLength = 1
     let maxLength = MemoryLayout<UInt32>.size
     
-    enum MeekError: Error
+    public enum MeekError: Error
     {
         case unknownError
         case connectionError
@@ -79,7 +79,7 @@ class MeekTCPConnection: TCPConnection
         case unsuppotedURL
     }
     
-    var isViable: Bool
+    public var isViable: Bool
     {
         get
         {
@@ -87,7 +87,7 @@ class MeekTCPConnection: TCPConnection
         }
     }
     
-    var state: NWTCPConnectionState
+    public var state: NWTCPConnectionState
     {
         get
         {
@@ -95,7 +95,7 @@ class MeekTCPConnection: TCPConnection
         }
     }
 
-    var stateCallback: ((NWTCPConnectionState, Error?) -> Void)?
+    public var stateCallback: ((NWTCPConnectionState, Error?) -> Void)?
     
     private var _isViable: Bool
     private var _error: Error?
@@ -111,7 +111,7 @@ class MeekTCPConnection: TCPConnection
         }
     }
     
-    init?(provider: PacketTunnelProvider, to front: URL, url: URL)
+    public init?(provider: PacketTunnelProvider, to front: URL, url: URL)
     {
         serverURL = url
         frontURL = front
@@ -131,12 +131,12 @@ class MeekTCPConnection: TCPConnection
         sessionID = generateSessionID() ?? ""
     }
     
-    func observeState(_ callback: @escaping (NWTCPConnectionState, Error?) -> Void) {
+    public func observeState(_ callback: @escaping (NWTCPConnectionState, Error?) -> Void) {
         self.stateCallback=callback
     }
     
     // Currrently this function ignores the minimum and maximum lengths provided.
-    func readMinimumLength(_ minimum: Int, maximumLength maximum: Int, completionHandler completion: @escaping (Data?, Error?) -> Void)
+    public func readMinimumLength(_ minimum: Int, maximumLength maximum: Int, completionHandler completion: @escaping (Data?, Error?) -> Void)
     {
         guard isViable
         else
@@ -182,12 +182,12 @@ class MeekTCPConnection: TCPConnection
         }
     }
     
-    func readLength(_ length: Int, completionHandler completion: @escaping (Data?, Error?) -> Void)
+    public func readLength(_ length: Int, completionHandler completion: @escaping (Data?, Error?) -> Void)
     {
         readMinimumLength(length, maximumLength: length, completionHandler: completion)
     }
 
-    func write(_ data: Data, completionHandler completion: @escaping (Error?) -> Void)
+    public func write(_ data: Data, completionHandler completion: @escaping (Error?) -> Void)
     {
         guard isViable
         else
@@ -214,12 +214,12 @@ class MeekTCPConnection: TCPConnection
         }
     }
     
-    func writeClose()
+    public func writeClose()
     {
         network.writeClose()
     }
     
-    func cancel()
+    public func cancel()
     {
         _isViable = false
         _state = .cancelled
@@ -480,7 +480,7 @@ class MeekTCPConnection: TCPConnection
 
 }
 
-extension Notification.Name
+public extension Notification.Name
 {
     static let meekConnectionState = Notification.Name("MeekTCPConnectionState")
 }

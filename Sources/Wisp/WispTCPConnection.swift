@@ -28,7 +28,7 @@ func createWispTCPConnection(connection: TCPConnection, cert: String, iatMode: B
     return WispTCPConnection(connection: connection, cert: cert, iatMode: iatMode)
 }
 
-class WispTCPConnection: TCPConnection
+public class WispTCPConnection: TCPConnection
 {
     var network: TCPConnection
     var writeClosed = false
@@ -50,63 +50,63 @@ class WispTCPConnection: TCPConnection
         }
     }
     
-    var state: NWTCPConnectionState
+    public var state: NWTCPConnectionState
     {
         get {
             return _state
         }
     }
     
-    var isViable: Bool
+    public var isViable: Bool
     {
         get {
             return _isViable
         }
     }
     
-    var error: Error? {
+    public var error: Error? {
         get {
             return _error
         }
     }
     
-    var endpoint: NWEndpoint {
+    public var endpoint: NWEndpoint {
         get {
             return network.endpoint
         }
     }
     
-    var remoteAddress: NWEndpoint? {
+    public var remoteAddress: NWEndpoint? {
         get {
             return network.remoteAddress
         }
     }
     
-    var localAddress: NWEndpoint? {
+    public var localAddress: NWEndpoint? {
         get {
             return network.localAddress
         }
     }
     
-    var connectedPath: NWPath? {
+    public var connectedPath: NWPath? {
         get {
             return network.connectedPath
         }
     }
     
-    var txtRecord: Data? {
+    public var txtRecord: Data? {
         get {
             return network.txtRecord
         }
     }
     
-    var hasBetterPath: Bool {
+    public var hasBetterPath: Bool {
         get {
             return network.hasBetterPath
         }
     }
     
-    convenience init?(provider: PacketTunnelProvider, to: NWEndpoint, cert: String, iatMode: Bool)
+    public convenience init?(provider: PacketTunnelProvider, to: NWEndpoint, cert: String, iatMode: Bool)
     {
         guard let connection = provider.createTCPConnectionThroughTunnel(to: to, enableTLS: true, tlsParameters: nil, delegate: nil)
         else
@@ -117,7 +117,7 @@ class WispTCPConnection: TCPConnection
         self.init(connection: connection, cert: cert, iatMode: iatMode)
     }
     
-    init?(connection: TCPConnection, cert: String, iatMode: Bool)
+    public init?(connection: TCPConnection, cert: String, iatMode: Bool)
     {
         network = connection
         _isViable = false
@@ -152,11 +152,11 @@ class WispTCPConnection: TCPConnection
         }
     }
 
-    func observeState(_ callback: @escaping (NWTCPConnectionState, Error?) -> Void) {
+    public func observeState(_ callback: @escaping (NWTCPConnectionState, Error?) -> Void) {
         self.stateCallback=callback
     }
     
-    func readMinimumLength(_ minimum: Int, maximumLength maximum: Int, completionHandler completion: @escaping (Data?, Error?) -> Void)
+    public func readMinimumLength(_ minimum: Int, maximumLength maximum: Int, completionHandler completion: @escaping (Data?, Error?) -> Void)
     {
         wisp.readPackets(minRead: minimum, maxRead: maximum)
         {
@@ -180,12 +180,12 @@ class WispTCPConnection: TCPConnection
         }
     }
     
-    func readLength(_ length: Int, completionHandler completion: @escaping (Data?, Error?) -> Void)
+    public func readLength(_ length: Int, completionHandler completion: @escaping (Data?, Error?) -> Void)
     {
         readMinimumLength(length, maximumLength: length, completionHandler: completion)
     }
     
-    func write(_ data: Data, completionHandler completion: @escaping (Error?) -> Void)
+    public func write(_ data: Data, completionHandler completion: @escaping (Error?) -> Void)
     {
         guard let frame = wisp.encoder?.encode(payload: data)
         else
@@ -203,14 +203,14 @@ class WispTCPConnection: TCPConnection
         }
     }
     
-    func writeClose()
+    public func writeClose()
     {
         _state = .disconnected
         _isViable = false
         network.writeClose()
     }
     
-    func cancel()
+    public func cancel()
     {
         _state = .cancelled
         _isViable = false
@@ -218,7 +218,7 @@ class WispTCPConnection: TCPConnection
     }
 }
 
-extension Notification.Name
+public extension Notification.Name
 {
     static let wispConnectionState = Notification.Name("WispTCPConnectionState")
 }
