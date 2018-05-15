@@ -38,11 +38,13 @@ class WispTCPConnection: TCPConnection
     
     private var _isViable: Bool
     private var _error: Error?
-    private var _state: NWTCPConnectionState {
-        didSet {
-            guard let callback = stateCallback else {
-                return
-            }
+    private var _state: NWTCPConnectionState
+    {
+        didSet
+        {
+            NotificationCenter.default.post(name: .wispConnectionState, object: _state)
+            guard let callback = stateCallback
+            else { return }
             
             callback(_state, nil)
         }
@@ -214,4 +216,9 @@ class WispTCPConnection: TCPConnection
         _isViable = false
         network.cancel()
     }
+}
+
+extension Notification.Name
+{
+    static let wispConnectionState = Notification.Name("WispTCPConnectionState")
 }

@@ -8,9 +8,9 @@
 
 import Foundation
 import NetworkExtension
-import SecurityFoundation
+//import SecurityFoundation
 import CryptoSwift
-import ShapeshifterTesting
+//import ShapeshifterTesting
 import Transport
 
 func createMeekTCPConnection(provider: PacketTunnelProvider, to: URL, serverURL: URL) -> MeekTCPConnection?
@@ -25,28 +25,20 @@ func createMeekTCPConnection(provider: PacketTunnelProvider, to: URL, serverURL:
     return c
 }
 
-func createMeekTCPConnection(testDate: Date) -> MeekTCPConnection?
-{
-    let conn = MeekTCPConnection(testDate: testDate)
-    guard let c = conn
-    else
-    {
-        return nil
-    }
-    
-    return c
-}
-
 class MeekTCPConnection: TCPConnection
 {
-    var hasBetterPath: Bool {
-        get {
+    var hasBetterPath: Bool
+    {
+        get
+        {
             return network.hasBetterPath
         }
     }
     
-    var endpoint: NWEndpoint {
-        get {
+    var endpoint: NWEndpoint
+    {
+        get
+        {
             return network.endpoint
         }
     }
@@ -73,7 +65,8 @@ class MeekTCPConnection: TCPConnection
     let minLength = 1
     let maxLength = MemoryLayout<UInt32>.size
     
-    enum MeekError: Error {
+    enum MeekError: Error
+    {
         case unknownError
         case connectionError
         case meekIsClosed
@@ -106,11 +99,13 @@ class MeekTCPConnection: TCPConnection
     
     private var _isViable: Bool
     private var _error: Error?
-    private var _state: NWTCPConnectionState {
-        didSet {
-            guard let callback = stateCallback else {
-                return
-            }
+    private var _state: NWTCPConnectionState
+    {
+        didSet
+        {
+            NotificationCenter.default.post(name: .meekConnectionState, object: _state)
+            guard let callback = stateCallback
+            else { return }
             
             callback(_state, nil)
         }
@@ -134,15 +129,6 @@ class MeekTCPConnection: TCPConnection
         _state = .connected
         _isViable = true
         sessionID = generateSessionID() ?? ""
-    }
-    
-    ///Testing Only <-------------------
-    convenience init?(testDate: Date)
-    {
-        let provider = FakePacketTunnelProvider()
-        let sURL = URL(string: "http://TestServer.com")!
-        let fURL = URL(string: "http://TestFront.com")!
-        self.init(provider: provider, to: fURL, url: sURL)
     }
     
     func observeState(_ callback: @escaping (NWTCPConnectionState, Error?) -> Void) {
@@ -201,52 +187,6 @@ class MeekTCPConnection: TCPConnection
         readMinimumLength(length, maximumLength: length, completionHandler: completion)
     }
 
-/*
-     func (c *meekConn) roundTrip(sndBuf []byte) (recvBuf []byte, err error) {
-     var req *http.Request
-     var resp *http.Response
-     
-     for retries := 0; retries < maxRetries; retries++ {
-     url := *c.args.url
-     host := url.Host
-     if c.args.front != "" {
-     url.Host = c.args.front
-     }
-     
-     req, err = http.NewRequest("POST", url.String(), bytes.NewReader(sndBuf))
-     if err != nil {
-     return nil, err
-     }
-     
-     if c.args.front != "" {
-     req.Host = host
-     }
-     
-     req.Header.Set("X-Session-Id", c.sessionID)
-     req.Header.Set("User-Agent", "")
-     
-     resp, err = c.transport.RoundTrip(req)
-     if err != nil {
-     return nil, err
-     }
-     
-     if resp.StatusCode != http.StatusOK {
-     err = fmt.Errorf("status code was %d, not %d", resp.StatusCode, http.StatusOK)
-     if resp.StatusCode == http.StatusInternalServerError {
-     return
-     } else {
-     time.Sleep(retryDelay)
-     }
-     } else {
-     defer resp.Body.Close()
-     recvBuf, err = ioutil.ReadAll(io.LimitReader(resp.Body, maxPayloadLength))
-     return
-     }
-     }
-     
-     return
-     }
-*/
     func write(_ data: Data, completionHandler completion: @escaping (Error?) -> Void)
     {
         guard isViable
@@ -501,10 +441,6 @@ class MeekTCPConnection: TCPConnection
             let randomBytes = Data(bytes: randomBytesArray)
             
             //SHA256 random bytes.
-//            var hash = [UInt8](repeating: 0, count: Int(CC_SHA256_DIGEST_LENGTH))
-//            randomBytes.withUnsafeBytes {
-//                _ = CC_SHA256($0, CC_LONG(randomBytes.count), &hash)
-//            }
             let hash = randomBytes.sha256()
 
             //Create hex from the first 16 values of the hash array.
@@ -521,13 +457,30 @@ class MeekTCPConnection: TCPConnection
         }
     }
     
-//    func sha256(data: Data) -> Data
-//    {
-//        var hash = [UInt8](repeating: 0, count: Int(CC_SHA256_DIGEST_LENGTH))
-//        data.withUnsafeBytes {
-//            _ = CC_SHA256($0, CC_LONG(data.count), &hash)
-//        }
-//
-//        return Data(bytes: hash)
-//    }
+    //    ///Testing Only <-------------------
+    //    convenience init?(testDate: Date)
+    //    {
+    //        let provider = FakePacketTunnelProvider()
+    //        let sURL = URL(string: "http://TestServer.com")!
+    //        let fURL = URL(string: "http://TestFront.com")!
+    //        self.init(provider: provider, to: fURL, url: sURL)
+    //    }
+    
+    //func createMeekTCPConnection(testDate: Date) -> MeekTCPConnection?
+    //{
+    //    let conn = MeekTCPConnection(testDate: testDate)
+    //    guard let c = conn
+    //    else
+    //    {
+    //        return nil
+    //    }
+    //
+    //    return c
+    //}
+
+}
+
+extension Notification.Name
+{
+    static let meekConnectionState = Notification.Name("MeekTCPConnectionState")
 }
