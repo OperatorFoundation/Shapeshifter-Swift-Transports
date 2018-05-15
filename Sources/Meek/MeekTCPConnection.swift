@@ -13,7 +13,7 @@ import CryptoSwift
 //import ShapeshifterTesting
 import Transport
 
-func createMeekTCPConnection(provider: PacketTunnelProvider, to: URL, serverURL: URL) -> MeekTCPConnection?
+public func createMeekTCPConnection(provider: PacketTunnelProvider, to: URL, serverURL: URL) -> MeekTCPConnection?
 {
     let conn = MeekTCPConnection(provider: provider, to: to, url: serverURL)
     guard let c = conn

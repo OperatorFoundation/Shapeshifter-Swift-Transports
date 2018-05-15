@@ -18,12 +18,12 @@ import Transport
 let certKey = "cert"
 let iatKey = "iatMode"
 
-func createWispTCPConnection(provider: PacketTunnelProvider, to: NWEndpoint, cert: String, iatMode: Bool) -> WispTCPConnection?
+public func createWispTCPConnection(provider: PacketTunnelProvider, to: NWEndpoint, cert: String, iatMode: Bool) -> WispTCPConnection?
 {
     return WispTCPConnection(provider: provider, to: to, cert: cert, iatMode: iatMode)
 }
 
-func createWispTCPConnection(connection: TCPConnection, cert: String, iatMode: Bool) -> WispTCPConnection?
+public func createWispTCPConnection(connection: TCPConnection, cert: String, iatMode: Bool) -> WispTCPConnection?
 {
     return WispTCPConnection(connection: connection, cert: cert, iatMode: iatMode)
 }
