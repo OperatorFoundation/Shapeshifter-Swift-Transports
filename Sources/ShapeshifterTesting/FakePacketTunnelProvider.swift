@@ -10,17 +10,17 @@ import Foundation
 import NetworkExtension
 import Transport
 
-public class FakePacketTunnelProvider: PacketTunnelProvider
+open class FakePacketTunnelProvider: PacketTunnelProvider
 {
     public init() {
         //        super.init()
     }
     
-    public func startTunnel(options: [String : NSObject]? = nil, completionHandler: @escaping (Error?) -> Void) {
+    open func startTunnel(options: [String : NSObject]? = nil, completionHandler: @escaping (Error?) -> Void) {
         completionHandler(nil)
     }
     
-    public func stopTunnel(with reason: NEProviderStopReason, completionHandler: @escaping () -> Void) {
+    open func stopTunnel(with reason: NEProviderStopReason, completionHandler: @escaping () -> Void) {
         completionHandler()
     }
     
@@ -46,7 +46,7 @@ public class FakePacketTunnelProvider: PacketTunnelProvider
         }
     }
     
-    public func handleAppMessage(_ messageData: Data, completionHandler: ((Data?) -> Void)? = nil)
+    open func handleAppMessage(_ messageData: Data, completionHandler: ((Data?) -> Void)? = nil)
     {
         if let completion = completionHandler
         {
