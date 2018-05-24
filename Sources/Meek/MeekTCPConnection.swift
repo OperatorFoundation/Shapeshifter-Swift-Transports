@@ -12,10 +12,11 @@ import NetworkExtension
 import CryptoSwift
 //import ShapeshifterTesting
 import Transport
+import SwiftQueue
 
-public func createMeekTCPConnection(provider: PacketTunnelProvider, to: URL, serverURL: URL) -> MeekTCPConnection?
+public func createMeekTCPConnection(provider: PacketTunnelProvider, to: URL, serverURL: URL, logQueue: Queue<String>) -> MeekTCPConnection?
 {
-    let conn = MeekTCPConnection(provider: provider, to: to, url: serverURL)
+    let conn = MeekTCPConnection(provider: provider, to: to, url: serverURL, logQueue: logQueue)
     guard let c = conn
     else
     {
@@ -44,13 +45,9 @@ public class MeekTCPConnection: TCPConnection
     }
     
     public var connectedPath: NWPath?
-    
     public var localAddress: NWEndpoint?
-    
     public var remoteAddress: NWEndpoint?
-    
     public var txtRecord: Data?
-    
     public var error: Error?
     
     public var serverURL: URL
@@ -61,6 +58,8 @@ public class MeekTCPConnection: TCPConnection
     
     ///Meek server is no longer accepting POST
     public var meekIsClosed = false
+    
+    private var logQueue: Queue<String>
     
     let minLength = 1
     let maxLength = MemoryLayout<UInt32>.size
@@ -103,7 +102,8 @@ public class MeekTCPConnection: TCPConnection
     {
         didSet
         {
-            NotificationCenter.default.post(name: .meekConnectionState, object: _state)
+            logQueue.enqueue("Meek Connection State has changed: \(_state.description)")
+            NotificationCenter.default.post(name: .meekConnectionState, object: _state.description)
             guard let callback = stateCallback
             else { return }
             
@@ -111,8 +111,10 @@ public class MeekTCPConnection: TCPConnection
         }
     }
     
-    public init?(provider: PacketTunnelProvider, to front: URL, url: URL)
+    public init?(provider: PacketTunnelProvider, to front: URL, url: URL, logQueue: Queue<String>)
     {
+        self.logQueue = logQueue
+        
         serverURL = url
         frontURL = front
 
@@ -184,11 +186,13 @@ public class MeekTCPConnection: TCPConnection
     
     public func readLength(_ length: Int, completionHandler completion: @escaping (Data?, Error?) -> Void)
     {
+        logQueue.enqueue("Meek readLength Called")
         readMinimumLength(length, maximumLength: length, completionHandler: completion)
     }
 
     public func write(_ data: Data, completionHandler completion: @escaping (Error?) -> Void)
     {
+        logQueue.enqueue("Meek Write Called")
         guard isViable
         else
         {
@@ -228,6 +232,7 @@ public class MeekTCPConnection: TCPConnection
     
     func checkForData(responseBuffer: Data, completionHandler completion: @escaping (Error?) -> Void)
     {
+        logQueue.enqueue("Meek checkForData Called")
         self.network.readMinimumLength(60, maximumLength: 60 + 65536, completionHandler:
         {
             (maybeData, maybeError) in
@@ -264,6 +269,7 @@ public class MeekTCPConnection: TCPConnection
             guard statusCode == "200"
             else
             {
+                self.logQueue.enqueue("Meek status code is not 200")
                 if self.bodyBuffer.isEmpty
                 {
                     self.cleanup()
@@ -276,6 +282,8 @@ public class MeekTCPConnection: TCPConnection
                 
                 return
             }
+            
+            self.logQueue.enqueue("Meek Server response status code is 200.")
             
             guard let bodyData = maybeBody
             else
@@ -341,6 +349,7 @@ public class MeekTCPConnection: TCPConnection
     
     func decodeResponse(_ data: Data) -> (statusCode: String?, body: Data?)
     {
+        logQueue.enqueue("Meek: Decoding Server Response")
         guard let (headerString, bodyData) = splitOnBlankLine(data: data)
         else
         {
@@ -483,4 +492,20 @@ public class MeekTCPConnection: TCPConnection
 public extension Notification.Name
 {
     static let meekConnectionState = Notification.Name("MeekTCPConnectionState")
+}
+
+extension NWTCPConnectionState: CustomStringConvertible
+{
+    public var description: String
+    {
+        switch self
+        {
+        case .cancelled: return "Cancelled"
+        case .connected: return "Connected"
+        case .connecting: return "Connecting"
+        case .disconnected: return "Disconnected"
+        case .invalid: return "Invalid"
+        case .waiting: return "Waiting"
+        }
+    }
 }

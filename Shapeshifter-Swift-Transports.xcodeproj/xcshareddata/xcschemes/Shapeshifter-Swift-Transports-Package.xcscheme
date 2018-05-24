@@ -14,79 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "Elligator::Elligator"
-               BuildableName = "Elligator.framework"
-               BlueprintName = "Elligator"
-               ReferencedContainer = "container:Shapeshifter-Swift-Transports.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "Shapeshifter-Swift-Transports::Wisp"
-               BuildableName = "Wisp.framework"
-               BlueprintName = "Wisp"
-               ReferencedContainer = "container:Shapeshifter-Swift-Transports.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "Shapeshifter-Swift-Transports::ShapeshifterTesting"
-               BuildableName = "ShapeshifterTesting.framework"
-               BlueprintName = "ShapeshifterTesting"
-               ReferencedContainer = "container:Shapeshifter-Swift-Transports.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "Elligator::ElligatorObjC"
-               BuildableName = "ElligatorObjC.framework"
-               BlueprintName = "ElligatorObjC"
-               ReferencedContainer = "container:Shapeshifter-Swift-Transports.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
                BlueprintIdentifier = "CryptoSwift::CryptoSwift"
                BuildableName = "CryptoSwift.framework"
                BlueprintName = "CryptoSwift"
-               ReferencedContainer = "container:Shapeshifter-Swift-Transports.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "swift-sodium::Sodium"
-               BuildableName = "Sodium.framework"
-               BlueprintName = "Sodium"
                ReferencedContainer = "container:Shapeshifter-Swift-Transports.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -112,9 +42,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "Transport::Transport"
-               BuildableName = "Transport.framework"
-               BlueprintName = "Transport"
+               BlueprintIdentifier = "Shapeshifter-Swift-Transports::ShapeshifterTesting"
+               BuildableName = "ShapeshifterTesting.framework"
+               BlueprintName = "ShapeshifterTesting"
                ReferencedContainer = "container:Shapeshifter-Swift-Transports.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -126,9 +56,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "Elligator::celligator"
-               BuildableName = "celligator.framework"
-               BlueprintName = "celligator"
+               BlueprintIdentifier = "Shapeshifter-Swift-Transports::Wisp"
+               BuildableName = "Wisp.framework"
+               BlueprintName = "Wisp"
                ReferencedContainer = "container:Shapeshifter-Swift-Transports.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -154,9 +84,93 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
+               BlueprintIdentifier = "Elligator::celligator"
+               BuildableName = "celligator.framework"
+               BlueprintName = "celligator"
+               ReferencedContainer = "container:Shapeshifter-Swift-Transports.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "Transport::Transport"
+               BuildableName = "Transport.framework"
+               BlueprintName = "Transport"
+               ReferencedContainer = "container:Shapeshifter-Swift-Transports.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "Elligator::Elligator"
+               BuildableName = "Elligator.framework"
+               BlueprintName = "Elligator"
+               ReferencedContainer = "container:Shapeshifter-Swift-Transports.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
                BlueprintIdentifier = "HKDF::HKDF"
                BuildableName = "HKDF.framework"
                BlueprintName = "HKDF"
+               ReferencedContainer = "container:Shapeshifter-Swift-Transports.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "SwiftQueue::SwiftQueue"
+               BuildableName = "SwiftQueue.framework"
+               BlueprintName = "SwiftQueue"
+               ReferencedContainer = "container:Shapeshifter-Swift-Transports.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "Elligator::ElligatorObjC"
+               BuildableName = "ElligatorObjC.framework"
+               BlueprintName = "ElligatorObjC"
+               ReferencedContainer = "container:Shapeshifter-Swift-Transports.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "swift-sodium::Sodium"
+               BuildableName = "Sodium.framework"
+               BlueprintName = "Sodium"
                ReferencedContainer = "container:Shapeshifter-Swift-Transports.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -205,9 +219,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "Elligator::Elligator"
-            BuildableName = "Elligator.framework"
-            BlueprintName = "Elligator"
+            BlueprintIdentifier = "CryptoSwift::CryptoSwift"
+            BuildableName = "CryptoSwift.framework"
+            BlueprintName = "CryptoSwift"
             ReferencedContainer = "container:Shapeshifter-Swift-Transports.xcodeproj">
          </BuildableReference>
       </MacroExpansion>

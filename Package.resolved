@@ -65,12 +65,21 @@
         }
       },
       {
+        "package": "SwiftQueue",
+        "repositoryURL": "https://github.com/OperatorFoundation/SwiftQueue.git",
+        "state": {
+          "branch": null,
+          "revision": "047666d1e4d804d090ae9588aa5bfc9b77c800c3",
+          "version": "0.0.1"
+        }
+      },
+      {
         "package": "Transport",
         "repositoryURL": "https://github.com/OperatorFoundation/Transport.git",
         "state": {
           "branch": null,
-          "revision": "1bfcf07f796c7a22b5862a0953182bee0aaa2634",
-          "version": "0.0.3"
+          "revision": "1e49592a44568ffb735385575f85058394d24a65",
+          "version": "0.0.4"
         }
       }
     ]
