@@ -12,7 +12,6 @@
 // implementation to other obfs4 implementations except when required for over-the-wire compatibility.
 
 import Foundation
-import NetworkExtension
 import Sodium
 import CryptoSwift
 import Elligator
@@ -122,7 +121,8 @@ struct ClientHandshake
             handshakeBuffer.append(contentsOf: mark[0 ..< markLength])
             
             // Calculate and write the MAC.
-            guard let macOfBuffer = try? self.mac.authenticate(handshakeBuffer.bytes + self.epochHour.bytes)
+            
+            guard let macOfBuffer: Bytes = try? self.mac.authenticate(handshakeBuffer.bytes + self.epochHour.utf8)
                 else
             {
                 print("Unable to create hmac for handshake buffer.")
@@ -202,13 +202,13 @@ class WispProtocol
     let sessionKey: Keypair
     let iatMode: Bool
     
-    var network: TCPConnection
+    var network: Connection
     var encoder: WispEncoder?
     var decoder: WispDecoder?
     var receivedBuffer = Data()
     var receivedDecodedBuffer = Data()
     
-    init?(connection: TCPConnection, cert: String, iatMode enableIAT: Bool)
+    init?(connection: Connection, cert: String, iatMode enableIAT: Bool)
     {
         network = connection
         iatMode = enableIAT
@@ -249,7 +249,8 @@ class WispProtocol
             return
         }
         
-        network.write(clientHandshakeBytes)
+        let context = NWConnection.ContentContext()
+        let sendCompletion = NWConnection.SendCompletion(completion:
         {
             (maybeWriteError) in
             
@@ -262,30 +263,71 @@ class WispProtocol
             }
             
             // Consume the server handshake.
-            self.network.readMinimumLength(serverMinHandshakeLength, maximumLength: maxHandshakeLength, completionHandler:
-            {
-                (maybeReadData, maybeReadError) in
-                
-                if let readError = maybeReadError
+            self.network.receive(minimumIncompleteLength: serverMinHandshakeLength, maximumLength: maxHandshakeLength, completion:
                 {
-                    print("Error reading from network:")
-                    print(readError.localizedDescription)
+                    (maybeReadData, maybeContentContext, readComplete, maybeReadError) in
+                    //FIXME: Bool in this completion has unknown meaning
                     
-                    completion(readError)
-                    return
-                }
-                
-                guard let readData = maybeReadData
-                else
-                {
-                    completion(WispError.invalidResponse)
-                    print("No data received when attempting to read server handshake 🤔")
-                    return
-                }
-                
-                self.readServerHandshake(clientHandshake: newHandshake, buffer: readData, completion: completion)
+                    if let readError = maybeReadError
+                    {
+                        print("Error reading from network:")
+                        print(readError.localizedDescription)
+                        
+                        completion(readError)
+                        return
+                    }
+                    
+                    guard let readData = maybeReadData
+                        else
+                    {
+                        completion(WispError.invalidResponse)
+                        print("No data received when attempting to read server handshake 🤔")
+                        return
+                    }
+                    
+                    self.readServerHandshake(clientHandshake: newHandshake, buffer: readData, completion: completion)
             })
-        }
+        })
+        
+        network.send(content: clientHandshakeBytes, contentContext: context, isComplete: true, completion: sendCompletion)
+        
+//        network.write(clientHandshakeBytes)
+//        {
+//            (maybeWriteError) in
+//
+//            if let writeError = maybeWriteError
+//            {
+//                print("Received an error when writing client handshake to the network:")
+//                print(writeError.localizedDescription)
+//                completion(writeError)
+//                return
+//            }
+//
+//            // Consume the server handshake.
+//            self.network.readMinimumLength(serverMinHandshakeLength, maximumLength: maxHandshakeLength, completionHandler:
+//            {
+//                (maybeReadData, maybeReadError) in
+//
+//                if let readError = maybeReadError
+//                {
+//                    print("Error reading from network:")
+//                    print(readError.localizedDescription)
+//
+//                    completion(readError)
+//                    return
+//                }
+//
+//                guard let readData = maybeReadData
+//                else
+//                {
+//                    completion(WispError.invalidResponse)
+//                    print("No data received when attempting to read server handshake 🤔")
+//                    return
+//                }
+//
+//                self.readServerHandshake(clientHandshake: newHandshake, buffer: readData, completion: completion)
+//            })
+//        }
     }
     
     func readServerHandshake(clientHandshake: ClientHandshake, buffer: Data, completion:  @escaping (Error?) -> Void)
@@ -298,9 +340,10 @@ class WispProtocol
             completion(WispError.invalidServerHandshake)
             return
         case .retry:
-            self.network.readMinimumLength(1, maximumLength: maxHandshakeLength - buffer.count)
+            self.network.receive(minimumIncompleteLength: 1, maximumLength: maxHandshakeLength - buffer.count)
             {
-                (maybeReadData, maybeReadError) in
+                (maybeReadData, maybeReadContext, readComplete, maybeReadError) in
+                //FIXME: Bool in this completion has unknown meaning
                 
                 if let readError = maybeReadError
                 {
@@ -322,6 +365,30 @@ class WispProtocol
                 self.readServerHandshake(clientHandshake: clientHandshake, buffer: newBuffer, completion: completion)
                 return
             }
+//            self.network.readMinimumLength(1, maximumLength: maxHandshakeLength - buffer.count)
+//            {
+//                (maybeReadData, maybeReadError) in
+//
+//                if let readError = maybeReadError
+//                {
+//                    print("Error reading from network:")
+//                    print(readError.localizedDescription)
+//
+//                    completion(readError)
+//                    return
+//                }
+//
+//                guard let readData = maybeReadData
+//                    else
+//                {
+//                    completion(WispError.invalidResponse)
+//                    return
+//                }
+//
+//                let newBuffer = buffer + readData
+//                self.readServerHandshake(clientHandshake: clientHandshake, buffer: newBuffer, completion: completion)
+//                return
+//            }
         case let .success(seed):
             /// TODO: Test, We are assuming that count refers to desired output size in bytes not bits. <------
             // HKDF
@@ -399,7 +466,7 @@ class WispProtocol
         let prefixIncludingMark = response[0 ..< serverMarkRange.upperBound]
         let epochHour = clientHandshake.epochHour
         let providedMac = response[serverMarkRange.upperBound ..< serverMarkRange.upperBound + macLength]
-        let thingToMac = prefixIncludingMark.bytes + epochHour.bytes
+        let thingToMac = prefixIncludingMark.bytes + epochHour.utf8
         
         
         
@@ -422,7 +489,7 @@ class WispProtocol
             print("\nThing to mac is \(thingToMac.count) long.")
             print("prefix length is \(prefixIncludingMark.count)")
             print("\nprefix including mark: \(prefixIncludingMark.bytes)")
-            print("epoch hour: \(epochHour.bytes)")
+            print("epoch hour: \(epochHour.utf8)")
             return .failed
         }
         
@@ -463,9 +530,9 @@ class WispProtocol
     func readPackets(minRead: Int, maxRead: Int, completion: @escaping (Data?, Error?) -> Void)
     {
         // Attempt to read off the network.
-        network.readMinimumLength(1, maximumLength: maxFrameLength)
+        network.receive(minimumIncompleteLength: 1, maximumLength: maxFrameLength)
         {
-            (maybeData, maybeError) in
+            (maybeData, maybeContext, receiveComplete, maybeError) in
             
             if let error = maybeError
             {
@@ -474,7 +541,7 @@ class WispProtocol
             }
             
             guard let receivedData = maybeData
-            else
+                else
             {
                 completion(nil, WispError.connectionClosed)
                 return
@@ -483,7 +550,7 @@ class WispProtocol
             self.receivedBuffer.append(receivedData)
             
             guard self.decoder != nil
-            else
+                else
             {
                 completion(nil, WispError.decoderNotFound)
                 return
@@ -529,10 +596,77 @@ class WispProtocol
                     self.readPackets(minRead: minRead, maxRead: maxRead, completion: completion)
                 }
                 return
-            
-
             }
         }
+        
+//        network.readMinimumLength(1, maximumLength: maxFrameLength)
+//        {
+//            (maybeData, maybeError) in
+//
+//            if let error = maybeError
+//            {
+//                completion(nil, error)
+//                return
+//            }
+//
+//            guard let receivedData = maybeData
+//            else
+//            {
+//                completion(nil, WispError.connectionClosed)
+//                return
+//            }
+//
+//            self.receivedBuffer.append(receivedData)
+//
+//            guard self.decoder != nil
+//            else
+//            {
+//                completion(nil, WispError.decoderNotFound)
+//                return
+//            }
+//
+//            let result = self.decoder!.decode(framesBuffer: self.receivedBuffer)
+//
+//            switch result
+//            {
+//            case .failed:
+//                completion(nil, WispError.decoderFailure)
+//                return
+//            case .retry:
+//                self.readPackets(minRead: minRead, maxRead: maxRead, completion: completion)
+//                return
+//            case let .success(decodedData, leftovers):
+//                if leftovers != nil
+//                {
+//                    self.receivedBuffer = leftovers!
+//                }
+//                else
+//                {
+//                    self.receivedBuffer = Data()
+//                }
+//
+//                //Handle packet data writes to the decoded buffer
+//                self.handlePacketData(data: decodedData)
+//                if self.receivedDecodedBuffer.count >= minRead
+//                {
+//                    if self.receivedDecodedBuffer.count > maxRead
+//                    {
+//                        /// Slice
+//                        completion(self.receivedDecodedBuffer[0 ..< maxRead], nil)
+//                    }
+//                    else
+//                    {
+//                        /// No Slice
+//                        completion(self.receivedDecodedBuffer, nil)
+//                    }
+//                }
+//                else
+//                {
+//                    self.readPackets(minRead: minRead, maxRead: maxRead, completion: completion)
+//                }
+//                return
+//            }
+//        }
     }
     
     func handlePacketData(data: Data)
@@ -572,36 +706,36 @@ class WispProtocol
         let sodium = Sodium()
         let zeroData = Data(repeating: 0x00, count: sharedSecretLength)
         
-        guard let ephemeralSharedSecret = sodium.keyExchange.sessionKeyPair(publicKey: clientKeypair.publicKey, secretKey: clientKeypair.privateKey, otherPublicKey: serverPublicKey, side: .CLIENT)
+        guard let ephemeralSharedSecret = sodium.keyExchange.sessionKeyPair(publicKey: clientKeypair.publicKey.bytes, secretKey: clientKeypair.privateKey.bytes, otherPublicKey: serverPublicKey.bytes, side: .CLIENT)
             else
         {
             print("ntorClientHandshake: Unable to derive ephermeral shared secret.")
             return nil
         }
         
-        guard let staticSharedSecret = sodium.keyExchange.sessionKeyPair(publicKey: clientKeypair.publicKey, secretKey: clientKeypair.privateKey, otherPublicKey: idPublicKey, side: .CLIENT)
+        guard let staticSharedSecret = sodium.keyExchange.sessionKeyPair(publicKey: clientKeypair.publicKey.bytes, secretKey: clientKeypair.privateKey.bytes, otherPublicKey: idPublicKey.bytes, side: .CLIENT)
         else
         {
             print("ntorClientHandshake: Unable to derive static shared secret.")
             return nil
         }
 
-        guard !sodium.utils.equals(staticSharedSecret.tx, zeroData)
+        guard !sodium.utils.equals(staticSharedSecret.tx, zeroData.bytes)
         else
         {
             print("ntorClientHandshake: static shared secret is zero.")
             return nil
         }
         
-        guard !sodium.utils.equals(ephemeralSharedSecret.tx, zeroData)
+        guard !sodium.utils.equals(ephemeralSharedSecret.tx, zeroData.bytes)
         else
         {
             print("ntorClientHandshake: ephemeral shared secret is zero.")
             return nil
         }
         
-        secretInput.append(ephemeralSharedSecret.tx)
-        secretInput.append(staticSharedSecret.tx)
+        secretInput.append(Data(bytes: ephemeralSharedSecret.tx))
+        secretInput.append(Data(bytes: staticSharedSecret.tx))
         
         guard let (keySeed, auth) = ntorCommon(secretInput: secretInput, nodeID: nodeID, bPublicKey: idPublicKey, xPublicKey: clientKeypair.publicKey, yPublicKey: serverPublicKey)
         else
@@ -763,7 +897,7 @@ func newKeypair() -> Keypair?
             return nil
         }
         
-        if let result = representative(privateKey: sodiumKeypair.secretKey)
+        if let result = representative(privateKey: Data(bytes: sodiumKeypair.secretKey))
         {
             maybeKeypair = sodiumKeypair
             elligatorRepresentative = result.representative
@@ -780,7 +914,7 @@ func newKeypair() -> Keypair?
     
     if let actualRepresentative = elligatorRepresentative?.bytes, let newKeypair = maybeKeypair
     {
-        let wispKeypair = Keypair(publicKey: newKeypair.publicKey, privateKey: newKeypair.secretKey, representative: Data(actualRepresentative))
+        let wispKeypair = Keypair(publicKey: Data(bytes: newKeypair.publicKey) , privateKey: Data(bytes: newKeypair.secretKey), representative: Data(actualRepresentative))
         return wispKeypair
     }
     else

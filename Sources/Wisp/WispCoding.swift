@@ -83,7 +83,14 @@ struct HashDrbg
     mutating func nextBlock() -> Data
     {
         let sodium = Sodium()
-        self.ofb = sodium.shortHash.hash(message: self.ofb, key: self.sip)!
+        guard let ofbBytes = sodium.shortHash.hash(message: self.ofb.bytes, key: self.sip.bytes), ofbBytes.count == siphashSize
+        else
+        {
+            print("Error getting next block, sodium hash failed or was the wrong size.")
+            return Data()
+        }
+        
+        self.ofb = Data(ofbBytes)
         return self.ofb[0 ..< 8]
     }
 }
@@ -134,19 +141,21 @@ struct WispEncoder
         print("encoder nonce counter: \(self.nonce.counter)")
         print("encoder nonce key: \(nonce.prefix.count)")
         
-        guard let encodedData: Data = sodium.secretBox.seal(message: payload, secretKey: secretBoxKey, nonce: self.nonce.data)
+//        guard let encodedBytes = sodium.secretBox.seal(message: payload, secretKey: secretBoxKey, nonce: self.nonce.data)
+        guard let encodedBytes = sodium.secretBox.seal(message: payload.bytes, secretKey: secretBoxKey.bytes, nonce: self.nonce.data.bytes)
         else
         {
             return nil
         }
         
-        print("encoded data: \(encodedData.bytes)")
-        print("encoded data length: \(encodedData.count)")
+        print("encoded data: \(encodedBytes)")
+        print("encoded data length: \(encodedBytes.count)")
         
         
         // Obfuscate the length.
-        let length = UInt16(encodedData.count)
+        let length = UInt16(encodedBytes.count)
         let obfuscatedLength = obfuscate(length: length)
+        let encodedData = Data(bytes: encodedBytes)
         
         var frame = Data()
         frame.append(obfuscatedLength)
@@ -270,7 +279,7 @@ struct WispDecoder
         print("nonce counter: \(nonce.counter)")
         print("nonce secret key: \(nonce.prefix.bytes)")
         
-        guard let decodedData = sodium.secretBox.open(authenticatedCipherText: box, secretKey: secretBoxKey, nonce: nonce.data)
+        guard let decodedData = sodium.secretBox.open(authenticatedCipherText: box.bytes, secretKey: secretBoxKey.bytes, nonce: nonce.data.bytes)
             else
         {
             nextLength = nil
@@ -287,7 +296,7 @@ struct WispDecoder
         // Clean up and prepare for the next frame.
         nextLength = nil
         
-        return .success(decodedData: decodedData, leftovers: leftovers)
+        return .success(decodedData: Data(bytes: decodedData), leftovers: leftovers)
     }
     
     mutating func unobfuscate(obfuscatedLength: Data) -> UInt16

@@ -12,125 +12,65 @@
 // implementation to other obfs4 implementations except when required for over-the-wire compatibility.
 
 import Foundation
-import NetworkExtension
 import Transport
 
 let certKey = "cert"
 let iatKey = "iatMode"
 
-public func createWispTCPConnection(provider: PacketTunnelProvider, to: NWEndpoint, cert: String, iatMode: Bool) -> WispTCPConnection?
+
+public func createWispTCPConnection(connection: Connection,
+                                    host: NWEndpoint.Host,
+                                    port: NWEndpoint.Port,
+                                    using parameters: NWParameters,
+                                    cert: String,
+                                    iatMode: Bool) -> WispTCPConnection?
 {
-    return WispTCPConnection(provider: provider, to: to, cert: cert, iatMode: iatMode)
+    return WispTCPConnection(connection: connection, host: host, port: port, using: parameters, cert: cert, iatMode: iatMode)
 }
 
-public func createWispTCPConnection(connection: TCPConnection, cert: String, iatMode: Bool) -> WispTCPConnection?
+public class WispTCPConnection: NWConnection
 {
-    return WispTCPConnection(connection: connection, cert: cert, iatMode: iatMode)
-}
-
-public class WispTCPConnection: TCPConnection
-{
-    var network: TCPConnection
+    /// Use this to create connections
+    var connectionFactory: NetworkConnectionFactory?
+    var wispConnection: Connection
+    
+    //var network: Connection
     var writeClosed = false
     var wisp: WispProtocol
     var handshakeDone = false
-    var stateCallback: ((NWTCPConnectionState, Error?) -> Void)?
     
-    private var _isViable: Bool
-    private var _error: Error?
-    private var _state: NWTCPConnectionState
-    {
-        didSet
-        {
-            NotificationCenter.default.post(name: .wispConnectionState, object: _state)
-            guard let callback = stateCallback
-            else { return }
-            
-            callback(_state, nil)
-        }
-    }
-    
-    public var state: NWTCPConnectionState
-    {
-        get {
-            return _state
-        }
-    }
-    
+    //public var state: NWConnectionState
     public var isViable: Bool
+    public var error: Error?
+    
+    public var endpoint: NWEndpoint?
+    public var remoteAddress: NWEndpoint?
+    public var localAddress: NWEndpoint?
+    //public var connectedPath: NWPath?
+    public var txtRecord: Data?
+    public var hasBetterPath = false
+    
+    public init?(connection: Connection,
+                 host: NWEndpoint.Host,
+                 port: NWEndpoint.Port,
+                 using parameters: NWParameters,
+                 cert: String,
+                 iatMode: Bool)
     {
-        get {
-            return _isViable
-        }
-    }
-    
-    public var error: Error? {
-        get {
-            return _error
-        }
-    }
-    
-    public var endpoint: NWEndpoint {
-        get {
-            return network.endpoint
-        }
-    }
-    
-    public var remoteAddress: NWEndpoint? {
-        get {
-            return network.remoteAddress
-        }
-    }
-    
-    public var localAddress: NWEndpoint? {
-        get {
-            return network.localAddress
-        }
-    }
-    
-    public var connectedPath: NWPath? {
-        get {
-            return network.connectedPath
-        }
-    }
-    
-    public var txtRecord: Data? {
-        get {
-            return network.txtRecord
-        }
-    }
-    
-    public var hasBetterPath: Bool {
-        get {
-            return network.hasBetterPath
-        }
-    }
-    
-    public convenience init?(provider: PacketTunnelProvider, to: NWEndpoint, cert: String, iatMode: Bool)
-    {
-        guard let connection = provider.createTCPConnectionThroughTunnel(to: to, enableTLS: true, tlsParameters: nil, delegate: nil)
-        else
-        {
-            return nil
-        }
-
-        self.init(connection: connection, cert: cert, iatMode: iatMode)
-    }
-    
-    public init?(connection: TCPConnection, cert: String, iatMode: Bool)
-    {
-        network = connection
-        _isViable = false
-        _state = .connecting
+//        network = connection
+        wispConnection = connection
+        isViable = false
+//        _state = .connecting
+       
         
-        guard let newWisp = WispProtocol(connection: network, cert: cert, iatMode: iatMode)
+        guard let newWisp = WispProtocol(connection: connection, cert: cert, iatMode: iatMode)
             else
         {
             return nil
         }
 
         wisp = newWisp
-        
+        super.init(host: host, port: port, using: parameters)
         wisp.connectWithHandshake(certString: cert, sessionKey: wisp.sessionKey)
         {
             (maybeError) in
@@ -139,22 +79,22 @@ public class WispTCPConnection: TCPConnection
             {
                 print("Error connecting with handshake: \(error)")
                 self.handshakeDone = false
-                self._error = error
-                self._isViable = false
-                self._state = .invalid
+                self.error = error
+                self.isViable = false
+//                self._state = .invalid
             }
             else
             {
                 self.handshakeDone = true
-                self._isViable = true
-                self._state = .connected
+                self.isViable = true
+//                self._state = .connected
             }
         }
     }
-
-    public func observeState(_ callback: @escaping (NWTCPConnectionState, Error?) -> Void) {
-        self.stateCallback=callback
-    }
+//
+//    public func observeState(_ callback: @escaping (NWTCPConnectionState, Error?) -> Void) {
+//        self.stateCallback=callback
+//    }
     
     public func readMinimumLength(_ minimum: Int, maximumLength maximum: Int, completionHandler completion: @escaping (Data?, Error?) -> Void)
     {
@@ -194,28 +134,38 @@ public class WispTCPConnection: TCPConnection
             completion(nil)
             return
         }
-        
-        network.write(frame)
+        let context = NWConnection.ContentContext()
+        let sendCompletion = NWConnection.SendCompletion(completion:
         {
             (error) in
             
             completion(error)
-        }
+        })
+        
+        wispConnection.send(content: frame, contentContext: context, isComplete: true, completion: sendCompletion)
+//
+//        network.write(frame, timeout: 0)
+//        {
+//            (error) in
+//
+//            completion(error)
+//        }
     }
     
-    public func writeClose()
-    {
-        _state = .disconnected
-        _isViable = false
-        network.writeClose()
-    }
-    
-    public func cancel()
-    {
-        _state = .cancelled
-        _isViable = false
-        network.cancel()
-    }
+//    public func writeClose()
+//    {
+//        _state = .disconnected
+//        _isViable = false
+//        network.writeClose()
+//    }
+//
+//    public func cancel()
+//    {
+//        _state = .cancelled
+//        _isViable = false
+//        network.cancel()
+//    }
+        
 }
 
 public extension Notification.Name
