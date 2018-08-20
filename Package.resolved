@@ -42,8 +42,8 @@
         "repositoryURL": "https://github.com/OperatorFoundation/Datable.git",
         "state": {
           "branch": null,
-          "revision": "814c6b1173f74672732d094ad0abe7e5d2eac232",
-          "version": "0.1.0"
+          "revision": "9e2d1854337363fd50ef6401fa5518a508b3964e",
+          "version": "0.1.2"
         }
       },
       {
@@ -66,11 +66,11 @@
       },
       {
         "package": "Sodium",
-        "repositoryURL": "https://github.com/consuelita/swift-sodium",
+        "repositoryURL": "https://github.com/OperatorFoundation/swift-sodium",
         "state": {
           "branch": null,
-          "revision": "8e60308d8021cece0eb627a1a4cadc3cb78be38b",
-          "version": "0.6.2"
+          "revision": "4af9cb01f28ac09ba95f4b64e9719d517c544744",
+          "version": "0.6.3"
         }
       },
       {
@@ -87,8 +87,8 @@
         "repositoryURL": "https://github.com/OperatorFoundation/Transport.git",
         "state": {
           "branch": null,
-          "revision": "538b90bce4153cb79af9b1124fff6723ca76f445",
-          "version": "0.0.12"
+          "revision": "761aa3efc39eb701281cf26826a94de235530844",
+          "version": "0.0.14"
         }
       }
     ]

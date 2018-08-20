@@ -17,6 +17,7 @@ import CryptoSwift
 import Elligator
 import HKDF
 import Transport
+import Network
 
 enum WispPacketType: UInt8
 {
@@ -250,7 +251,7 @@ class WispProtocol
         }
         
         let context = NWConnection.ContentContext()
-        let sendCompletion = NWConnection.SendCompletion(completion:
+        let sendCompletion = NWConnection.SendCompletion.contentProcessed(
         {
             (maybeWriteError) in
             
@@ -265,8 +266,7 @@ class WispProtocol
             // Consume the server handshake.
             self.network.receive(minimumIncompleteLength: serverMinHandshakeLength, maximumLength: maxHandshakeLength, completion:
                 {
-                    (maybeReadData, maybeContentContext, readComplete, maybeReadError) in
-                    //FIXME: Bool in this completion has unknown meaning
+                    (maybeReadData, maybeContentContext, connectionComplete, maybeReadError) in
                     
                     if let readError = maybeReadError
                     {
@@ -289,45 +289,7 @@ class WispProtocol
             })
         })
         
-        network.send(content: clientHandshakeBytes, contentContext: context, isComplete: true, completion: sendCompletion)
-        
-//        network.write(clientHandshakeBytes)
-//        {
-//            (maybeWriteError) in
-//
-//            if let writeError = maybeWriteError
-//            {
-//                print("Received an error when writing client handshake to the network:")
-//                print(writeError.localizedDescription)
-//                completion(writeError)
-//                return
-//            }
-//
-//            // Consume the server handshake.
-//            self.network.readMinimumLength(serverMinHandshakeLength, maximumLength: maxHandshakeLength, completionHandler:
-//            {
-//                (maybeReadData, maybeReadError) in
-//
-//                if let readError = maybeReadError
-//                {
-//                    print("Error reading from network:")
-//                    print(readError.localizedDescription)
-//
-//                    completion(readError)
-//                    return
-//                }
-//
-//                guard let readData = maybeReadData
-//                else
-//                {
-//                    completion(WispError.invalidResponse)
-//                    print("No data received when attempting to read server handshake 🤔")
-//                    return
-//                }
-//
-//                self.readServerHandshake(clientHandshake: newHandshake, buffer: readData, completion: completion)
-//            })
-//        }
+        network.send(content: clientHandshakeBytes, contentContext: context, isComplete: false, completion: sendCompletion)
     }
     
     func readServerHandshake(clientHandshake: ClientHandshake, buffer: Data, completion:  @escaping (Error?) -> Void)
@@ -342,8 +304,7 @@ class WispProtocol
         case .retry:
             self.network.receive(minimumIncompleteLength: 1, maximumLength: maxHandshakeLength - buffer.count)
             {
-                (maybeReadData, maybeReadContext, readComplete, maybeReadError) in
-                //FIXME: Bool in this completion has unknown meaning
+                (maybeReadData, maybeReadContext, connectionComplete, maybeReadError) in
                 
                 if let readError = maybeReadError
                 {
@@ -365,30 +326,7 @@ class WispProtocol
                 self.readServerHandshake(clientHandshake: clientHandshake, buffer: newBuffer, completion: completion)
                 return
             }
-//            self.network.readMinimumLength(1, maximumLength: maxHandshakeLength - buffer.count)
-//            {
-//                (maybeReadData, maybeReadError) in
-//
-//                if let readError = maybeReadError
-//                {
-//                    print("Error reading from network:")
-//                    print(readError.localizedDescription)
-//
-//                    completion(readError)
-//                    return
-//                }
-//
-//                guard let readData = maybeReadData
-//                    else
-//                {
-//                    completion(WispError.invalidResponse)
-//                    return
-//                }
-//
-//                let newBuffer = buffer + readData
-//                self.readServerHandshake(clientHandshake: clientHandshake, buffer: newBuffer, completion: completion)
-//                return
-//            }
+
         case let .success(seed):
             /// TODO: Test, We are assuming that count refers to desired output size in bytes not bits. <------
             // HKDF
@@ -396,10 +334,13 @@ class WispProtocol
                                         seed: seed,
                                         info: mExpandString.data(using: .ascii),
                                         salt: tKeyString.data(using: .ascii),
-                                        count: keyLength * 2)
-            let encoderKey = keyMaterial[0 ..< keyLength]
-            let decoderKey = keyMaterial[keyLength ..< keyLength * 2]
+                                        count: keyMaterialLength * 2)
+            let encoderKey = Data(keyMaterial[0 ..< keyMaterialLength])
+            let decoderKey = Data(keyMaterial[keyMaterialLength ..< keyMaterialLength * 2])
+            
+            //print("Key for new encoder: \(encoderKey.bytes)")
             let newEncoder = WispEncoder(withKey: encoderKey)
+            
             let newDecoder = WispDecoder(withKey: decoderKey)
             
             self.encoder = newEncoder
@@ -430,6 +371,8 @@ class WispProtocol
             print("Unable to derive mark from sever handshake.")
             return .failed
         }
+        
+        print("\nParsing Server handshake.")
         
         let serverMark = Data(macOfRepresentativeBytes[0 ..< markLength])
         let serverHandshake = ServerHandshake(serverAuth: serverAuth, serverRepresentative: serverRepresentative, serverMark: serverMark)
@@ -506,7 +449,9 @@ class WispProtocol
     
     func getSeedFromHandshake(clientHandshake: ClientHandshake, serverHandshake: ServerHandshake) -> Data?
     {
+        print("\ngetSeedFromHandshake serverRepresentative: \(serverHandshake.serverRepresentative.bytes)")
         let serverPublicKey = publicKey(representative: serverHandshake.serverRepresentative)
+        print("Just used elligator to get serverPublicKey: \(serverPublicKey.bytes)")
         
         guard let (seed, auth) = ntorClientHandshake(clientKeypair: clientHandshake.keypair, serverPublicKey: serverPublicKey, idPublicKey: clientHandshake.serverIdentityPublicKey, nodeID: clientHandshake.nodeID)
             else
@@ -527,7 +472,7 @@ class WispProtocol
         return seed
     }
     
-    func readPackets(minRead: Int, maxRead: Int, completion: @escaping (Data?, Error?) -> Void)
+    func readPackets(minRead: Int, maxRead: Int, completion: @escaping (Data?, NWError?) -> Void)
     {
         // Attempt to read off the network.
         network.receive(minimumIncompleteLength: 1, maximumLength: maxFrameLength)
@@ -543,7 +488,7 @@ class WispProtocol
             guard let receivedData = maybeData
                 else
             {
-                completion(nil, WispError.connectionClosed)
+                completion(nil, NWError.posix(POSIXErrorCode.ECONNABORTED))
                 return
             }
             
@@ -552,7 +497,7 @@ class WispProtocol
             guard self.decoder != nil
                 else
             {
-                completion(nil, WispError.decoderNotFound)
+                completion(nil, NWError.posix(POSIXErrorCode.EPROTO))
                 return
             }
             
@@ -561,7 +506,7 @@ class WispProtocol
             switch result
             {
             case .failed:
-                completion(nil, WispError.decoderFailure)
+                completion(nil, NWError.posix(POSIXErrorCode.EPROTO))
                 return
             case .retry:
                 self.readPackets(minRead: minRead, maxRead: maxRead, completion: completion)
@@ -695,10 +640,10 @@ class WispProtocol
     /// ntorClientHandshake does the client side of a ntor handshake and returns status, KEY_SEED, and AUTH.
     func ntorClientHandshake(clientKeypair: Keypair, serverPublicKey: Data, idPublicKey: Data, nodeID: Data) -> (keySeed: Data, auth: Data)?
     {
-        print("\nclient public key: \(clientKeypair.publicKey)")
-        print("server public key: \(serverPublicKey.bytes)")
-        print("id public key: \(idPublicKey.bytes)")
-        print("node id: \(nodeID.bytes)\n")
+//        print("\n ☞ ☞ Client public key: \(clientKeypair.publicKey.bytes)")
+//        print(" ☞ ☞ Server public key: \(serverPublicKey.bytes)")
+//        print(" ☞ ☞ ID public key: \(idPublicKey.bytes)")
+//        print(" ☞ ☞ Node ID: \(nodeID.bytes)\n")
         
         var secretInput = Data()
         
@@ -706,36 +651,32 @@ class WispProtocol
         let sodium = Sodium()
         let zeroData = Data(repeating: 0x00, count: sharedSecretLength)
         
-        guard let ephemeralSharedSecret = sodium.keyExchange.sessionKeyPair(publicKey: clientKeypair.publicKey.bytes, secretKey: clientKeypair.privateKey.bytes, otherPublicKey: serverPublicKey.bytes, side: .CLIENT)
-            else
-        {
-            print("ntorClientHandshake: Unable to derive ephermeral shared secret.")
-            return nil
-        }
-        
-        guard let staticSharedSecret = sodium.keyExchange.sessionKeyPair(publicKey: clientKeypair.publicKey.bytes, secretKey: clientKeypair.privateKey.bytes, otherPublicKey: idPublicKey.bytes, side: .CLIENT)
-        else
-        {
-            print("ntorClientHandshake: Unable to derive static shared secret.")
-            return nil
-        }
+        let ephemeralSharedSecret = sodium.keyExchange.scalarMult(
+            publicKey: serverPublicKey.bytes,
+            secretKey: clientKeypair.privateKey.bytes)
+        let staticSharedSecret = sodium.keyExchange.scalarMult(
+            publicKey: idPublicKey.bytes,
+            secretKey: clientKeypair.privateKey.bytes)
 
-        guard !sodium.utils.equals(staticSharedSecret.tx, zeroData.bytes)
+        guard !sodium.utils.equals(staticSharedSecret, zeroData.bytes)
         else
         {
             print("ntorClientHandshake: static shared secret is zero.")
             return nil
         }
         
-        guard !sodium.utils.equals(ephemeralSharedSecret.tx, zeroData.bytes)
+        guard !sodium.utils.equals(ephemeralSharedSecret, zeroData.bytes)
         else
         {
             print("ntorClientHandshake: ephemeral shared secret is zero.")
             return nil
         }
         
-        secretInput.append(Data(bytes: ephemeralSharedSecret.tx))
-        secretInput.append(Data(bytes: staticSharedSecret.tx))
+        secretInput.append(Data(bytes: ephemeralSharedSecret))
+        secretInput.append(Data(bytes: staticSharedSecret))
+        
+//        print("\n🤫 🤫 Secret input appending ephemeral shared secret: \(ephemeralSharedSecret)")
+//        print("\n🤫 🤫 Secret input appending static shared secret: \(staticSharedSecret)")
         
         guard let (keySeed, auth) = ntorCommon(secretInput: secretInput, nodeID: nodeID, bPublicKey: idPublicKey, xPublicKey: clientKeypair.publicKey, yPublicKey: serverPublicKey)
         else
@@ -748,6 +689,7 @@ class WispProtocol
 
     func ntorCommon(secretInput: Data, nodeID: Data, bPublicKey: Data, xPublicKey: Data, yPublicKey: Data) -> (keySeed: Data, auth: Data)?
     {
+        //FIXME: Verify that we are returning the correct auth
         let protoID = protoIDString.data(using: .ascii)!
         let tMac = tMacString.data(using: .ascii)!
         let tKey = tKeyString.data(using: .ascii)!
@@ -767,20 +709,30 @@ class WispProtocol
         var sInput = secretInput
         sInput.append(suffix)
         
+        print("\n 🤫 🤫 Secret input appending suffix: \(suffix.bytes)")
+        
         // KEY_SEED = H(secret_input, t_key)
         do
         {
+//            print("\n ☞ ☞  tVerify: \(tVerify.bytes)")
+//            print("\n ☞ ☞  Secret Input: \(sInput.bytes)")
+            
             let keySeedHmac = HMAC(key: tKey.bytes, variant: .sha256)
             let keySeed = try keySeedHmac.authenticate(sInput.bytes)
             // verify = H(secret_input, t_verify)
             do
             {
                 let tVerifyHmac = try HMAC(key: tVerify.bytes, variant: .sha256).authenticate(sInput.bytes)
+//                print("\n ☞ ☞  tVerifyHMAC: \(tVerifyHmac)")
+//                print("\n ☞ ☞  serverStringAsData: \(serverStringAsData.bytes)")
                 
                 // auth_input = verify | ID | B | Y | X | PROTOID | "Server"
                 var authInput = Data(tVerifyHmac)
                 authInput.append(suffix)
                 authInput.append(serverStringAsData)
+                
+//                print("\n ☞ ☞ tMac: \(tMac.bytes)")
+//                print("\n ☞ ☞  authInput: \(authInput.bytes)\n")
                 
                 do
                 {

@@ -107,7 +107,7 @@ struct WispEncoder
         guard key.count == keyMaterialLength
         else
         {
-            print("Attempted to initialize WispEncoder with an incorrect full key length: \(key.count)")
+            print("Attempted to initialize WispEncoder with an incorrect full key length of \(key.count) when it should be \(keyMaterialLength)")
             return nil
         }
         
@@ -135,11 +135,11 @@ struct WispEncoder
         
         // Nonce counter increases by 1 every time we access the nonce.data property
         // Encrypt and MAC payload.
-        
-        print("encoder secret key: \(secretBoxKey.bytes)")
-        print("encoder key length: \(secretBoxKey.count)")
-        print("encoder nonce counter: \(self.nonce.counter)")
-        print("encoder nonce key: \(nonce.prefix.count)")
+//
+//        print("encoder secret key: \(secretBoxKey.bytes)")
+//        print("encoder key length: \(secretBoxKey.count)")
+//        print("encoder nonce counter: \(self.nonce.counter)")
+//        print("encoder nonce key: \(nonce.prefix.count)")
         
 //        guard let encodedBytes = sodium.secretBox.seal(message: payload, secretKey: secretBoxKey, nonce: self.nonce.data)
         guard let encodedBytes = sodium.secretBox.seal(message: payload.bytes, secretKey: secretBoxKey.bytes, nonce: self.nonce.data.bytes)
@@ -148,8 +148,8 @@ struct WispEncoder
             return nil
         }
         
-        print("encoded data: \(encodedBytes)")
-        print("encoded data length: \(encodedBytes.count)")
+//        print("encoded data: \(encodedBytes)")
+//        print("encoded data length: \(encodedBytes.count)")
         
         
         // Obfuscate the length.
@@ -166,8 +166,10 @@ struct WispEncoder
     
     mutating func obfuscate(length: UInt16) -> Data
     {
+        //print("\nReceived a length to obfuscate: \(length)")
         // Obfuscate the length.
         let lengthMask = self.drbg.nextBlock().bytes
+        //print("lengthMask: \(lengthMask)")
         var unobfuscatedLength = length.bigEndian
         let lengthData = Data(buffer:UnsafeBufferPointer(start: &unobfuscatedLength, count: 1))
         
@@ -181,7 +183,7 @@ struct WispEncoder
 //        obfuscatedLength.append(first)
 //        obfuscatedLength.append(second)
         
-        print("Obfuscated a length: \(length)")
+        //print("Obfuscated a length: \(length)\n")
         return obfuscatedLength
     }
 }
@@ -206,13 +208,14 @@ struct WispDecoder
             print("BUG: Invalid decoder key length: \(key.count)")
             return nil
         }
-        
-        self.secretBoxKey = key[0 ..< keyLength]
-        self.nonce = Nonce(prefix: key[keyLength ..< keyLength + noncePrefixLength])
-        
+        let secretBoxKey = Data(key[0 ..< keyLength])
+        let nonce = Nonce(prefix: Data(key[keyLength ..< keyLength + noncePrefixLength]))
         let seed = Data(key[keyLength + noncePrefixLength ..< key.count])
         let sipKey = Data(seed[0 ..< 16])
         let ofb = Data(seed[16 ..< seed.count])
+        
+        self.secretBoxKey = secretBoxKey
+        self.nonce = nonce
         self.drbg = HashDrbg(sip: sipKey, ofb: ofb)
     }
 

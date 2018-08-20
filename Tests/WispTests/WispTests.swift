@@ -12,29 +12,27 @@ import Sodium
 import Elligator
 import NetworkExtension
 import Transport
+import Network
+
 
 @testable import Wisp
 
 class Shapeshifter_WispTests: XCTestCase
 {
     let certString = "60RNHBMRrf+aOSPzSj8bD4ASGyyPl0mkaOUAQsAYljSkFB0G8B8m9fGvGJCpOxwoXS1baA"
-    let ipAddressString = "166.78.129.122"
+    let ipAddressString = "159.203.158.90"
     let portString = "1234"
-    let endpoint = NWHostEndpoint(hostname: "198.211.106.85", port: "1234")
-    
-    
-    //static let fakeTCPConnection: FakeTCPConnection = createFakeTCPConnection(to: endpoint)
     let secretKeyMaterial = Data(repeating: 0x0A, count: keyMaterialLength)
     static let publicKey = Data(bytes: [139, 210, 37, 89, 10, 47, 113, 85, 13, 53, 118, 181, 28, 8, 202, 146, 220, 206, 224, 143, 24, 159, 235, 136, 173, 194, 120, 171, 201, 54, 238, 76])
     static let privateKey = Data(bytes: [198, 167, 133, 212, 83, 74, 53, 24, 178, 34, 178, 148, 128, 202, 15, 70, 247, 196, 26, 159, 184, 238, 185, 113, 19, 137, 138, 135, 39, 137, 55, 15])
     static let elligatorRepresentative = Data(bytes: [95, 226, 105, 55, 70, 208, 53, 164, 16, 88, 68, 55, 89, 16, 147, 91, 38, 140, 125, 101, 237, 25, 154, 12, 82, 12, 4, 158, 252, 206, 79, 1])
     
-    let maxWaitSeconds: Double = 5
+    let maxWaitSeconds: Double = 20
     let toEncode = Data(repeating: 0x0A, count: 50)
     let testClientKeypair = Keypair(publicKey: publicKey, privateKey: privateKey, representative: elligatorRepresentative)
     //let wispProtocol = WispProtocol(connection: Shapeshifter_WispTests.fakeTCPConnection as TCPConnection, cert: Shapeshifter_WispTests.certString, iatMode: false)
     
-    var wispTCPConnection: WispTCPConnection?
+    var wispConnection: WispConnection?
     
     //MARK: WispCoding
     
@@ -83,21 +81,24 @@ class Shapeshifter_WispTests: XCTestCase
     func testDecodePayloadLength()
     {
         var wispEncoder = WispEncoder(withKey: secretKeyMaterial)
+        let knownCorrectLength = UInt16(toEncode.count + 16)
         let encoded = wispEncoder?.encode(payload: toEncode)
         XCTAssertNotNil(encoded)
         XCTAssertNotEqual(toEncode, encoded)
+        XCTAssertEqual(encoded!.count, toEncode.count + 16 + 2)
         
         
         var wispDecoder = WispDecoder(withKey: secretKeyMaterial)
         let lengthData = encoded![0 ..< lengthLength]
         let unobfuscatedLength = wispDecoder?.unobfuscate(obfuscatedLength: lengthData)
+
+        print("\nlengthData: \(lengthData.bytes)")
+        print("Encoded count: \(encoded!.count)")
+        print("To Encode Count: \(toEncode.count)")
+        print("unobfuscatedLength: \(String(describing: unobfuscatedLength))")
+        print("knownCorrectLength: \(knownCorrectLength)\n")
         
-        XCTAssertEqual(UInt16(toEncode.count + 16), unobfuscatedLength)
-    }
-    
-    func testWispDecoderInit()
-    {
-        
+        XCTAssertEqual(knownCorrectLength, unobfuscatedLength)
     }
     
     func testLengthObfuscation()
@@ -154,7 +155,7 @@ class Shapeshifter_WispTests: XCTestCase
     
     //MARK: WispTCPConnection
     
-    func testFakeTCPConnection()
+    func testNetworkConnectionConnect()
     {
         guard let portUInt = UInt16(portString), let port = NWEndpoint.Port(rawValue: portUInt)
         else
@@ -184,86 +185,29 @@ class Shapeshifter_WispTests: XCTestCase
         maybeConnection?.stateUpdateHandler =
         {
             (newState) in
-            
-            
-            connected.fulfill()
+                        
             print("CURRENT STATE = \(newState))")
-            
-            
-            //        guard let startCompletion = pendingStartCompletion
-            //            else
-            //        {
-            //            print("pendingStartCompletion is nil?")
-            //            return
-            //        }
             
             switch newState
             {
             case .ready:
-                // Start reading messages from the tunnel connection.
-                //self.tunnelConnection?.startHandlingPackets()
-                
-                // Open the logical flow of packets through the tunnel.
-                //let newConnection = ClientTunnelConnection(clientPacketFlow: self.packetFlow)
                 print("\n🚀 open() called on tunnel connection  🚀\n")
                 connected.fulfill()
-                //self.tunnelConnection = newConnection
-                //startCompletion(nil)
                 
             case .cancelled:
-                connected.fulfill()
                 print("\n🙅‍♀️  Connection Canceled  🙅‍♀️\n")
-                //            self.connection = nil
-                //            self.tunnelDidClose()
-                //            startCompletion(SimpleTunnelError.cancelled)
                 
             case .failed(let error):
-                print("\n🐒💨  Connection Failed  🐒💨\n")
-                connected.fulfill()
-                //            self.closeTunnelWithError(error)
-                //            startCompletion(error)
+                print("\n🐒💨  Connection Failed  🐒💨")
+                print("Failure Error: \(error.localizedDescription)\n")
                 
             default:
-                connected.fulfill()
                 print("\n🤷‍♀️  Unexpected State: \(newState))  🤷‍♀️\n")
             }
         }
         
-//        fakeTCPConnection.observeState {
-//            (state, maybeConnectError) in
-//
-//            XCTAssertNil(maybeConnectError)
-//            guard maybeConnectError == nil else {
-//                return
-//            }
-//
-//            switch state {
-//                case .connected:
-//                    connected.fulfill()
-//
-//                    fakeTCPConnection.write(Data(repeating: 0x0A, count: 1))
-//                    {
-//                        (maybeWriteError) in
-//
-//                        XCTAssertNil(maybeWriteError)
-//
-//                        guard maybeWriteError == nil else
-//                        {
-//                            print("\nTest - FakeTCPConnection write failure:")
-//                            if let error = maybeWriteError {
-//                                print(error.localizedDescription)
-//                            }
-//
-//                            return
-//                        }
-//
-//                        wrote.fulfill()
-//                }
-//                default:
-//                    return
-//            }
-//        }
-//
+        maybeConnection?.start(queue: DispatchQueue(label: "TestQueue"))
+
         waitForExpectations(timeout: maxWaitSeconds)
         { (maybeError) in
             if let error = maybeError
@@ -273,124 +217,484 @@ class Shapeshifter_WispTests: XCTestCase
         }
     }
     
-    func testWispTCPConnection()
+    func testNetworkConnectionSend()
     {
-//        let promise = expectation(description: "Connection state changed.")
-//        let maybeConnection = createFakeTCPConnection(to: endpoint)
-//        XCTAssertNotNil(maybeConnection)
-//        guard let connection = maybeConnection else {
-//            return
-//        }
-//        connection.observeState
-//        {
-//            (connectionState, maybeError) in
-//
-//            let maybeWtcpConnection = createWispTCPConnection(connection: connection, cert: self.certString, iatMode: false)
-//            XCTAssertNotNil(maybeWtcpConnection)
-//        }
+        guard let portUInt = UInt16(portString), let port = NWEndpoint.Port(rawValue: portUInt)
+            else
+        {
+            print("Unable to resolve port for test")
+            XCTFail()
+            return
+        }
+        guard let ipv4Address = IPv4Address(ipAddressString)
+            else
+        {
+            print("Unable to resolve ipv4 address for test")
+            XCTFail()
+            return
+        }
+        
+        let host = NWEndpoint.Host.ipv4(ipv4Address)
+        let parameters = NWParameters()
+        let connectionFactory = NetworkConnectionFactory(host: host, port: port)
+        var maybeConnection = connectionFactory.connect(parameters)
+        
+        XCTAssertNotNil(maybeConnection)
+        
+        let connected = expectation(description: "Connected to server.")
+        let wrote = expectation(description: "Wrote data to server.")
+        
+        maybeConnection?.stateUpdateHandler =
+            {
+                (newState) in
+                
+                print("CURRENT STATE = \(newState))")
+                
+                switch newState
+                {
+                case .ready:
+                    print("\n🚀 open() called on tunnel connection  🚀\n")
+                    let message = "GET / HTTP/1.0\n\n"
+                    
+                    connected.fulfill()
+                    let context = NWConnection.ContentContext()
+                    let sendCompletion = NWConnection.SendCompletion.contentProcessed(
+                    {
+                        (error) in
+                        
+                        if error == nil
+                        {
+                            wrote.fulfill()
+                            print("No ERROR")
+                        }
+                        
+                        else
+                        {
+                            print("RECEIVED A SEND ERROR: \(String(describing: error))")
+                        }
+                    })
+                    
+                    maybeConnection?.send(content: message.data(using: String.Encoding.ascii), contentContext: context, isComplete: true, completion: sendCompletion)
+                    
+                case .cancelled:
+                    print("\n🙅‍♀️  Connection Canceled  🙅‍♀️\n")
+                    
+                case .failed(let error):
+                    print("\n🐒💨  Connection Failed  🐒💨")
+                    print("Failure Error: \(error.localizedDescription)\n")
+                    
+                default:
+                    print("\n🤷‍♀️  Unexpected State: \(newState))  🤷‍♀️\n")
+                }
+        }
+        
+        maybeConnection?.start(queue: DispatchQueue(label: "TestQueue"))
+        
+        waitForExpectations(timeout: maxWaitSeconds)
+        { (maybeError) in
+            if let error = maybeError
+            {
+                print("Expectation completed with error: \(error.localizedDescription)")
+            }
+        }
     }
+    
+    func testNetworkConnectionSendReceive()
+    {
+        guard let portUInt = UInt16("80"), let port = NWEndpoint.Port(rawValue: portUInt)
+            else
+        {
+            print("Unable to resolve port for test")
+            XCTFail()
+            return
+        }
+        guard let ipv4Address = IPv4Address("172.217.9.174")
+            else
+        {
+            print("Unable to resolve ipv4 address for test")
+            XCTFail()
+            return
+        }
+        
+        let connected = expectation(description: "Connected to the server.")
+        let wrote = expectation(description: "Wrote data to the server.")
+        let read = expectation(description: "Read data from the server.")
+        let parameters = NWParameters()
+        let context = NWConnection.ContentContext()
+        let host = NWEndpoint.Host.ipv4(ipv4Address)
+        let connectionFactory = NetworkConnectionFactory(host: host, port: port)
+        let maybeConnection = connectionFactory.connect(parameters)
+        
+        var lock: DispatchGroup
+        lock = DispatchGroup.init()
+        
+        XCTAssertNotNil(maybeConnection)
+        
+        guard var connection = maybeConnection
+        else
+        {
+            return
+        }
 
-//    func testConnectWithHandshake()
-//    {
-//        let promise = expectation(description: "Connection state changed.")
-//        let connection = createFakeTCPConnection(to: endpoint)
-//        wispTCPConnection = WispTCPConnection(connection: connection, cert: certString, iatMode: false)
-//
-//        XCTAssertNotNil(wispTCPConnection)
-//        promise.fulfill()
-//        _ = wispTCPConnection?.observe(\.state, changeHandler:
-//        {
-//            (observedConnection, stateChange) in
-//
-//            print("\n\nWispTCPConnection state Change Observed: \(stateChange) 👯‍♀️")
-//            promise.fulfill()
-//        })
-//
-//        waitForExpectations(timeout: maxWaitSeconds)
-//        { (maybeError) in
-//            if let error = maybeError
-//            {
-//                print("\nExpectation completed with error: \(error.localizedDescription)\n")
-//            }
-//        }
-//    }
-    
-//    func testReadLength()
-//    {
-//        weak var maybExpectation = expectation(description: "Read length test.")
-//        //weak var maybExpectation = XCTestExpectation(description: "Read length test.")
-//
-//        wispTCPConnection!.readLength(serverMinHandshakeLength, completionHandler:
-//        { (maybeData, maybeError) in
-//
-//            guard let expectation = maybExpectation
-//            else
-//            {
-//                print("Expectation is already fulfilled.")
-//                return
-//            }
-//            expectation.fulfill()
-//            XCTAssertNotNil(maybeData)
-//            print("TEST READ LENGTH COMPLETION")
-//
-//        })
-//
-//        waitForExpectations(timeout: maxWaitSeconds)
-//        { (maybeError) in
-//            if let error = maybeError
-//            {
-//                print("Expectation completed with error: \(error.localizedDescription)")
-//            }
-//        }
-//    }
-    
-    func testWrite()
-    {
-    
+        connection.stateUpdateHandler =
+        {
+            (newState) in
+            
+            print("CURRENT STATE = \(newState))")
+            
+            switch newState
+            {
+            case .ready:
+                print("\n🚀 open() called on tunnel connection  🚀\n")
+                let message = "GET / HTTP/1.0\n\n"
+                connected.fulfill()
+                
+                lock.enter()
+                connection.send(content: message.data(using: String.Encoding.ascii), contentContext: context, isComplete: true, completion: NWConnection.SendCompletion.contentProcessed(
+                {
+                    (error) in
+                    
+                    if error == nil
+                    {
+                        wrote.fulfill()
+                        print("No ERROR")
+                    }
+                        
+                    else
+                    {
+                        print("RECEIVED A SEND ERROR: \(String(describing: error))")
+                    }
+                    
+                    lock.leave()
+                }))
+                lock.wait()
+                
+                lock.enter()
+                connection.receive(completion:
+                {
+                    (maybeData, maybeContext, connectionComplete, maybeError) in
+                    
+                    print("\nTo receive is also nice.")
+                    print("Data? \(String(describing: maybeData))")
+                    if let data = maybeData
+                    {
+                        let responseString = String(data: data, encoding: .ascii)
+                        print("Data to String? \(responseString!)")
+                    }
+                    print("Context? \(String(describing: maybeContext))")
+                    print("Connection Complete? \(String(describing: connectionComplete))")
+                    print("Error? \(maybeError.debugDescription)\n")
+                    
+                    if maybeError != nil
+                    {
+                        switch maybeError!
+                        {
+                        case .posix(let posixError):
+                            print("Received a posix error: \(posixError)")
+                        case .tls(let tlsError):
+                            print("Received a tls error: \(tlsError)")
+                        }
+                    }
+                    
+                    if let data = maybeData
+                    {
+                        print("Received some datas: \(data)\n")
+                        read.fulfill()
+                    }
+                    
+                    lock.leave()
+                })
+                lock.wait()
+                    
+                case .cancelled:
+                    print("\n🙅‍♀️  Connection Canceled  🙅‍♀️\n")
+                    
+                case .failed(let error):
+                    print("\n🐒💨  Connection Failed  🐒💨\n")
+                    print("Failure Error: \(error.localizedDescription)")
+                    
+                default:
+                    print("\n🤷‍♀️  Unexpected State: \(newState))  🤷‍♀️\n")
+                }
+        }
+        
+        maybeConnection?.start(queue: DispatchQueue(label: "TestQueue"))
+        
+        waitForExpectations(timeout: maxWaitSeconds)
+        { (maybeError) in
+            if let error = maybeError
+            {
+                print("Expectation completed with error: \(error.localizedDescription)")
+            }
+        }
     }
     
-    //MARK: WispProtocol
+    func testNetworkConnectionSendTwice()
+    {
+        guard let portUInt = UInt16("80"), let port = NWEndpoint.Port(rawValue: portUInt)
+            else
+        {
+            print("Unable to resolve port for test")
+            XCTFail()
+            return
+        }
+        guard let ipv4Address = IPv4Address("172.217.9.174")
+            else
+        {
+            print("Unable to resolve ipv4 address for test")
+            XCTFail()
+            return
+        }
+        
+        let connected = expectation(description: "Connected to the server.")
+        let wrote = expectation(description: "Wrote data to the server.")
+        let wroteTwice = expectation(description: "Wrote data to the server.")
+        let parameters = NWParameters()
+        let context = NWConnection.ContentContext()
+        let host = NWEndpoint.Host.ipv4(ipv4Address)
+        let connectionFactory = NetworkConnectionFactory(host: host, port: port)
+        let maybeConnection = connectionFactory.connect(parameters)
+        
+        var lock: DispatchGroup
+        lock = DispatchGroup.init()
+        
+        XCTAssertNotNil(maybeConnection)
+        
+        guard var connection = maybeConnection
+            else
+        {
+            return
+        }
+        
+        connection.stateUpdateHandler =
+            {
+                (newState) in
+                
+                print("CURRENT STATE = \(newState))")
+                
+                switch newState
+                {
+                case .ready:
+                    print("\n🚀 open() called on tunnel connection  🚀\n")
+                    let message = "GET / HTTP/1.0\n\n"
+                    connected.fulfill()
+                    
+                    let bigMessage = Data(count: 1442)
+                    lock.enter()
+                    connection.send(content: bigMessage, contentContext: context, isComplete: true, completion: NWConnection.SendCompletion.contentProcessed(
+                        {
+                            (error) in
+                            
+                            if error == nil
+                            {
+                                wrote.fulfill()
+                                print("No ERROR")
+                            }
+                                
+                            else
+                            {
+                                print("RECEIVED A SEND ERROR: \(String(describing: error))")
+                            }
+                            
+                            lock.leave()
+                    }))
+                    lock.wait()
+                    
+                    lock.enter()
+                    connection.send(content: message.data(using: String.Encoding.ascii), contentContext: context, isComplete: true, completion: NWConnection.SendCompletion.contentProcessed(
+                        {
+                            (error) in
+                            
+                            if error == nil
+                            {
+                                wroteTwice.fulfill()
+                                print("No ERROR")
+                            }
+                                
+                            else
+                            {
+                                print("RECEIVED A SEND ERROR: \(String(describing: error))")
+                            }
+                            
+                            lock.leave()
+                    }))
+                    lock.wait()
+                    
+                case .cancelled:
+                    print("\n🙅‍♀️  Connection Canceled  🙅‍♀️\n")
+                    
+                case .failed(let error):
+                    print("\n🐒💨  Connection Failed  🐒💨\n")
+                    print("Failure Error: \(error.localizedDescription)")
+                    
+                default:
+                    print("\n🤷‍♀️  Unexpected State: \(newState))  🤷‍♀️\n")
+                }
+        }
+        
+        maybeConnection?.start(queue: DispatchQueue(label: "TestQueue"))
+        
+        waitForExpectations(timeout: maxWaitSeconds)
+        { (maybeError) in
+            if let error = maybeError
+            {
+                print("Expectation completed with error: \(error.localizedDescription)")
+            }
+        }
+    }
+    
+    func testWispConnection()
+    {
+        guard let portUInt = UInt16(portString), let port = NWEndpoint.Port(rawValue: portUInt)
+            else
+        {
+            print("Unable to resolve port for test")
+            XCTFail()
+            return
+        }
+        guard let ipv4Address = IPv4Address(ipAddressString)
+            else
+        {
+            print("Unable to resolve ipv4 address for test")
+            XCTFail()
+            return
+        }
+        
+        let host = NWEndpoint.Host.ipv4(ipv4Address)
+        let parameters = NWParameters()
+        let wispFactory = WispConnectionFactory(host: host, port: port, cert: certString, iatMode: false)
+        var maybeConnection = wispFactory.connect(parameters)
+        
+        XCTAssertNotNil(maybeConnection)
+        
+        let connected = expectation(description: "Connected to server.")
+        
+        maybeConnection?.stateUpdateHandler =
+            {
+                (newState) in
+                
+                print("CURRENT STATE = \(newState))")
+                
+                switch newState
+                {
+                case .ready:
+                    print("\n🚀 wisp connection is ready  🚀\n")
+                    connected.fulfill()
+                    
+                case .cancelled:
+                    print("\n🙅‍♀️  Connection Canceled  🙅‍♀️\n")
+                    
+                case .failed(let error):
+                    print("\n🐒💨  Connection Failed  🐒💨")
+                    print("Failure Error: \(error.localizedDescription)\n")
+                    
+                default:
+                    print("\n🤷‍♀️  Unexpected State: \(newState))  🤷‍♀️\n")
+                }
+        }
+        
+        maybeConnection?.start(queue: DispatchQueue(label: "TestQueue"))
+        
+        waitForExpectations(timeout: 30)
+        { (maybeError) in
+            if let error = maybeError
+            {
+                print("Expectation completed with error: \(error.localizedDescription)")
+            }
+        }
+    }
+    
+    func testWispSend()
+    {
+        guard let portUInt = UInt16(portString), let port = NWEndpoint.Port(rawValue: portUInt)
+            else
+        {
+            print("Unable to resolve port for test")
+            XCTFail()
+            return
+        }
+        guard let ipv4Address = IPv4Address(ipAddressString)
+            else
+        {
+            print("Unable to resolve ipv4 address for test")
+            XCTFail()
+            return
+        }
+        
+        let message = "GET / HTTP/1.0\n\n"
+        let connected = expectation(description: "Connected to server.")
+        let wrote = expectation(description: "Wrote data to server.")
+        let context = NWConnection.ContentContext()
+        let host = NWEndpoint.Host.ipv4(ipv4Address)
+        let parameters = NWParameters()
+        let wispFactory = WispConnectionFactory(host: host, port: port, cert: certString, iatMode: false)
+        let maybeConnection = wispFactory.connect(parameters)
+        var lock: DispatchGroup
+        
+        lock = DispatchGroup.init()
+        XCTAssertNotNil(maybeConnection)
 
-    func testProtocolInit()
-    {
-    }
-    
-    
-    
-    func testReadServerHandshake()
-    {
+        guard var connection = maybeConnection
+            else
+        {
+            return
+        }
         
+        connection.stateUpdateHandler =
+        {
+            (newState) in
+            
+            print("CURRENT STATE = \(newState))")
+            
+            switch newState
+            {
+            case .ready:
+                print("\n🚀 wisp connection is ready  🚀\n")
+                connected.fulfill()
+                
+                lock.enter()
+                connection.send(content: message.data(using: .ascii), contentContext: context, isComplete: true, completion: NWConnection.SendCompletion.contentProcessed(
+                {
+                    (maybeError) in
+                    
+                    if let error = maybeError
+                    {
+                        print("\nWisp connection received an error on send: \(error.localizedDescription)\n")
+                        XCTFail()
+                    }
+                    else
+                    {
+                        wrote.fulfill()
+                    }
+                    
+                    lock.leave()
+                }))
+                
+                lock.wait()
+                
+            case .cancelled:
+                print("\n🙅‍♀️  Connection Canceled  🙅‍♀️\n")
+                
+            case .failed(let error):
+                print("\n🐒💨  Connection Failed  🐒💨")
+                print("Failure Error: \(error.localizedDescription)\n")
+                
+            default:
+                print("\n🤷‍♀️  Unexpected State: \(newState))  🤷‍♀️\n")
+            }
+        }
+        
+        connection.start(queue: DispatchQueue(label: "TestQueue"))
+        
+        waitForExpectations(timeout: 300)
+        { (maybeError) in
+            if let error = maybeError
+            {
+                print("Expectation completed with error: \(error.localizedDescription)")
+            }
+        }
     }
     
-    func testParseServerHandshake()
-    {
-        
-    }
-    
-    func testGetSeedFromHandshake()
-    {
-        
-    }
-    
-    func testReadPackets()
-    {
-        
-    }
-    
-    func testHandlePacketData()
-    {
-        
-    }
-    
-    func testNtorClientHandshake()
-    {
-        
-    }
-    
-    func testNtorCommon()
-    {
-        
-    }
     
     func testNewKeypair()
     {
