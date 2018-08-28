@@ -10,9 +10,9 @@ import Foundation
 import Transport
 import Network
 
-class Rot13Connection: Connection
+open class Rot13Connection: Connection
 {
-    var stateUpdateHandler: ((NWConnection.State) -> Void)?
+    public var stateUpdateHandler: ((NWConnection.State) -> Void)?
     {
         didSet
         {
@@ -20,11 +20,11 @@ class Rot13Connection: Connection
         }
     }
     
-    var viabilityUpdateHandler: ((Bool) -> Void)?
-    var rotkey: Int = 13
+    public var viabilityUpdateHandler: ((Bool) -> Void)?
+    public var rotkey: Int = 13
     var network: Connection
     
-    init?(host: NWEndpoint.Host,
+    public init?(host: NWEndpoint.Host,
          port: NWEndpoint.Port,
          using parameters: NWParameters)
     {
@@ -38,17 +38,17 @@ class Rot13Connection: Connection
         network = newConnection
     }
 
-    init(connection: Connection, using parameters: NWParameters)
+    public init(connection: Connection, using parameters: NWParameters)
     {
         network = connection
     }
     
-    func start(queue: DispatchQueue)
+    public func start(queue: DispatchQueue)
     {
         network.start(queue: queue)
     }
     
-    func send(content: Data?, contentContext: NWConnection.ContentContext, isComplete: Bool, completion: NWConnection.SendCompletion)
+    public func send(content: Data?, contentContext: NWConnection.ContentContext, isComplete: Bool, completion: NWConnection.SendCompletion)
     {
         guard let data = content
         else
@@ -82,7 +82,7 @@ class Rot13Connection: Connection
         network.send(content: encodedContent, contentContext: contentContext, isComplete: isComplete, completion: completion)
     }
 
-    func receive(minimumIncompleteLength: Int, maximumLength: Int, completion: @escaping (Data?, NWConnection.ContentContext?, Bool, NWError?) -> Void)
+    public func receive(minimumIncompleteLength: Int, maximumLength: Int, completion: @escaping (Data?, NWConnection.ContentContext?, Bool, NWError?) -> Void)
     {
         network.receive(minimumIncompleteLength: minimumIncompleteLength, maximumLength: maximumLength)
         {
@@ -100,7 +100,7 @@ class Rot13Connection: Connection
         }
     }
     
-    func receive(completion: @escaping (Data?, NWConnection.ContentContext?, Bool, NWError?) -> Void)
+    public func receive(completion: @escaping (Data?, NWConnection.ContentContext?, Bool, NWError?) -> Void)
     {
         self.receive(minimumIncompleteLength: 1, maximumLength: 1000000, completion: completion)
     }

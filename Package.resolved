@@ -65,6 +65,15 @@
         }
       },
       {
+        "package": "ProteanSwift",
+        "repositoryURL": "https://github.com/OperatorFoundation/ProteanSwift",
+        "state": {
+          "branch": null,
+          "revision": "1c781596fc30763e9a5d36ece0ca535389e34183",
+          "version": "0.0.2"
+        }
+      },
+      {
         "package": "Sodium",
         "repositoryURL": "https://github.com/OperatorFoundation/swift-sodium",
         "state": {

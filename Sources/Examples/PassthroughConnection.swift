@@ -10,10 +10,10 @@ import Foundation
 import Transport
 import Network
 
-class PassthroughConnection: Connection
+open class PassthroughConnection: Connection
 {
-    var stateUpdateHandler: ((NWConnection.State) -> Void)?
-    var viabilityUpdateHandler: ((Bool) -> Void)?
+    public var stateUpdateHandler: ((NWConnection.State) -> Void)?
+    public var viabilityUpdateHandler: ((Bool) -> Void)?
     
     var network: Connection
 
@@ -21,8 +21,8 @@ class PassthroughConnection: Connection
                  port: NWEndpoint.Port,
                  using parameters: NWParameters)
     {
-        let passthroughFactory = PassthroughConnectionFactory(host: host, port: port)
-        guard let newConnection = passthroughFactory.connect(using: parameters)
+        let connectionFactory = NetworkConnectionFactory(host: host, port: port)
+        guard let newConnection = connectionFactory.connect(parameters)
         else
         {
             return nil
@@ -31,27 +31,27 @@ class PassthroughConnection: Connection
         network = newConnection
     }
     
-    init(connection: Connection, using parameters: NWParameters)
+    public init(connection: Connection, using parameters: NWParameters)
     {
         network = connection
     }
     
-    func start(queue: DispatchQueue)
+    public func start(queue: DispatchQueue)
     {
         network.start(queue: queue)
     }
     
-    func send(content: Data?, contentContext: NWConnection.ContentContext, isComplete: Bool, completion: NWConnection.SendCompletion)
+    public func send(content: Data?, contentContext: NWConnection.ContentContext, isComplete: Bool, completion: NWConnection.SendCompletion)
     {
         network.send(content: content, contentContext: contentContext, isComplete: isComplete, completion: completion)
     }
     
-    func receive(completion: @escaping (Data?, NWConnection.ContentContext?, Bool, NWError?) -> Void)
+    public func receive(completion: @escaping (Data?, NWConnection.ContentContext?, Bool, NWError?) -> Void)
     {
         network.receive(completion: completion)
     }
     
-    func receive(minimumIncompleteLength: Int, maximumLength: Int, completion: @escaping (Data?, NWConnection.ContentContext?, Bool, NWError?) -> Void)
+    public func receive(minimumIncompleteLength: Int, maximumLength: Int, completion: @escaping (Data?, NWConnection.ContentContext?, Bool, NWError?) -> Void)
     {
         network.receive(minimumIncompleteLength: minimumIncompleteLength, maximumLength: maximumLength, completion: completion)
     }

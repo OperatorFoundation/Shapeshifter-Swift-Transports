@@ -570,27 +570,27 @@ class Shapeshifter_WispTests: XCTestCase
         let connected = expectation(description: "Connected to server.")
         
         maybeConnection?.stateUpdateHandler =
-        {
-            (newState) in
-            
-            print("CURRENT STATE = \(newState))")
-            
-            switch newState
             {
-            case .ready:
-                print("\n🚀 wisp connection is ready  🚀\n")
-                connected.fulfill()
+                (newState) in
                 
-            case .cancelled:
-                print("\n🙅‍♀️  Connection Canceled  🙅‍♀️\n")
+                print("CURRENT STATE = \(newState))")
                 
-            case .failed(let error):
-                print("\n🐒💨  Connection Failed  🐒💨")
-                print("Failure Error: \(error.localizedDescription)\n")
-                
-            default:
-                print("\n🤷‍♀️  Unexpected State: \(newState))  🤷‍♀️\n")
-            }
+                switch newState
+                {
+                case .ready:
+                    print("\n🚀 wisp connection is ready  🚀\n")
+                    connected.fulfill()
+                    
+                case .cancelled:
+                    print("\n🙅‍♀️  Connection Canceled  🙅‍♀️\n")
+                    
+                case .failed(let error):
+                    print("\n🐒💨  Connection Failed  🐒💨")
+                    print("Failure Error: \(error.localizedDescription)\n")
+                    
+                default:
+                    print("\n🤷‍♀️  Unexpected State: \(newState))  🤷‍♀️\n")
+                }
         }
         
         maybeConnection?.start(queue: DispatchQueue(label: "TestQueue"))
@@ -687,119 +687,6 @@ class Shapeshifter_WispTests: XCTestCase
         connection.start(queue: DispatchQueue(label: "TestQueue"))
         
         waitForExpectations(timeout: 300)
-        { (maybeError) in
-            if let error = maybeError
-            {
-                print("Expectation completed with error: \(error.localizedDescription)")
-            }
-        }
-    }
-    
-    func testWispSendReceive()
-    {
-        guard let portUInt = UInt16(portString), let port = NWEndpoint.Port(rawValue: portUInt)
-            else
-        {
-            print("Unable to resolve port for test")
-            XCTFail()
-            return
-        }
-        guard let ipv4Address = IPv4Address(ipAddressString)
-            else
-        {
-            print("Unable to resolve ipv4 address for test")
-            XCTFail()
-            return
-        }
-        
-        let message = "GET / HTTP/1.0\n\n"
-        let connected = expectation(description: "Connected to server.")
-        let wrote = expectation(description: "Wrote data to server.")
-        let read = expectation(description: "Read data from the server.")
-        let context = NWConnection.ContentContext()
-        let host = NWEndpoint.Host.ipv4(ipv4Address)
-        let parameters = NWParameters()
-        let wispFactory = WispConnectionFactory(host: host, port: port, cert: certString, iatMode: false)
-        let maybeConnection = wispFactory.connect(parameters)
-        var lock: DispatchGroup
-        
-        lock = DispatchGroup.init()
-        XCTAssertNotNil(maybeConnection)
-        
-        guard var connection = maybeConnection
-            else
-        {
-            return
-        }
-        
-        connection.stateUpdateHandler =
-        {
-            (newState) in
-            
-            print("CURRENT STATE = \(newState))")
-            
-            switch newState
-            {
-            case .ready:
-                print("\n🚀 wisp connection is ready  🚀\n")
-                connected.fulfill()
-                
-                // Send
-                lock.enter()
-                connection.send(content: message.data(using: .ascii), contentContext: context, isComplete: true, completion: NWConnection.SendCompletion.contentProcessed(
-                    {
-                        (maybeError) in
-                        
-                        if let error = maybeError
-                        {
-                            print("\nWisp connection received an error on send: \(error.localizedDescription)\n")
-                            XCTFail()
-                        }
-                        else
-                        {
-                            wrote.fulfill()
-                        }
-                        
-                        lock.leave()
-                }))
-                lock.wait()
-                
-                //Receive
-                lock.enter()
-                
-                connection.receive(completion:
-                {
-                    (maybeData, maybeContext, connectionComplete, maybeError) in
-                    
-                    if let data = maybeData
-                    {
-                        print("\nReceived some datas: \(data)\n")
-                        read.fulfill()
-                    }
-                    else if let error = maybeError
-                    {
-                        print("\nReceived an error while attempting to read from Wisp Connection: \(error.localizedDescription)\n")
-                    }
-                    
-                    lock.leave()
-                })
-                lock.wait()
-                
-            case .cancelled:
-                print("\n🙅‍♀️  Connection Canceled  🙅‍♀️\n")
-                
-            case .failed(let error):
-                print("\n🐒💨  Connection Failed  🐒💨")
-                print("Failure Error: \(error.localizedDescription)\n")
-                
-            default:
-                print("\n🤷‍♀️  Unexpected State: \(newState))  🤷‍♀️\n")
-            }
-        }
-        
-        connection.start(queue: DispatchQueue(label: "TestQueue"))
-        
-        waitForExpectations(timeout: 30)
         { (maybeError) in
             if let error = maybeError
             {
