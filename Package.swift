@@ -13,6 +13,9 @@ let package = Package(
         .library(
             name: "Protean",
             targets: ["Protean"]),
+        .library(
+            name: "ExampleTransports",
+            targets: ["ExampleTransports"]),
         ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -34,11 +37,17 @@ let package = Package(
         .target(
             name: "Protean",
             dependencies: ["ProteanSwift", "Transport", "Network", "SwiftQueue"]),
+        .target(
+            name: "ExampleTransports",
+            dependencies: ["Transport", "Network"]),
         .testTarget(
             name: "WispTests",
             dependencies: ["Wisp"]),
         .testTarget(
             name: "ProteanTests",
             dependencies: ["Protean"]),
+        .testTarget(
+            name: "ExampleTransportsTests",
+            dependencies: ["ExampleTransports"]),
         ]
 )

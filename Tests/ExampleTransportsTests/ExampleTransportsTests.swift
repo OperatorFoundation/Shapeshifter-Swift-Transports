@@ -11,7 +11,7 @@ import Transport
 import Network
 
 
-@testable import Wisp
+@testable import ExampleTransports
 
 class ExampleTransportsTests: XCTestCase
 {

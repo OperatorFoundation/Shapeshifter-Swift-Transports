@@ -69,8 +69,8 @@
         "repositoryURL": "https://github.com/OperatorFoundation/ProteanSwift",
         "state": {
           "branch": null,
-          "revision": "1c781596fc30763e9a5d36ece0ca535389e34183",
-          "version": "0.0.2"
+          "revision": "ac4fb50ae09f88668afe851540e47d3ab97c8584",
+          "version": "0.0.4"
         }
       },
       {
@@ -78,8 +78,8 @@
         "repositoryURL": "https://github.com/OperatorFoundation/swift-sodium",
         "state": {
           "branch": null,
-          "revision": "4af9cb01f28ac09ba95f4b64e9719d517c544744",
-          "version": "0.6.3"
+          "revision": "c3b7a4472e88242053ff7c2b68617d096f8411d1",
+          "version": "0.6.4"
         }
       },
       {

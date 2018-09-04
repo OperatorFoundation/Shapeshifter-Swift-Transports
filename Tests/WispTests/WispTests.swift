@@ -686,7 +686,7 @@ class Shapeshifter_WispTests: XCTestCase
         
         connection.start(queue: DispatchQueue(label: "TestQueue"))
         
-        waitForExpectations(timeout: 300)
+        waitForExpectations(timeout: 30)
         { (maybeError) in
             if let error = maybeError
             {
@@ -783,6 +783,7 @@ class Shapeshifter_WispTests: XCTestCase
                     
                     lock.leave()
                 })
+                
                 lock.wait()
                 
             case .cancelled:

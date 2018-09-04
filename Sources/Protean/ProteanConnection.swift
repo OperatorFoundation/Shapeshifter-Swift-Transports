@@ -58,6 +58,7 @@ open class ProteanConnection: Connection
     
     public func start(queue: DispatchQueue)
     {
+        network.stateUpdateHandler = self.stateUpdateHandler
         network.start(queue: queue)
     }
     
@@ -101,12 +102,27 @@ open class ProteanConnection: Connection
     
     public func receive(completion: @escaping (Data?, NWConnection.ContentContext?, Bool, NWError?) -> Void)
     {
-        network.receive(completion: completion)
+        self.receive(minimumIncompleteLength: 1, maximumLength: 1000000, completion: completion)
     }
     
     public func receive(minimumIncompleteLength: Int, maximumLength: Int, completion: @escaping (Data?, NWConnection.ContentContext?, Bool, NWError?) -> Void)
     {
-        network.receive(minimumIncompleteLength: minimumIncompleteLength, maximumLength: maximumLength, completion: completion)
+        network.receive(minimumIncompleteLength: minimumIncompleteLength, maximumLength: maximumLength)
+        { (maybeData, maybeContext, connectionComplete, maybeError) in
+            
+            //FIXME: Finish protean implementation of read
+            guard let someData = maybeData
+                else
+            {
+                print("Received no content.")
+                completion(maybeData, maybeContext, connectionComplete, maybeError)
+                return
+            }
+            
+            let proteanTransformer = Protean(config: self.config)
+            let restored = proteanTransformer.restore(buffer: someData)
+            completion(restored.first, maybeContext, connectionComplete, maybeError)
+        }
     }
     
     public func cancel()
