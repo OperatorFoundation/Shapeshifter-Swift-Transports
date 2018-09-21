@@ -20,8 +20,8 @@ let package = Package(
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         .package(url: "https://github.com/OperatorFoundation/ProteanSwift", from: "0.0.1"),
-        .package(url: "https://github.com/OperatorFoundation/Transport.git", from: "0.0.14"),
-        .package(url: "https://github.com/OperatorFoundation/swift-sodium", from: "0.6.3"),
+        .package(url: "https://github.com/OperatorFoundation/Transport.git", from: "0.0.19"),
+        .package(url: "https://github.com/OperatorFoundation/swift-sodium", from: "0.6.8"),
         .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", from: "0.11.0"),
         .package(url: "https://github.com/Bouke/HKDF.git", from: "3.0.1"),
         .package(url: "https://github.com/OperatorFoundation/Elligator.git", from: "0.1.0"),
@@ -33,13 +33,13 @@ let package = Package(
 
         .target(
             name: "Wisp",
-            dependencies: ["ProteanSwift", "Sodium", "CryptoSwift", "HKDF", "Elligator", "Transport", "Network", "SwiftQueue"]),
+            dependencies: ["ProteanSwift", "Sodium", "CryptoSwift", "HKDF", "Elligator", "Transport",  "SwiftQueue"]),
         .target(
             name: "Protean",
-            dependencies: ["ProteanSwift", "Transport", "Network", "SwiftQueue"]),
+            dependencies: ["ProteanSwift", "Transport", "SwiftQueue"]),
         .target(
             name: "ExampleTransports",
-            dependencies: ["Transport", "Network"]),
+            dependencies: ["Transport"]),
         .testTarget(
             name: "WispTests",
             dependencies: ["Wisp"]),

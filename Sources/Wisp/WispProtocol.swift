@@ -250,7 +250,7 @@ class WispProtocol
             return
         }
         
-        let context = NWConnection.ContentContext()
+        let context = NWConnection.ContentContext(identifier: "Context")
         let sendCompletion = NWConnection.SendCompletion.contentProcessed(
         {
             (maybeWriteError) in

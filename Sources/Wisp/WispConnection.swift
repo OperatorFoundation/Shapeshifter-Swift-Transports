@@ -172,7 +172,7 @@ public class WispConnection: Connection
         }
         
         //FIXME: Context is not yet implemented
-        let context = NWConnection.ContentContext()
+        let context = NWConnection.ContentContext(identifier: "Context")
         
         networkConnection.send(content: frame,
                                contentContext: context,

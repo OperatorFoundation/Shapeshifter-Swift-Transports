@@ -92,7 +92,7 @@ class ExampleTransportsTests: XCTestCase
                 
                 lock.enter()
                 connection.send(content: message.data(using: String.Encoding.ascii),
-                                contentContext: NWConnection.ContentContext(),
+                                contentContext: NWConnection.ContentContext(identifier: "Context"),
                                 isComplete: true,
                                 completion: NWConnection.SendCompletion.contentProcessed(
                     {
@@ -188,7 +188,7 @@ class ExampleTransportsTests: XCTestCase
                     
                     lock.enter()
                     connection.send(content: message.data(using: String.Encoding.ascii),
-                                    contentContext: NWConnection.ContentContext(),
+                                    contentContext: NWConnection.ContentContext(identifier: "Context"),
                                     isComplete: true,
                                     completion: NWConnection.SendCompletion.contentProcessed(
                     {
@@ -232,6 +232,8 @@ class ExampleTransportsTests: XCTestCase
                                 print("Received a posix error: \(posixError)")
                             case .tls(let tlsError):
                                 print("Received a tls error: \(tlsError)")
+                            case .dns(let dnsError):
+                                print("Received a dns error: \(dnsError)")
                             }
                         }
                         

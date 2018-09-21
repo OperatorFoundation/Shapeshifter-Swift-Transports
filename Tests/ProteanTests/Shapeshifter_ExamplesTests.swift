@@ -17,12 +17,13 @@ import ProteanSwift
 class Shapeshifter_ProteanTests: XCTestCase
 {
     
-    let ipAddressString = "159.203.158.90"
+    //let ipAddressString = "159.203.158.90"
+    let ipAddressString = "127.0.0.1"
     let portString = "1234"
     
     func makeSampleProteanConfig() -> Protean.Config
     {
-        return Protean.Config(byteSequenceConfig: nil,
+        return Protean.Config(byteSequenceConfig: sampleSequenceConfig(),
                               encryptionConfig: sampleEncryptionConfig(),
                               headerConfig: sampleHeaderConfig())
     }
@@ -111,7 +112,7 @@ class Shapeshifter_ProteanTests: XCTestCase
         let message = "GET / HTTP/1.0\n\n"
         let connected = expectation(description: "Connected to server.")
         let wrote = expectation(description: "Wrote data to server.")
-        let context = NWConnection.ContentContext()
+        let context = NWConnection.ContentContext(identifier: "Context")
         
         var lock: DispatchGroup
         lock = DispatchGroup.init()
@@ -138,20 +139,23 @@ class Shapeshifter_ProteanTests: XCTestCase
                 
                 // Send
                 lock.enter()
-                connection.send(content: message.data(using: .ascii), contentContext: context, isComplete: true, completion: NWConnection.SendCompletion.contentProcessed(
-                    { (maybeError) in
-                        
-                        if let error = maybeError
-                        {
-                            print("\nProtean connection received an error on send: \(error.localizedDescription)\n")
-                            XCTFail()
-                        }
-                        else
-                        {
-                            wrote.fulfill()
-                        }
-                        
-                        lock.leave()
+                connection.send(content: message.data(using: .ascii),
+                                contentContext: context,
+                                isComplete: true,
+                                completion: NWConnection.SendCompletion.contentProcessed(
+                { (maybeError) in
+                    
+                    if let error = maybeError
+                    {
+                        print("\nProtean connection received an error on send: \(error.localizedDescription)\n")
+                        XCTFail()
+                    }
+                    else
+                    {
+                        wrote.fulfill()
+                    }
+                    
+                    lock.leave()
                 }))
                 lock.wait()
                 
@@ -187,7 +191,7 @@ class Shapeshifter_ProteanTests: XCTestCase
             XCTFail()
             return
         }
-        guard let ipv4Address = IPv4Address(ipAddressString)
+        guard let ipv4Address = IPv4Address("127.0.0.1")
             else
         {
             print("Unable to resolve ipv4 address for test")
@@ -200,7 +204,7 @@ class Shapeshifter_ProteanTests: XCTestCase
         let connected = expectation(description: "Connected to server.")
         let wrote = expectation(description: "Wrote data to server.")
         let read = expectation(description: "Read data from the server.")
-        let context = NWConnection.ContentContext()
+        let context = NWConnection.ContentContext(identifier: "Context")
         
         var lock: DispatchGroup
         lock = DispatchGroup.init()
@@ -227,20 +231,23 @@ class Shapeshifter_ProteanTests: XCTestCase
                 
                 // Send
                 lock.enter()
-                connection.send(content: message.data(using: .ascii), contentContext: context, isComplete: true, completion: NWConnection.SendCompletion.contentProcessed(
-                    { (maybeError) in
-                        
-                        if let error = maybeError
-                        {
-                            print("\nProtean connection received an error on send: \(error.localizedDescription)\n")
-                            XCTFail()
-                        }
-                        else
-                        {
-                            wrote.fulfill()
-                        }
-                        
-                        lock.leave()
+                connection.send(content: message.data(using: .ascii),
+                                contentContext: context,
+                                isComplete: true,
+                                completion: NWConnection.SendCompletion.contentProcessed(
+                { (maybeError) in
+                    
+                    if let error = maybeError
+                    {
+                        print("\nProtean connection received an error on send: \(error.localizedDescription)\n")
+                        XCTFail()
+                    }
+                    else
+                    {
+                        wrote.fulfill()
+                    }
+                    
+                    lock.leave()
                 }))
                 lock.wait()
                 

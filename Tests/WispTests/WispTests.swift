@@ -257,7 +257,7 @@ class Shapeshifter_WispTests: XCTestCase
                     let message = "GET / HTTP/1.0\n\n"
                     
                     connected.fulfill()
-                    let context = NWConnection.ContentContext()
+                    let context = NWConnection.ContentContext(identifier: "Context")
                     let sendCompletion = NWConnection.SendCompletion.contentProcessed(
                     {
                         (error) in
@@ -320,7 +320,7 @@ class Shapeshifter_WispTests: XCTestCase
         let wrote = expectation(description: "Wrote data to the server.")
         let read = expectation(description: "Read data from the server.")
         let parameters = NWParameters()
-        let context = NWConnection.ContentContext()
+        let context = NWConnection.ContentContext(identifier: "Context")
         let host = NWEndpoint.Host.ipv4(ipv4Address)
         let connectionFactory = NetworkConnectionFactory(host: host, port: port)
         let maybeConnection = connectionFactory.connect(parameters)
@@ -393,6 +393,8 @@ class Shapeshifter_WispTests: XCTestCase
                             print("Received a posix error: \(posixError)")
                         case .tls(let tlsError):
                             print("Received a tls error: \(tlsError)")
+                        case .dns(let dnsError):
+                            print("Received a dns error: \(dnsError)")
                         }
                     }
                     
@@ -450,7 +452,7 @@ class Shapeshifter_WispTests: XCTestCase
         let wrote = expectation(description: "Wrote data to the server.")
         let wroteTwice = expectation(description: "Wrote data to the server.")
         let parameters = NWParameters()
-        let context = NWConnection.ContentContext()
+        let context = NWConnection.ContentContext(identifier: "Context")
         let host = NWEndpoint.Host.ipv4(ipv4Address)
         let connectionFactory = NetworkConnectionFactory(host: host, port: port)
         let maybeConnection = connectionFactory.connect(parameters)
@@ -624,7 +626,7 @@ class Shapeshifter_WispTests: XCTestCase
         let message = "GET / HTTP/1.0\n\n"
         let connected = expectation(description: "Connected to server.")
         let wrote = expectation(description: "Wrote data to server.")
-        let context = NWConnection.ContentContext()
+        let context = NWConnection.ContentContext(identifier: "Context")
         let host = NWEndpoint.Host.ipv4(ipv4Address)
         let parameters = NWParameters()
         let wispFactory = WispConnectionFactory(host: host, port: port, cert: certString, iatMode: false)
@@ -716,7 +718,7 @@ class Shapeshifter_WispTests: XCTestCase
         let connected = expectation(description: "Connected to server.")
         let wrote = expectation(description: "Wrote data to server.")
         let read = expectation(description: "Read data from the server.")
-        let context = NWConnection.ContentContext()
+        let context = NWConnection.ContentContext(identifier: "Context")
         let host = NWEndpoint.Host.ipv4(ipv4Address)
         let parameters = NWParameters()
         let wispFactory = WispConnectionFactory(host: host, port: port, cert: certString, iatMode: false)
