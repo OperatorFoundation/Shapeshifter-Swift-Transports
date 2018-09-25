@@ -33,7 +33,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
-		46630F2121556FC10044D418 /* libsodium-ios.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 46630F2021556FC10044D418 /* libsodium-ios.a */; };
+		46630F26215956B00044D418 /* libsodium-ios.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 46630F25215956B00044D418 /* libsodium-ios.a */; };
 		OBJ_320 /* whyme.c in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_92 /* whyme.c */; };
 		OBJ_331 /* AEAD.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_202 /* AEAD.swift */; };
 		OBJ_332 /* AEADChaCha20Poly1305.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_203 /* AEADChaCha20Poly1305.swift */; };
@@ -613,14 +613,14 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		46630F2021556FC10044D418 /* libsodium-ios.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libsodium-ios.a"; path = "SupportingFiles/libsodium-ios.a"; sourceTree = "<group>"; };
-		"CryptoSwift::CryptoSwift::Product" /* CryptoSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = CryptoSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		"Cryptor::Cryptor::Product" /* Cryptor.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Cryptor.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		"Datable::Datable::Product" /* Datable.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Datable.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		"Elligator::Elligator::Product" /* Elligator.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Elligator.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		46630F25215956B00044D418 /* libsodium-ios.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libsodium-ios.a"; path = "SupportingFiles/libsodium-ios.a"; sourceTree = "<group>"; };
+		"CryptoSwift::CryptoSwift::Product" /* CryptoSwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = CryptoSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		"Cryptor::Cryptor::Product" /* Cryptor.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Cryptor.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		"Datable::Datable::Product" /* Datable.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Datable.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		"Elligator::Elligator::Product" /* Elligator.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Elligator.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		"Elligator::ElligatorObjC::Product" /* ElligatorObjC.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = ElligatorObjC.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		"Elligator::celligator::Product" /* celligator.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = celligator.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		"HKDF::HKDF::Product" /* HKDF.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = HKDF.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		"HKDF::HKDF::Product" /* HKDF.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = HKDF.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		OBJ_10 /* WispConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WispConnection.swift; sourceTree = "<group>"; };
 		OBJ_100 /* crypto_core_curve25519.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = crypto_core_curve25519.h; sourceTree = "<group>"; };
 		OBJ_101 /* core.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = core.h; sourceTree = "<group>"; };
@@ -872,17 +872,17 @@
 		OBJ_97 /* utils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = utils.h; sourceTree = "<group>"; };
 		OBJ_98 /* crypto_core_hchacha20.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = crypto_core_hchacha20.h; sourceTree = "<group>"; };
 		OBJ_99 /* crypto_hash_sha512.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = crypto_hash_sha512.h; sourceTree = "<group>"; };
-		"ProteanSwift::ProteanSwift::Product" /* ProteanSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = ProteanSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		"Shapeshifter-Swift-Transports::ExampleTransports::Product" /* ExampleTransports.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = ExampleTransports.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		"Shapeshifter-Swift-Transports::ExampleTransportsTests::Product" /* ExampleTransportsTests.xctest */ = {isa = PBXFileReference; lastKnownFileType = file; path = ExampleTransportsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		"Shapeshifter-Swift-Transports::Protean::Product" /* Protean.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Protean.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		"Shapeshifter-Swift-Transports::ProteanTests::Product" /* ProteanTests.xctest */ = {isa = PBXFileReference; lastKnownFileType = file; path = ProteanTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		"Shapeshifter-Swift-Transports::Wisp::Product" /* Wisp.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Wisp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		"Shapeshifter-Swift-Transports::WispTests::Product" /* WispTests.xctest */ = {isa = PBXFileReference; lastKnownFileType = file; path = WispTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		"ProteanSwift::ProteanSwift::Product" /* ProteanSwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = ProteanSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		"Shapeshifter-Swift-Transports::ExampleTransports::Product" /* ExampleTransports.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = ExampleTransports.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		"Shapeshifter-Swift-Transports::ExampleTransportsTests::Product" /* ExampleTransportsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = ExampleTransportsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		"Shapeshifter-Swift-Transports::Protean::Product" /* Protean.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Protean.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		"Shapeshifter-Swift-Transports::ProteanTests::Product" /* ProteanTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = ProteanTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		"Shapeshifter-Swift-Transports::Wisp::Product" /* Wisp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Wisp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		"Shapeshifter-Swift-Transports::WispTests::Product" /* WispTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = WispTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		"Sodium::Clibsodium::Product" /* Clibsodium.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Clibsodium.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		"Sodium::Sodium::Product" /* Sodium.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Sodium.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		"SwiftQueue::SwiftQueue::Product" /* SwiftQueue.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = SwiftQueue.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		"Transport::Transport::Product" /* Transport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Transport.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		"SwiftQueue::SwiftQueue::Product" /* SwiftQueue.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SwiftQueue.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		"Transport::Transport::Product" /* Transport.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Transport.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -994,7 +994,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 0;
 			files = (
-				46630F2121556FC10044D418 /* libsodium-ios.a in Frameworks */,
+				46630F26215956B00044D418 /* libsodium-ios.a in Frameworks */,
 				OBJ_627 /* Clibsodium.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1468,7 +1468,7 @@
 			path = ".build/checkouts/Elligator.git-1685432175989269477/Sources/celligator";
 			sourceTree = SOURCE_ROOT;
 		};
-		OBJ_5 /*  */ = {
+		OBJ_5 = {
 			isa = PBXGroup;
 			children = (
 				OBJ_6 /* Package.swift */,
@@ -1477,7 +1477,6 @@
 				OBJ_31 /* Dependencies */,
 				OBJ_296 /* Products */,
 			);
-			name = "";
 			sourceTree = "<group>";
 		};
 		OBJ_62 /* include */ = {
@@ -1513,7 +1512,7 @@
 		OBJ_7 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				46630F2021556FC10044D418 /* libsodium-ios.a */,
+				46630F25215956B00044D418 /* libsodium-ios.a */,
 				OBJ_8 /* Wisp */,
 				OBJ_15 /* ExampleTransports */,
 				OBJ_20 /* Protean */,
@@ -2166,6 +2165,53 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 9999;
+				TargetAttributes = {
+					"CryptoSwift::CryptoSwift" = {
+						LastSwiftMigration = 1000;
+					};
+					"Cryptor::Cryptor" = {
+						LastSwiftMigration = 1000;
+					};
+					"Datable::Datable" = {
+						LastSwiftMigration = 1000;
+					};
+					"Elligator::Elligator" = {
+						LastSwiftMigration = 1000;
+					};
+					"HKDF::HKDF" = {
+						LastSwiftMigration = 1000;
+					};
+					"ProteanSwift::ProteanSwift" = {
+						LastSwiftMigration = 1000;
+					};
+					"Shapeshifter-Swift-Transports::ExampleTransports" = {
+						LastSwiftMigration = 1000;
+					};
+					"Shapeshifter-Swift-Transports::ExampleTransportsTests" = {
+						LastSwiftMigration = 1000;
+					};
+					"Shapeshifter-Swift-Transports::Protean" = {
+						LastSwiftMigration = 1000;
+					};
+					"Shapeshifter-Swift-Transports::ProteanTests" = {
+						LastSwiftMigration = 1000;
+					};
+					"Shapeshifter-Swift-Transports::Wisp" = {
+						LastSwiftMigration = 1000;
+					};
+					"Shapeshifter-Swift-Transports::WispTests" = {
+						LastSwiftMigration = 1000;
+					};
+					"Sodium::Sodium" = {
+						LastSwiftMigration = 1000;
+					};
+					"SwiftQueue::SwiftQueue" = {
+						LastSwiftMigration = 1000;
+					};
+					"Transport::Transport" = {
+						LastSwiftMigration = 1000;
+					};
+				};
 			};
 			buildConfigurationList = OBJ_2 /* Build configuration list for PBXProject "Shapeshifter-Swift-Transports" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -2174,7 +2220,7 @@
 			knownRegions = (
 				en,
 			);
-			mainGroup = OBJ_5 /*  */;
+			mainGroup = OBJ_5;
 			productRefGroup = OBJ_296 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -2955,7 +3001,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 				TARGET_NAME = CryptoSwift;
 			};
 			name = Debug;
@@ -2979,7 +3025,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 				TARGET_NAME = CryptoSwift;
 			};
 			name = Release;
@@ -3044,7 +3090,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 				TARGET_NAME = Cryptor;
 			};
 			name = Debug;
@@ -3071,7 +3117,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 				TARGET_NAME = Cryptor;
 			};
 			name = Release;
@@ -3113,7 +3159,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 				TARGET_NAME = Datable;
 			};
 			name = Debug;
@@ -3137,7 +3183,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 				TARGET_NAME = Datable;
 			};
 			name = Release;
@@ -3184,7 +3230,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 				TARGET_NAME = Elligator;
 			};
 			name = Debug;
@@ -3213,7 +3259,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 				TARGET_NAME = Elligator;
 			};
 			name = Release;
@@ -3313,7 +3359,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 				TARGET_NAME = ExampleTransports;
 			};
 			name = Debug;
@@ -3337,7 +3383,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 				TARGET_NAME = ExampleTransports;
 			};
 			name = Release;
@@ -3358,7 +3404,7 @@
 				OTHER_LDFLAGS = "$(inherited)";
 				OTHER_SWIFT_FLAGS = "$(inherited)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 				TARGET_NAME = ExampleTransportsTests;
 			};
 			name = Debug;
@@ -3379,7 +3425,7 @@
 				OTHER_LDFLAGS = "$(inherited)";
 				OTHER_SWIFT_FLAGS = "$(inherited)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 				TARGET_NAME = ExampleTransportsTests;
 			};
 			name = Release;
@@ -3406,7 +3452,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 				TARGET_NAME = HKDF;
 			};
 			name = Debug;
@@ -3433,7 +3479,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 				TARGET_NAME = HKDF;
 			};
 			name = Release;
@@ -3475,7 +3521,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 				TARGET_NAME = Protean;
 			};
 			name = Debug;
@@ -3499,7 +3545,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 				TARGET_NAME = Protean;
 			};
 			name = Release;
@@ -3523,7 +3569,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 				TARGET_NAME = ProteanSwift;
 			};
 			name = Debug;
@@ -3547,7 +3593,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 				TARGET_NAME = ProteanSwift;
 			};
 			name = Release;
@@ -3586,7 +3632,7 @@
 				OTHER_LDFLAGS = "$(inherited)";
 				OTHER_SWIFT_FLAGS = "$(inherited)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 				TARGET_NAME = ProteanTests;
 			};
 			name = Debug;
@@ -3607,7 +3653,7 @@
 				OTHER_LDFLAGS = "$(inherited)";
 				OTHER_SWIFT_FLAGS = "$(inherited)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 				TARGET_NAME = ProteanTests;
 			};
 			name = Release;
@@ -3668,7 +3714,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 				TARGET_NAME = Sodium;
 			};
 			name = Debug;
@@ -3699,7 +3745,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 				TARGET_NAME = Sodium;
 			};
 			name = Release;
@@ -3741,7 +3787,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 				TARGET_NAME = SwiftQueue;
 			};
 			name = Debug;
@@ -3765,7 +3811,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 				TARGET_NAME = SwiftQueue;
 			};
 			name = Release;
@@ -3807,7 +3853,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 				TARGET_NAME = Transport;
 			};
 			name = Debug;
@@ -3831,7 +3877,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 				TARGET_NAME = Transport;
 			};
 			name = Release;
@@ -3880,7 +3926,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 				TARGET_NAME = Wisp;
 			};
 			name = Debug;
@@ -3911,7 +3957,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 				TARGET_NAME = Wisp;
 			};
 			name = Release;
@@ -3939,7 +3985,7 @@
 				OTHER_LDFLAGS = "$(inherited)";
 				OTHER_SWIFT_FLAGS = "$(inherited) -Xcc -fmodule-map-file=$(SRCROOT)/Shapeshifter-Swift-Transports.xcodeproj/GeneratedModuleMap/celligator/module.modulemap -Xcc -fmodule-map-file=$(SRCROOT)/.build/checkouts/swift-sodium--2643339335713885099/Sources/Clibsodium/include/module.modulemap";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 				TARGET_NAME = WispTests;
 			};
 			name = Debug;
@@ -3967,7 +4013,7 @@
 				OTHER_LDFLAGS = "$(inherited)";
 				OTHER_SWIFT_FLAGS = "$(inherited) -Xcc -fmodule-map-file=$(SRCROOT)/Shapeshifter-Swift-Transports.xcodeproj/GeneratedModuleMap/celligator/module.modulemap -Xcc -fmodule-map-file=$(SRCROOT)/.build/checkouts/swift-sodium--2643339335713885099/Sources/Clibsodium/include/module.modulemap";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 				TARGET_NAME = WispTests;
 			};
 			name = Release;

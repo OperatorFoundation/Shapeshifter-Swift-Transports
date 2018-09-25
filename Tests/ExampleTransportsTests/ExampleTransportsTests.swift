@@ -34,9 +34,8 @@ class ExampleTransportsTests: XCTestCase
         }
         
         let host = NWEndpoint.Host.ipv4(ipv4Address)
-        let parameters = NWParameters()
         let connectionFactory = Rot13ConnectionFactory(host: host, port: port)
-        let maybeConnection = connectionFactory.connect(using: parameters)
+        let maybeConnection = connectionFactory.connect(using: .tcp)
         
         XCTAssertNotNil(maybeConnection)
     }
@@ -60,15 +59,9 @@ class ExampleTransportsTests: XCTestCase
         
         let connected = expectation(description: "Connected to the server.")
         let wrote = expectation(description: "Wrote data to the server.")
-        
         let host = NWEndpoint.Host.ipv4(ipv4Address)
-        let parameters = NWParameters()
         let connectionFactory = Rot13ConnectionFactory(host: host, port: port)
-        let maybeConnection = connectionFactory.connect(using: parameters)
-        
-        var lock: DispatchGroup
-        lock = DispatchGroup.init()
-        
+        let maybeConnection = connectionFactory.connect(using: .tcp)
         XCTAssertNotNil(maybeConnection)
         
         guard var connection = maybeConnection
@@ -90,29 +83,25 @@ class ExampleTransportsTests: XCTestCase
                 let message = "GET / HTTP/1.0\n\n"
                 connected.fulfill()
                 
-                lock.enter()
-                connection.send(content: message.data(using: String.Encoding.ascii),
-                                contentContext: NWConnection.ContentContext(identifier: "Context"),
+                connection.send(content: message.data(using: .ascii),
+                                contentContext: .defaultMessage,
                                 isComplete: true,
                                 completion: NWConnection.SendCompletion.contentProcessed(
+                {
+                    (error) in
+                    
+                    if error == nil
                     {
-                        (error) in
+                        wrote.fulfill()
+                        print("No ERROR")
+                    }
                         
-                        if error == nil
-                        {
-                            wrote.fulfill()
-                            print("No ERROR")
-                        }
-                            
-                        else
-                        {
-                            print("RECEIVED A SEND ERROR: \(String(describing: error))")
-                        }
-                        
-                        lock.leave()
+                    else
+                    {
+                        print("RECEIVED A SEND ERROR: \(String(describing: error))")
+                    }
                 }))
                 
-                lock.wait()
             case .cancelled:
                 print("\n🙅‍♀️  Connection Canceled  🙅‍♀️\n")
                 
@@ -127,7 +116,7 @@ class ExampleTransportsTests: XCTestCase
         
         maybeConnection?.start(queue: DispatchQueue(label: "TestQueue"))
         
-        waitForExpectations(timeout: 20)
+        waitForExpectations(timeout: 60)
         { (maybeError) in
             if let error = maybeError
             {
@@ -156,14 +145,9 @@ class ExampleTransportsTests: XCTestCase
         let connected = expectation(description: "Connected to the server.")
         let wrote = expectation(description: "Wrote data to the server.")
         let read = expectation(description: "Read data from the server.")
-        
         let host = NWEndpoint.Host.ipv4(ipv4Address)
-        let parameters = NWParameters()
         let connectionFactory = Rot13ConnectionFactory(host: host, port: port)
-        let maybeConnection = connectionFactory.connect(using: parameters)
-        
-        var lock: DispatchGroup
-        lock = DispatchGroup.init()
+        let maybeConnection = connectionFactory.connect(using: .tcp)
         
         XCTAssertNotNil(maybeConnection)
         
@@ -186,9 +170,8 @@ class ExampleTransportsTests: XCTestCase
                     let message = "GET / HTTP/1.0\n\n"
                     connected.fulfill()
                     
-                    lock.enter()
                     connection.send(content: message.data(using: String.Encoding.ascii),
-                                    contentContext: NWConnection.ContentContext(identifier: "Context"),
+                                    contentContext: .defaultMessage,
                                     isComplete: true,
                                     completion: NWConnection.SendCompletion.contentProcessed(
                     {
@@ -204,11 +187,8 @@ class ExampleTransportsTests: XCTestCase
                         {
                             print("RECEIVED A SEND ERROR: \(String(describing: error))")
                         }
-                        
-                        lock.leave()
                     }))
                     
-                    lock.enter()
                     connection.receive(completion:
                     {
                         (maybeData, maybeContext, connectionComplete, maybeError) in
@@ -242,12 +222,8 @@ class ExampleTransportsTests: XCTestCase
                             print("Received some datas: \(data)\n")
                             read.fulfill()
                         }
-                        
-                        lock.leave()
                     })
-                    lock.wait()
                     
-                    lock.wait()
                 case .cancelled:
                     print("\n🙅‍♀️  Connection Canceled  🙅‍♀️\n")
                     

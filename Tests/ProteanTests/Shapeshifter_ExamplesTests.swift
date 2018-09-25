@@ -56,7 +56,8 @@ class Shapeshifter_ProteanTests: XCTestCase
             return
         }
         
-        connection.stateUpdateHandler = {
+        connection.stateUpdateHandler =
+        {
             (newState) in
             
             print("\nCURRENT STATE = \(newState))\n")
@@ -112,10 +113,6 @@ class Shapeshifter_ProteanTests: XCTestCase
         let message = "GET / HTTP/1.0\n\n"
         let connected = expectation(description: "Connected to server.")
         let wrote = expectation(description: "Wrote data to server.")
-        let context = NWConnection.ContentContext(identifier: "Context")
-        
-        var lock: DispatchGroup
-        lock = DispatchGroup.init()
         
         let connectionFactory = ProteanConnectionFactory(host: host, port: port, config: makeSampleProteanConfig())
         
@@ -138,9 +135,8 @@ class Shapeshifter_ProteanTests: XCTestCase
                 connected.fulfill()
                 
                 // Send
-                lock.enter()
                 connection.send(content: message.data(using: .ascii),
-                                contentContext: context,
+                                contentContext: .defaultMessage,
                                 isComplete: true,
                                 completion: NWConnection.SendCompletion.contentProcessed(
                 { (maybeError) in
@@ -154,10 +150,7 @@ class Shapeshifter_ProteanTests: XCTestCase
                     {
                         wrote.fulfill()
                     }
-                    
-                    lock.leave()
                 }))
-                lock.wait()
                 
             case .cancelled:
                 print("\n🙅‍♀️  Connection Canceled  🙅‍♀️\n")
@@ -184,14 +177,15 @@ class Shapeshifter_ProteanTests: XCTestCase
     
     func testProteanSendReceive()
     {
-        guard let portUInt = UInt16(portString), let port = NWEndpoint.Port(rawValue: portUInt)
+        guard let portUInt = UInt16("1234"), let port = NWEndpoint.Port(rawValue: portUInt)
             else
         {
             print("Unable to resolve port for test")
             XCTFail()
             return
         }
-        guard let ipv4Address = IPv4Address("127.0.0.1")
+        
+        guard let ipv4Address = IPv4Address("192.168.129.5")
             else
         {
             print("Unable to resolve ipv4 address for test")
@@ -199,16 +193,11 @@ class Shapeshifter_ProteanTests: XCTestCase
             return
         }
         
-        let host = NWEndpoint.Host.ipv4(ipv4Address)
-        let message = "GET / HTTP/1.0\n\n"
         let connected = expectation(description: "Connected to server.")
         let wrote = expectation(description: "Wrote data to server.")
         let read = expectation(description: "Read data from the server.")
-        let context = NWConnection.ContentContext(identifier: "Context")
-        
-        var lock: DispatchGroup
-        lock = DispatchGroup.init()
-        
+        let host = NWEndpoint.Host.ipv4(ipv4Address)
+        let message = "Hello Hello"
         let connectionFactory = ProteanConnectionFactory(host: host, port: port, config: makeSampleProteanConfig())
         
         guard var connection = connectionFactory.connect(using: .udp)
@@ -218,7 +207,8 @@ class Shapeshifter_ProteanTests: XCTestCase
             return
         }
         
-        connection.stateUpdateHandler = {
+        connection.stateUpdateHandler =
+        {
             (newState) in
             
             print("\nCURRENT STATE = \(newState))\n")
@@ -230,12 +220,12 @@ class Shapeshifter_ProteanTests: XCTestCase
                 connected.fulfill()
                 
                 // Send
-                lock.enter()
                 connection.send(content: message.data(using: .ascii),
-                                contentContext: context,
+                                contentContext: .defaultMessage,
                                 isComplete: true,
                                 completion: NWConnection.SendCompletion.contentProcessed(
-                { (maybeError) in
+                {
+                    (maybeError) in
                     
                     if let error = maybeError
                     {
@@ -246,13 +236,9 @@ class Shapeshifter_ProteanTests: XCTestCase
                     {
                         wrote.fulfill()
                     }
-                    
-                    lock.leave()
                 }))
-                lock.wait()
                 
                 //Receive
-                lock.enter()
                 connection.receive(completion:
                 {
                     (maybeData, maybeContext, connectionComplete, maybeError) in
@@ -264,13 +250,10 @@ class Shapeshifter_ProteanTests: XCTestCase
                     }
                     else if let error = maybeError
                     {
-                        print("\nReceived an error while attempting to read from Wisp Connection: \(error.localizedDescription)\n")
+                        print("\nReceived an error while attempting to read from Protean Connection: \(error.localizedDescription)\n")
+                        XCTFail()
                     }
-                    
-                    lock.leave()
                 })
-                
-                lock.wait()
                 
             case .cancelled:
                 print("\n🙅‍♀️  Connection Canceled  🙅‍♀️\n")
@@ -278,6 +261,7 @@ class Shapeshifter_ProteanTests: XCTestCase
             case .failed(let error):
                 print("\n🐒💨  Connection Failed  🐒💨")
                 print("Failure Error: \(error.localizedDescription)\n")
+                XCTFail()
                 
             default:
                 print("\n🤷‍♀️  Unexpected State: \(newState))  🤷‍♀️\n")

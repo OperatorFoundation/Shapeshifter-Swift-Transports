@@ -79,7 +79,10 @@ open class Rot13Connection: Connection
             
             return
         }
-        network.send(content: encodedContent, contentContext: contentContext, isComplete: isComplete, completion: completion)
+        network.send(content: encodedContent,
+                     contentContext: contentContext,
+                     isComplete: isComplete,
+                     completion: completion)
     }
 
     public func receive(minimumIncompleteLength: Int, maximumLength: Int, completion: @escaping (Data?, NWConnection.ContentContext?, Bool, NWError?) -> Void)

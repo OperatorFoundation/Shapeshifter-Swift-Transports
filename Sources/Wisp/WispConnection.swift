@@ -142,6 +142,7 @@ public class WispConnection: Connection
     public func send(content: Data?, contentContext: NWConnection.ContentContext, isComplete: Bool, completion: NWConnection.SendCompletion)
     {
         print("WISP Send Called")
+        
         guard let data = content
         else
         {
@@ -156,6 +157,7 @@ public class WispConnection: Connection
             
             return
         }
+        
         guard let frame = wisp.encoder?.encode(payload: data)
             else
         {
@@ -171,26 +173,25 @@ public class WispConnection: Connection
             return
         }
         
-        //FIXME: Context is not yet implemented
-        let context = NWConnection.ContentContext(identifier: "Context")
-        
-        networkConnection.send(content: frame,
-                               contentContext: context,
-                               isComplete: true,
-                               completion: NWConnection.SendCompletion.contentProcessed(
+        let sendCompletion = NWConnection.SendCompletion.contentProcessed
         {
             (error) in
             
-            print("Wisp Received Completion on Network Connection Send.")
+            print("\nWisp Received Completion on Network Connection Send.\n")
             switch completion
             {
-                case .contentProcessed(let handler):
-                    handler(error)
-                default:
-                    print("Wisp an unexpected response was received on network connection send.")
-                    return
+            case .contentProcessed(let handler):
+                handler(nil)
+            default:
+                print("\nWisp: an unexpected response was received on network connection send.\n")
+                return
             }
-        }))
+        }
+        
+        networkConnection.send(content: frame,
+                               contentContext: contentContext,
+                               isComplete: isComplete,
+                               completion: completion)
     }
     
     public func receive(completion: @escaping (Data?, NWConnection.ContentContext?, Bool, NWError?) -> Void)

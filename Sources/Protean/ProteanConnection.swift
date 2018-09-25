@@ -23,11 +23,18 @@ open class ProteanConnection: Connection
                  config: Protean.Config,
                  using parameters: NWParameters)
     {
-        guard let prot = parameters.defaultProtocolStack.internetProtocol, let _ = prot as? NWProtocolUDP.Options
+        guard let prot = parameters.defaultProtocolStack.transportProtocol
             else
         {
-            print("Attempted to initialize protean not as a UDP connection.")
+            print("\nAttempted to initialize protean not as a UDP connection.")
            return nil
+        }
+        
+        guard let _ = prot as? NWProtocolUDP.Options
+            else
+        {
+            print("\nAttempted to initialize protean not as a UDP connection.")
+            return nil
         }
 
         let connectionFactory = NetworkConnectionFactory(host: host, port: port)

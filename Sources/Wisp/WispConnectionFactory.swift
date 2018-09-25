@@ -11,7 +11,7 @@ import Network
 
 open class WispConnectionFactory: ConnectionFactory
 {
-    public var connection: Connection?
+    public var connection: NWConnection?
     public var host: NWEndpoint.Host?
     public var port: NWEndpoint.Port?
     public var cert: String
@@ -26,7 +26,7 @@ open class WispConnectionFactory: ConnectionFactory
         self.iatMode = iatMode
     }
     
-    public init(connection: Connection, cert: String, iatMode: Bool)
+    public init(connection: NWConnection, cert: String, iatMode: Bool)
     {
         self.connection = connection
         self.cert = cert
