@@ -33,7 +33,7 @@ open class WispConnectionFactory: ConnectionFactory
         self.iatMode = iatMode
     }
     
-    public func connect(_ using: NWParameters) -> Connection?
+    public func connect(using: NWParameters) -> Connection?
     {
         if let currentConnection = connection
         {

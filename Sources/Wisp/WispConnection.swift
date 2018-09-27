@@ -49,7 +49,7 @@ public class WispConnection: Connection
         self.iatMode = iatMode
         
         let connectionFactory = NetworkConnectionFactory(host: host, port: port)
-        guard let newConnection = connectionFactory.connect(parameters)
+        guard let newConnection = connectionFactory.connect(using: parameters)
         else
         {
             return nil

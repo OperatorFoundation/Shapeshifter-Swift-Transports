@@ -38,7 +38,7 @@ open class ProteanConnection: Connection
         }
 
         let connectionFactory = NetworkConnectionFactory(host: host, port: port)
-        guard let newConnection = connectionFactory.connect(.udp)
+        guard let newConnection = connectionFactory.connect(using: .udp)
         else
         {
             return nil

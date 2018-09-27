@@ -179,7 +179,7 @@ class Shapeshifter_WispTests: XCTestCase
         let read = expectation(description: "Read data from the server.")
         let host = NWEndpoint.Host.ipv4(ipv4Address)
         let connectionFactory = NetworkConnectionFactory(host: host, port: port)
-        let maybeConnection = connectionFactory.connect(.udp)
+        let maybeConnection = connectionFactory.connect(using: .udp)
         
         XCTAssertNotNil(maybeConnection)
         
@@ -305,7 +305,7 @@ class Shapeshifter_WispTests: XCTestCase
         let connected = expectation(description: "Connected to server.")
         let host = NWEndpoint.Host.ipv4(ipv4Address)
         let connectionFactory = NetworkConnectionFactory(host: host, port: port)
-        var maybeConnection = connectionFactory.connect(.tcp)
+        var maybeConnection = connectionFactory.connect(using: .tcp)
         XCTAssertNotNil(maybeConnection)
 
         maybeConnection!.stateUpdateHandler =
@@ -364,7 +364,7 @@ class Shapeshifter_WispTests: XCTestCase
         let wrote = expectation(description: "Wrote data to server.")
         let host = NWEndpoint.Host.ipv4(ipv4Address)
         let connectionFactory = NetworkConnectionFactory(host: host, port: port)
-        var maybeConnection = connectionFactory.connect(.tcp)
+        var maybeConnection = connectionFactory.connect(using: .tcp)
         XCTAssertNotNil(maybeConnection)
 
         maybeConnection?.stateUpdateHandler =
@@ -446,7 +446,7 @@ class Shapeshifter_WispTests: XCTestCase
         let read = expectation(description: "Read data from the server.")
         let host = NWEndpoint.Host.ipv4(ipv4Address)
         let connectionFactory = NetworkConnectionFactory(host: host, port: port)
-        let maybeConnection = connectionFactory.connect(.tcp)
+        let maybeConnection = connectionFactory.connect(using: .tcp)
         
         XCTAssertNotNil(maybeConnection)
         
@@ -568,7 +568,7 @@ class Shapeshifter_WispTests: XCTestCase
         let wroteTwice = expectation(description: "Wrote data to the server a second time.")
         let host = NWEndpoint.Host.ipv4(ipv4Address)
         let connectionFactory = NetworkConnectionFactory(host: host, port: port)
-        let maybeConnection = connectionFactory.connect(.tcp)
+        let maybeConnection = connectionFactory.connect(using: .tcp)
         
         XCTAssertNotNil(maybeConnection)
         
@@ -679,7 +679,7 @@ class Shapeshifter_WispTests: XCTestCase
         let connected = expectation(description: "Connected to server.")
         let host = NWEndpoint.Host.ipv4(ipv4Address)
         let wispFactory = WispConnectionFactory(host: host, port: port, cert: certString, iatMode: false)
-        var maybeConnection = wispFactory.connect(.tcp)
+        var maybeConnection = wispFactory.connect(using: .tcp)
         XCTAssertNotNil(maybeConnection)
 
         maybeConnection?.stateUpdateHandler =
@@ -742,7 +742,7 @@ class Shapeshifter_WispTests: XCTestCase
         let wrote = expectation(description: "Wrote data to server.")
         let host = NWEndpoint.Host.ipv4(ipv4Address)
         let wispFactory = WispConnectionFactory(host: host, port: port, cert: certString, iatMode: false)
-        let maybeConnection = wispFactory.connect(.tcp)
+        let maybeConnection = wispFactory.connect(using: .tcp)
         XCTAssertNotNil(maybeConnection)
 
         guard var connection = maybeConnection
@@ -828,7 +828,7 @@ class Shapeshifter_WispTests: XCTestCase
         let read = expectation(description: "Read data from the server.")
         let host = NWEndpoint.Host.ipv4(ipv4Address)
         let wispFactory = WispConnectionFactory(host: host, port: port, cert: certString, iatMode: false)
-        let maybeConnection = wispFactory.connect(.tcp)
+        let maybeConnection = wispFactory.connect(using: .tcp)
         XCTAssertNotNil(maybeConnection)
         
         guard var connection = maybeConnection

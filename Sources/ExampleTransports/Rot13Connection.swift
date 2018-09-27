@@ -29,7 +29,7 @@ open class Rot13Connection: Connection
          using parameters: NWParameters)
     {
         let connectionFactory = NetworkConnectionFactory(host: host, port: port)
-        guard let newConnection = connectionFactory.connect(parameters)
+        guard let newConnection = connectionFactory.connect(using: parameters)
         else
         {
             return nil

@@ -19,10 +19,10 @@ let package = Package(
         ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
-        .package(url: "https://github.com/OperatorFoundation/ProteanSwift", from: "0.0.1"),
-        .package(url: "https://github.com/OperatorFoundation/Transport.git", from: "0.0.19"),
+        .package(url: "https://github.com/OperatorFoundation/ProteanSwift", from: "0.0.6"),
+        .package(url: "https://github.com/OperatorFoundation/Transport.git", from: "0.0.21"),
         .package(url: "https://github.com/OperatorFoundation/swift-sodium", from: "0.6.8"),
-        .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", from: "0.11.0"),
+        .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", from: "0.12.0"),
         .package(url: "https://github.com/Bouke/HKDF.git", from: "3.0.1"),
         .package(url: "https://github.com/OperatorFoundation/Elligator.git", from: "0.1.0"),
         .package(url: "https://github.com/OperatorFoundation/SwiftQueue.git", from: "0.0.3")
