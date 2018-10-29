@@ -6,6 +6,7 @@
         "repositoryURL": "https://github.com/OperatorFoundation/Blake2.git",
         "state": {
           "branch": null,
+<<<<<<< HEAD
           "revision": "3da646eeb5b0c55472b9951a2f7b33f23c17e8c1",
           "version": "1.0.1"
         }
@@ -17,6 +18,10 @@
           "branch": null,
           "revision": "2bf9fd19e21cae84c8050623437562da083c501a",
           "version": "1.0.16"
+=======
+          "revision": "a960efc2759c8816b00baed5db7b3d903a402e78",
+          "version": "1.0.14"
+>>>>>>> origin/master
         }
       },
       {
@@ -48,9 +53,10 @@
       },
       {
         "package": "HKDF",
-        "repositoryURL": "https://github.com/Bouke/HKDF.git",
+        "repositoryURL": "https://github.com/OperatorFoundation/HKDF.git",
         "state": {
           "branch": null,
+<<<<<<< HEAD
           "revision": "9b9e521b49e5b529c33f4abe35a00e144af51e00",
           "version": "3.1.0"
         }
@@ -71,6 +77,10 @@
           "branch": null,
           "revision": "668f9152f8ca24bd024f77ef7d81388724ef21d3",
           "version": "1.0.2"
+=======
+          "revision": "b0ebaa71d823317d8fedf4108b7e89500eb578c1",
+          "version": "3.0.2"
+>>>>>>> origin/master
         }
       },
       {

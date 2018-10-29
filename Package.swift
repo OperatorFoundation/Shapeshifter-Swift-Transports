@@ -17,9 +17,9 @@ let package = Package(
         .package(url: "https://github.com/OperatorFoundation/ProteanSwift.git", from: "1.0.1"),
         .package(url: "https://github.com/OperatorFoundation/Transport.git", from: "0.0.22"),
         .package(url: "https://github.com/OperatorFoundation/WireGuard.git", from: "0.0.5"),
-        .package(url: "https://github.com/OperatorFoundation/swift-sodium.git", from: "0.6.11"),
+        .package(url: "https://github.com/OperatorFoundation/swift-sodium", from: "0.7.1"),
         .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", from: "0.12.0"),
-        .package(url: "https://github.com/Bouke/HKDF.git", from: "3.0.1"),
+        .package(url: "https://github.com/OperatorFoundation/HKDF.git", from: "3.0.2"),
         .package(url: "https://github.com/OperatorFoundation/Elligator.git", from: "0.1.0"),
         .package(url: "https://github.com/OperatorFoundation/SwiftQueue.git", from: "0.0.3")
         ],

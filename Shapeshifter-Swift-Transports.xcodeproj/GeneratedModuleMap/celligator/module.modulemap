@@ -1,4 +1,0 @@
-module celligator {
-    umbrella "/Users/Lita/Documents/Documents - Adelita’s MacBook Pro/Dev/Shapeshifter-Swift-Transports/.build/checkouts/Elligator.git-8008843471106168896/Sources/celligator/include"
-    export *
-}
