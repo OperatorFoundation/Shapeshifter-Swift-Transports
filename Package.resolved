@@ -33,8 +33,8 @@
         "repositoryURL": "https://github.com/OperatorFoundation/Datable.git",
         "state": {
           "branch": null,
-          "revision": "b8d528a7ab46c5e56ab324ab602ac12237bdedb6",
-          "version": "1.0.1"
+          "revision": "cc91e8b71dbbe125a19090c26f4e8c21b6d0dcb4",
+          "version": "1.0.5"
         }
       },
       {
@@ -44,6 +44,15 @@
           "branch": null,
           "revision": "ac7ae7f3d5b0296f0628691914a66f3652bd3c70",
           "version": "0.1.0"
+        }
+      },
+      {
+        "package": "Flower",
+        "repositoryURL": "https://github.com/OperatorFoundation/Flower.git",
+        "state": {
+          "branch": null,
+          "revision": "cf084096cb53e58946af1bc3204bdde79e2f03ef",
+          "version": "0.0.4"
         }
       },
       {
@@ -69,8 +78,8 @@
         "repositoryURL": "https://github.com/Bouke/INI",
         "state": {
           "branch": null,
-          "revision": "668f9152f8ca24bd024f77ef7d81388724ef21d3",
-          "version": "1.0.2"
+          "revision": "60b7887c6f4051e5cb76b5faa0a7d6db510ddcb0",
+          "version": "1.2.0"
         }
       },
       {
@@ -84,11 +93,11 @@
       },
       {
         "package": "Sodium",
-        "repositoryURL": "https://github.com/OperatorFoundation/swift-sodium.git",
+        "repositoryURL": "https://github.com/OperatorFoundation/swift-sodium",
         "state": {
           "branch": null,
-          "revision": "c256ac3a11489d8f81b3915649f83f4d1a3252a3",
-          "version": "0.7.1"
+          "revision": "bf86f64a4f28a75f6683078540f24727fad1b12c",
+          "version": "0.8.2"
         }
       },
       {
@@ -105,8 +114,8 @@
         "repositoryURL": "https://github.com/OperatorFoundation/Transport.git",
         "state": {
           "branch": null,
-          "revision": "865171ac066f5d6a7f2e0004ce3df61aeedce19c",
-          "version": "0.0.22"
+          "revision": "50f77398e9914d9d53260eeea5f3c14aa39e2b4a",
+          "version": "0.1.1"
         }
       },
       {

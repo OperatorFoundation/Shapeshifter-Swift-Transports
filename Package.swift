@@ -10,6 +10,7 @@ let package = Package(
         .library(name: "Wisp", targets: ["Wisp"]),
         .library(name: "Protean", targets: ["Protean"]),
         .library(name: "Wire", targets: ["Wire"]),
+        .library(name: "Flow", targets: ["Flow"]),
         .library(name: "ExampleTransports", targets: ["ExampleTransports"])
         ],
     dependencies: [
@@ -17,11 +18,12 @@ let package = Package(
         .package(url: "https://github.com/OperatorFoundation/ProteanSwift.git", from: "1.0.1"),
         .package(url: "https://github.com/OperatorFoundation/Transport.git", from: "0.0.22"),
         .package(url: "https://github.com/OperatorFoundation/WireGuard.git", from: "0.0.5"),
-        .package(url: "https://github.com/OperatorFoundation/swift-sodium", from: "0.7.1"),
+        .package(url: "https://github.com/OperatorFoundation/swift-sodium", from: "0.8.2"),
         .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", from: "0.13.0"),
         .package(url: "https://github.com/OperatorFoundation/HKDF.git", from: "3.0.2"),
         .package(url: "https://github.com/OperatorFoundation/Elligator.git", from: "0.1.0"),
-        .package(url: "https://github.com/OperatorFoundation/SwiftQueue.git", from: "0.0.3")
+        .package(url: "https://github.com/OperatorFoundation/SwiftQueue.git", from: "0.0.3"),
+        .package(url: "https://github.com/OperatorFoundation/Flower.git", from: "0.0.4")
         ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -34,6 +36,9 @@ let package = Package(
         .target(
             name: "Wire",
             dependencies: ["WireGuard"]),
+        .target(
+            name: "Flow",
+            dependencies: ["Flower"]),
         .target(name: "ExampleTransports", dependencies: ["Transport"]),
         .testTarget(name: "WispTests", dependencies: ["Wisp"]),
         .testTarget(
