@@ -6,8 +6,9 @@
 //
 
 import Foundation
-import Transport
 import Network
+
+import Transport
 import ProteanSwift
 
 open class ProteanConnection: Connection
@@ -53,7 +54,7 @@ open class ProteanConnection: Connection
                  using parameters: NWParameters)
     {
         guard let prot = parameters.defaultProtocolStack.internetProtocol, let _ = prot as? NWProtocolUDP.Options
-            else
+        else
         {
             print("Attempted to initialize protean not as a UDP connection.")
             return nil

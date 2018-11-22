@@ -14,7 +14,7 @@ import ProteanSwift
 
 @testable import Protean
 
-class Shapeshifter_ProteanTests: XCTestCase
+class ProteanTests: XCTestCase
 {
     
     //let ipAddressString = "159.203.158.90"

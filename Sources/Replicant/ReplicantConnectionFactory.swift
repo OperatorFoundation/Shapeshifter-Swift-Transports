@@ -1,30 +1,30 @@
 //
-//  ProteanConnectionFactory.swift
-//  Protean
+//  ReplicantConnectionFactory.swift
+//  Replicant
 //
-//  Created by Adelita Schule on 8/24/18.
+//  Created by Adelita Schule on 11/21/18.
 //
 
 import Foundation
 import Transport
 import Network
-import ProteanSwift
+import ReplicantSwift
 
-open class ProteanConnectionFactory
+open class ReplicantConnectionFactory
 {
     public var connection: Connection?
     public var host: NWEndpoint.Host?
     public var port: NWEndpoint.Port?
-    public var config: Protean.Config
+    public var config: ReplicantConfig
     
-    public init(host: NWEndpoint.Host, port: NWEndpoint.Port, config: Protean.Config)
+    public init(host: NWEndpoint.Host, port: NWEndpoint.Port, config: ReplicantConfig)
     {
         self.host = host
         self.port = port
         self.config = config
     }
     
-    public init(connection: Connection, config: Protean.Config)
+    public init(connection: Connection, config: ReplicantConfig)
     {
         self.connection = connection
         self.config = config
@@ -34,7 +34,7 @@ open class ProteanConnectionFactory
     {
         if let currentConnection = connection
         {
-            return ProteanConnection(connection: currentConnection, config: config, using: parameters)
+            return ReplicantConnection(connection: currentConnection, using: parameters, and: config)
         }
         else
         {
@@ -44,8 +44,7 @@ open class ProteanConnectionFactory
                 return nil
             }
             
-            return ProteanConnection(host: currentHost, port: currentPort, config: config, using: parameters)
+            return ReplicantConnection(host: currentHost, port: currentPort, using: parameters, and: config)
         }
     }
-    
 }
