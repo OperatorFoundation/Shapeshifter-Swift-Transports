@@ -145,6 +145,10 @@ open class ReplicantConnection: Connection
     /// This is basically pseudo code. Working on it ;)
     func voightKampffTest()
     {
+        // Tone Burst
+        self.toneBurst()
+        
+        // Send public key to server
         guard let ourPublicKeyData = replicant.encryptor.generateAndEncryptPaddedKeyData(fromKey: replicant.clientPublicKey, withChunkSize: replicant.config.chunkSize, usingServerKey: replicant.serverPublicKey)
         else
         {
@@ -162,33 +166,26 @@ open class ReplicantConnection: Connection
                 return
             }
             
-            self.network.receive(completion:
-            { (maybeResponse1Data, maybeResponse1Context, _, maybeResponse1Error) in
+            let replicantChunkSize = self.replicant.config.chunkSize
+            self.network.receive(minimumIncompleteLength: replicantChunkSize, maximumLength: replicantChunkSize, completion:
+            {
+                (maybeResponse1Data, maybeResponse1Context, _, maybeResponse1Error) in
                 
                 guard maybeResponse1Error == nil
-                else
+                    else
                 {
                     print("\nReceived an error while waiting for response from server acfter sending key: \(maybeResponse1Error!)\n")
                     return
                 }
                 
                 // This data is meaningless it can be discarded
-                guard let response1Data = maybeResponse1Data
-                else
+                guard let _ = maybeResponse1Data
+                    else
                 {
                     print("\nServer key response did not contain data.\n")
                     return
                 }
                 
-                // But first make sure it is the expected chunk size. The server should know to do this.
-                guard response1Data.count == self.replicant.config.chunkSize
-                else
-                {
-                    print("\nServer response should be \(self.replicant.config.chunkSize) bytes, but is actually \(response1Data.count) bytes\n")
-                    return
-                }
-                
-                self.toneBurst()
             })
         }))
         
@@ -242,6 +239,8 @@ open class ReplicantConnection: Connection
                     return
                 }
                 
+                let toneLength = self.replicant.
+                self.network.receive(minimumIncompleteLength: <#T##Int#>, maximumLength: <#T##Int#>, completion: <#T##(Data?, NWConnection.ContentContext?, Bool, NWError?) -> Void#>)
                 self.network.receive(completion:
                     {
                         (maybeToneResponseData, maybeToneResponseContext, connectionComplete, maybeToneResponseError) in

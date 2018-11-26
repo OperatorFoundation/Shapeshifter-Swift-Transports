@@ -69,3 +69,7 @@ fastlane/screenshots
 fastlane/test_output
 
 *.xcodeproj
+
+Sources/libsodium-ios.a
+
+.DS_Store
