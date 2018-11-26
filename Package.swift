@@ -20,11 +20,7 @@ let package = Package(
         .package(url: "https://github.com/OperatorFoundation/ReplicantSwift.git", from: "0.0.2"),
         .package(url: "https://github.com/OperatorFoundation/Transport.git", from: "0.0.22"),
         .package(url: "https://github.com/OperatorFoundation/WireGuard.git", from: "0.0.5"),
-<<<<<<< Updated upstream
         .package(url: "https://github.com/OperatorFoundation/swift-sodium", from: "0.8.2"),
-=======
-        .package(url: "https://github.com/OperatorFoundation/swift-sodium.git", from: "0.7.1"),
->>>>>>> Stashed changes
         .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", from: "0.13.0"),
         .package(url: "https://github.com/OperatorFoundation/HKDF.git", from: "3.0.2"),
         .package(url: "https://github.com/OperatorFoundation/Elligator.git", from: "0.1.0"),
@@ -36,21 +32,10 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages which this package depends on.
 
         .target(name: "Wisp", dependencies: ["Sodium", "CryptoSwift", "HKDF", "Elligator", "Transport", "SwiftQueue"]),
-<<<<<<< Updated upstream
-        .target(
-            name: "Protean",
-            dependencies: ["ProteanSwift", "Transport", "SwiftQueue"]),
-        .target(
-            name: "Wire",
-            dependencies: ["WireGuard"]),
-        .target(
-            name: "Flow",
-            dependencies: ["Flower"]),
-=======
+        .target(name: "Flow", dependencies: ["Flower"]),
         .target(name: "Protean", dependencies: ["ProteanSwift", "Transport", "SwiftQueue"]),
         .target(name: "Replicant", dependencies: ["ReplicantSwift", "Transport"]),
         .target(name: "Wire", dependencies: ["WireGuard"]),
->>>>>>> Stashed changes
         .target(name: "ExampleTransports", dependencies: ["Transport"]),
         .testTarget(name: "WispTests", dependencies: ["Wisp"]),
         .testTarget(name: "ProteanTests", dependencies: ["Protean"]),
