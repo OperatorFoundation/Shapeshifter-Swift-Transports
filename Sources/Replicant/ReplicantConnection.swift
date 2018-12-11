@@ -177,44 +177,36 @@ open class ReplicantConnection: Connection
     public func receive(minimumIncompleteLength: Int, maximumLength: Int, completion: @escaping (Data?, NWConnection.ContentContext?, Bool, NWError?) -> Void)
     {
         // Check to see if we have min length data in decrypted buffer before calling network receive. Skip the call if we do.
-        
-        //FIXME: Nested threading is not what we want here...
-        decryptedBufferQueue.sync
+        if decryptedReceiveBuffer.count >= minimumIncompleteLength
         {
-            if decryptedReceiveBuffer.count >= minimumIncompleteLength
-            {
-                // Make sure that the slice we get isn't bigger than the available data count or the maximum requested.
-                let sliceLength = decryptedReceiveBuffer.count < maximumLength ? decryptedReceiveBuffer.count : maximumLength
+            // Make sure that the slice we get isn't bigger than the available data count or the maximum requested.
+            let sliceLength = decryptedReceiveBuffer.count < maximumLength ? decryptedReceiveBuffer.count : maximumLength
+            
+            // Return the requested amount
+            let returnData = self.decryptedReceiveBuffer[0 ..< sliceLength]
+
+            // Remove what was delivered from the buffer
+            self.decryptedReceiveBuffer = self.decryptedReceiveBuffer[sliceLength...]
+            
+            completion(returnData, NWConnection.ContentContext.defaultMessage, false, nil)
+        }
+        else
+        {
+            network.receive(minimumIncompleteLength: replicant.config.chunkSize, maximumLength: replicant.config.chunkSize)
+            { (maybeData, maybeContext, connectionComplete, maybeError) in
                 
-                // Return the requested amount
-                let returnData = self.decryptedReceiveBuffer[0 ..< sliceLength]
-                
-                decryptedBufferQueue.async(flags: .barrier)
+                // Check to see if we got data
+                guard let someData = maybeData
+                    else
                 {
-                    // Remove what was delivered from the buffer
-                    self.decryptedReceiveBuffer = self.decryptedReceiveBuffer[sliceLength...]
+                    print("\nReceive called with no content.\n")
+                    completion(maybeData, maybeContext, connectionComplete, maybeError)
+                    return
                 }
                 
-                completion(returnData, NWConnection.ContentContext.defaultMessage, false, nil)
-            }
-            else
-            {
-                network.receive(minimumIncompleteLength: replicant.config.chunkSize, maximumLength: replicant.config.chunkSize)
-                { (maybeData, maybeContext, connectionComplete, maybeError) in
-                    
-                    // Check to see if we got data
-                    guard let someData = maybeData
-                        else
-                    {
-                        print("\nReceive called with no content.\n")
-                        completion(maybeData, maybeContext, connectionComplete, maybeError)
-                        return
-                    }
-                    
-                    let maybeReturnData = self.handleReceivedData(minimumIncompleteLength: minimumIncompleteLength, maximumLength: maximumLength, encryptedData: someData)
-                    
-                    completion(maybeReturnData, maybeContext, connectionComplete, maybeError)
-                }
+                let maybeReturnData = self.handleReceivedData(minimumIncompleteLength: minimumIncompleteLength, maximumLength: maximumLength, encryptedData: someData)
+                
+                completion(maybeReturnData, maybeContext, connectionComplete, maybeError)
             }
         }
     }
@@ -509,6 +501,7 @@ enum HandshakeError: Error
     case missingClientKey
     case clientKeyDataIncorrectSize
     case unableToDecryptData
+    case dataCreationError
 }
 
 enum IntroductionsError: Error

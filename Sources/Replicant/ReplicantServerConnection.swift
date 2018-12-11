@@ -16,12 +16,13 @@ open class ReplicantServerConnection: Connection
     public let aesOverheadSize = 81
     public var stateUpdateHandler: ((NWConnection.State) -> Void)?
     public var viabilityUpdateHandler: ((Bool) -> Void)?
-    
-    //FIXME: Server Config
     public var config: ReplicantServerConfig
     public var replicantServer: ReplicantServer
     
+    var sendTimer: Timer?
+    
     var networkQueue = DispatchQueue(label: "Replicant Queue")
+    var sendBufferQueue = DispatchQueue(label: "SendBuffer Queue", attributes: .concurrent)
     var network: Connection
     var sendBuffer = Data()
     var decryptedReceiveBuffer = Data()
@@ -30,8 +31,6 @@ open class ReplicantServerConnection: Connection
                  using parameters: NWParameters,
                  and config: ReplicantServerConfig)
     {
-        ///FIXME: Use server config
-        
         guard let prot = parameters.defaultProtocolStack.internetProtocol, let _ = prot as? NWProtocolTCP.Options
             else
         {
@@ -73,8 +72,6 @@ open class ReplicantServerConnection: Connection
     
     public func send(content: Data?, contentContext: NWConnection.ContentContext, isComplete: Bool, completion: NWConnection.SendCompletion)
     {
-        
-        //FIXME: Make sure we are using the correct keys
         guard let someData = content
             else
         {
@@ -107,32 +104,50 @@ open class ReplicantServerConnection: Connection
             return
         }
         
-        sendBuffer.append(someData)
-        
-        // Only encrypt and send over network when chunk size is available, leftovers to the buffer
-        let unencryptedChunkSize = self.replicantServer.config.chunkSize - aesOverheadSize
-        guard sendBuffer.count >= (unencryptedChunkSize)
-            else
+        // Only modify sendBuffer from sendBufferQueue async
+        sendBufferQueue.async(flags: .barrier)
         {
-            print("Received a send command with content less than chunk size.")
-            switch completion
+            self.sendBuffer.append(someData)
+        }
+        
+        sendBufferQueue.sync
+        {
+            // Only encrypt and send over network when chunk size is available, leftovers to the buffer
+            let unencryptedChunkSize = self.replicantServer.config.chunkSize - aesOverheadSize
+            guard sendBuffer.count >= (unencryptedChunkSize)
+                else
             {
-            case .contentProcessed(let handler):
-                handler(nil)
-            default:
+                print("Received a send command with content less than chunk size.")
+                switch completion
+                {
+                case .contentProcessed(let handler):
+                    handler(nil)
+                default:
+                    return
+                }
+                
                 return
             }
             
-            return
+            let dataChunk = sendBuffer[0 ..< unencryptedChunkSize]
+            let maybeEncryptedData = replicantServer.polish.encrypt(payload: dataChunk, usingPublicKey: recipientPublicKey)
+            
+            // Buffer should only contain unsent data
+            sendBuffer = sendBuffer[unencryptedChunkSize...]
+            
+            // Reset or stop the timer
+            if sendBuffer.count > 0
+            {
+                sendTimer = Timer(timeInterval: TimeInterval(config.chunkTimeout), target: self, selector: #selector(chunkTimeout), userInfo: nil, repeats: true)
+            }
+            else if sendTimer != nil
+            {
+                sendTimer!.invalidate()
+                sendTimer = nil
+            }
+            
+            network.send(content: maybeEncryptedData, contentContext: contentContext, isComplete: isComplete, completion: completion)
         }
-        
-        let dataChunk = sendBuffer[0 ..< unencryptedChunkSize]
-        let maybeEncryptedData = replicantServer.polish.encrypt(payload: dataChunk, usingPublicKey: recipientPublicKey)
-        
-        // Buffer should only contain unsent data
-        sendBuffer = sendBuffer[unencryptedChunkSize...]
-        
-        network.send(content: maybeEncryptedData, contentContext: contentContext, isComplete: isComplete, completion: completion)
     }
     
     public func receive(completion: @escaping (Data?, NWConnection.ContentContext?, Bool, NWError?) -> Void)
@@ -142,8 +157,6 @@ open class ReplicantServerConnection: Connection
     
     public func receive(minimumIncompleteLength: Int, maximumLength: Int, completion: @escaping (Data?, NWConnection.ContentContext?, Bool, NWError?) -> Void)
     {
-        //FIXME: Make sure we are using the correct keys
-        
         // Check to see if we have min length data in decrypted buffer before calling network receive. Skip the call if we do.
         if decryptedReceiveBuffer.count >= minimumIncompleteLength
         {
@@ -197,8 +210,6 @@ open class ReplicantServerConnection: Connection
     /// This takes an optional data and adds it to the buffer before acting on min/max lengths
     func handleReceivedData(minimumIncompleteLength: Int, maximumLength: Int, encryptedData: Data) -> Data?
     {
-        //FIXME: Make sure we are using the correct keys
-        
         // Try to decrypt the entire contents of the encrypted buffer
         guard let decryptedData = self.replicantServer.polish.decrypt(payload: encryptedData, usingPrivateKey: self.replicantServer.polish.privateKey)
             else
@@ -232,27 +243,26 @@ open class ReplicantServerConnection: Connection
     
     func voightKampffTest(completion: @escaping (Error?) -> Void)
     {
-        //FIXME Call receive instead
         // Tone Burst
-        self.toneBurstSend
-            { (maybeError) in
+        self.toneBurstReceive(finalToneSent: false)
+        {
+            (maybeError) in
+            
+            guard maybeError == nil
+                else
+            {
+                print("ToneBurst failed: \(maybeError!)")
+                return
+            }
+            
+            self.handshake
+            {
+                (maybeHandshakeError) in
                 
-                guard maybeError == nil
-                    else
-                {
-                    print("ToneBurst failed: \(maybeError!)")
-                    return
-                }
-                
-                self.handshake
-                    {
-                        (maybeHandshakeError) in
-                        
-                        completion(maybeHandshakeError)
-                }
+                completion(maybeHandshakeError)
+            }
         }
     }
-    
     
     func toneBurstSend(completion: @escaping (Error?) -> Void)
     {
@@ -267,9 +277,9 @@ open class ReplicantServerConnection: Connection
         
         switch sendState
         {
-        case .generating(let nextTone):
-            print("\nGenerating tone bursts.\n")
-            network.send(content: nextTone, contentContext: .defaultMessage, isComplete: false, completion: NWConnection.SendCompletion.contentProcessed(
+            case .generating(let nextTone):
+                print("\nGenerating tone bursts.\n")
+                network.send(content: nextTone, contentContext: .defaultMessage, isComplete: false, completion: NWConnection.SendCompletion.contentProcessed(
                 {
                     (maybeToneSendError) in
                     
@@ -281,18 +291,16 @@ open class ReplicantServerConnection: Connection
                     }
                     
                     self.toneBurstReceive(finalToneSent: false, completion: completion)
-            }))
+                }))
             
-        case .completion:
-            print("\nGenerated final toneburst\n")
-            toneBurstReceive(finalToneSent: true, completion: completion)
+            case .completion:
+                print("\nGenerated final toneburst\n")
+                toneBurstReceive(finalToneSent: true, completion: completion)
             
-        case .failure:
-            print("\nFailed to generate requested ToneBurst")
-            completion(ToneBurstError.generateFailure)
+            case .failure:
+                print("\nFailed to generate requested ToneBurst")
+                completion(ToneBurstError.generateFailure)
         }
-        
-        
     }
     
     func toneBurstReceive(finalToneSent: Bool, completion: @escaping (Error?) -> Void)
@@ -312,44 +320,44 @@ open class ReplicantServerConnection: Connection
         }
         
         self.network.receive(minimumIncompleteLength: Int(toneLength), maximumLength: Int(toneLength) , completion:
+        {
+            (maybeToneResponseData, maybeToneResponseContext, connectionComplete, maybeToneResponseError) in
+            
+            guard maybeToneResponseError == nil
+                else
             {
-                (maybeToneResponseData, maybeToneResponseContext, connectionComplete, maybeToneResponseError) in
-                
-                guard maybeToneResponseError == nil
-                    else
+                print("\nReceived an error in the server tone response: \(maybeToneResponseError!)\n")
+                return
+            }
+            
+            guard let toneResponseData = maybeToneResponseData
+                else
+            {
+                print("\nTone response was empty.\n")
+                return
+            }
+            
+            let receiveState = toneBurst.remove(newData: toneResponseData)
+            
+            switch receiveState
+            {
+            case .completion:
+                if !finalToneSent
                 {
-                    print("\nReceived an error in the server tone response: \(maybeToneResponseError!)\n")
-                    return
-                }
-                
-                guard let toneResponseData = maybeToneResponseData
-                    else
-                {
-                    print("\nTone response was empty.\n")
-                    return
-                }
-                
-                let receiveState = toneBurst.remove(newData: toneResponseData)
-                
-                switch receiveState
-                {
-                case .completion:
-                    if !finalToneSent
-                    {
-                        self.toneBurstSend(completion: completion)
-                    }
-                    else
-                    {
-                        completion(nil)
-                    }
-                    
-                case .receiving:
                     self.toneBurstSend(completion: completion)
-                    
-                case .failure:
-                    print("\nTone burst remove failure.\n")
-                    completion(ToneBurstError.removeFailure)
                 }
+                else
+                {
+                    completion(nil)
+                }
+                
+            case .receiving:
+                self.toneBurstSend(completion: completion)
+                
+            case .failure:
+                print("\nTone burst remove failure.\n")
+                completion(ToneBurstError.removeFailure)
+            }
         })
     }
     
@@ -366,13 +374,14 @@ open class ReplicantServerConnection: Connection
             
             // Parse received public key and store it
             guard maybeResponse1Error == nil
-                else
+            else
             {
                 print("\nReceived an error while waiting for response from server acfter sending key: \(maybeResponse1Error!)\n")
                 completion(maybeResponse1Error!)
                 return
             }
             
+            // Make sure we have data
             guard let clientEncryptedData = maybeResponse1Data
             else
             {
@@ -381,6 +390,7 @@ open class ReplicantServerConnection: Connection
                 return
             }
             
+            // Decrypt the received data
             guard let clientPaddedKey = self.replicantServer.polish.decrypt(payload: clientEncryptedData, usingPrivateKey: self.replicantServer.polish.privateKey)
             else
             {
@@ -389,6 +399,7 @@ open class ReplicantServerConnection: Connection
                 return
             }
             
+            // Make sure the decrypted data is at least the size of a key
             guard clientPaddedKey.count >= keyDataSize
             else
             {
@@ -397,8 +408,10 @@ open class ReplicantServerConnection: Connection
                 return
             }
             
+            // Key data is the first chunk of keyDataSize
             let clientKeyData = clientPaddedKey[0 ..< keyDataSize]
             
+            // Convert data to SecKey
             //FIXME: Will decode key method account for leading 04?
             guard let clientKey = Polish.decodeKey(fromData: clientKeyData)
             else
@@ -410,10 +423,21 @@ open class ReplicantServerConnection: Connection
             
             self.replicantServer.polish.recipientPublicKey = clientKey
             
-            //FIXME: Generate random data of chunk size
-            let randomData = Data()
+            //Generate random data of chunk size
+            var randomData = Data(count: self.replicantServer.config.chunkSize)
+            let result = randomData.withUnsafeMutableBytes{
+                SecRandomCopyBytes(kSecRandomDefault, self.replicantServer.config.chunkSize, $0)
+            }
             
-            //FIXME: Send random data to client
+            guard result == errSecSuccess
+            else
+            {
+                print("\nUnable to create random bytes for response to client key.\n")
+                completion(HandshakeError.dataCreationError)
+                return
+            }
+            
+            //Send random data to client
             self.network.send(content: randomData, contentContext: .defaultMessage, isComplete: false, completion: NWConnection.SendCompletion.contentProcessed(
             {
                 (maybeError) in
@@ -467,6 +491,11 @@ open class ReplicantServerConnection: Connection
             stateHandler(NWConnection.State.ready)
             completion(nil)
         }
+    }
+    
+    @objc func chunkTimeout()
+    {
+        print("\n⏰  Chunk Timeout Reached\n  ⏰")
     }
     
 }
