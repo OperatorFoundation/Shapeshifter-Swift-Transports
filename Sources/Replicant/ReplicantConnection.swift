@@ -17,13 +17,12 @@ open class ReplicantConnection: Connection
     public var stateUpdateHandler: ((NWConnection.State) -> Void)?
     public var viabilityUpdateHandler: ((Bool) -> Void)?
     public var config: ReplicantConfig
-    public var replicant: Replicant
+    public var replicantClientModel: ReplicantClientModel
     
     var sendTimer: Timer?
     
     var networkQueue = DispatchQueue(label: "Replicant Queue")
-    var sendBufferQueue = DispatchQueue(label: "SendBuffer Queue", attributes: .concurrent)
-    var decryptedBufferQueue = DispatchQueue(label: "decryptedBuffer Queue", attributes: .concurrent)
+    var sendBufferQueue = DispatchQueue(label: "SendBuffer Queue")
     var network: Connection
     var decryptedReceiveBuffer: Data
     var sendBuffer: Data
@@ -54,7 +53,7 @@ open class ReplicantConnection: Connection
             return nil
         }
         
-        guard let newReplicant = Replicant(withConfig: config)
+        guard let newReplicant = ReplicantClientModel(withConfig: config)
         else
         {
             print("\nFailed to initialize ReplicantConnection because we failed to initialize Replicant.\n")
@@ -63,7 +62,7 @@ open class ReplicantConnection: Connection
         
         self.network = connection
         self.config = config
-        self.replicant = newReplicant
+        self.replicantClientModel = newReplicant
         self.decryptedReceiveBuffer = Data()
         self.sendBuffer = Data()
         
@@ -105,19 +104,15 @@ open class ReplicantConnection: Connection
             return
         }
         
-        let unencryptedChunkSize = self.replicant.config.chunkSize - aesOverheadSize
+        let unencryptedChunkSize = self.replicantClientModel.config.chunkSize - aesOverheadSize
         
         // Only modify sendBuffer from sendBufferQueue async
-        sendBufferQueue.async(flags: .barrier)
-        {
-            self.sendBuffer.append(someData)
-        }
-        
-        // Only access sendBuffer from sendBufferQueue
         sendBufferQueue.sync
         {
+            self.sendBuffer.append(someData)
+            
             // Only encrypt and send over network when chunk size is available, leftovers to the buffer
-            guard sendBuffer.count >= (unencryptedChunkSize)
+            guard self.sendBuffer.count >= (unencryptedChunkSize)
                 else
             {
                 print("Received a send command with content less than chunk size.")
@@ -132,41 +127,29 @@ open class ReplicantConnection: Connection
                 return
             }
             
-            guard let recipientPublicKey = replicant.polish.recipientPublicKey
-            else
-            {
-                print("\nUnable to send data, no recipient public key.\n")
-                
-                switch completion
-                {
-                case .contentProcessed(let handler):
-                    handler(nil)
-                default:
-                    return
-                }
-                
-                return
-            }
+            let dataChunk = self.sendBuffer[0 ..< unencryptedChunkSize]
             
-            let dataChunk = sendBuffer[0 ..< unencryptedChunkSize]
-            let maybeEncryptedData = replicant.polish.encrypt(payload: dataChunk, usingPublicKey: recipientPublicKey)
+            //TODO: Multiple Chunks
+            let maybeEncryptedData = self.replicantClientModel.polish.controller.encrypt(payload: dataChunk, usingPublicKey: self.replicantClientModel.polish.serverPublicKey)
             
             // Buffer should only contain unsent data
-            sendBuffer = sendBuffer[unencryptedChunkSize...]
+            self.sendBuffer = self.sendBuffer[unencryptedChunkSize...]
             
             // Reset or stop the timer
-            if sendBuffer.count > 0
+            if self.sendBuffer.count > 0
             {
-                sendTimer = Timer(timeInterval: TimeInterval(config.chunkTimeout), target: self, selector: #selector(chunkTimeout), userInfo: nil, repeats: true)
+                self.sendTimer = Timer(timeInterval: TimeInterval(self.config.chunkTimeout), target: self, selector: #selector(self.chunkTimeout), userInfo: nil, repeats: true)
             }
-            else if sendTimer != nil
+            else if self.sendTimer != nil
             {
-                sendTimer!.invalidate()
-                sendTimer = nil
+                self.sendTimer!.invalidate()
+                self.sendTimer = nil
             }
             
-            network.send(content: maybeEncryptedData, contentContext: contentContext, isComplete: isComplete, completion: completion)
+            // Keep calling network.send if the leftover data is at least chunk size
+            self.network.send(content: maybeEncryptedData, contentContext: contentContext, isComplete: isComplete, completion: completion)
         }
+
     }
     
     public func receive(completion: @escaping (Data?, NWConnection.ContentContext?, Bool, NWError?) -> Void)
@@ -192,7 +175,7 @@ open class ReplicantConnection: Connection
         }
         else
         {
-            network.receive(minimumIncompleteLength: replicant.config.chunkSize, maximumLength: replicant.config.chunkSize)
+            network.receive(minimumIncompleteLength: replicantClientModel.config.chunkSize, maximumLength: replicantClientModel.config.chunkSize)
             { (maybeData, maybeContext, connectionComplete, maybeError) in
                 
                 // Check to see if we got data
@@ -230,7 +213,7 @@ open class ReplicantConnection: Connection
     func handleReceivedData(minimumIncompleteLength: Int, maximumLength: Int, encryptedData: Data) -> Data?
     {
         // Try to decrypt the entire contents of the encrypted buffer
-        guard let decryptedData = self.replicant.polish.decrypt(payload: encryptedData, usingPrivateKey: self.replicant.polish.privateKey)
+        guard let decryptedData = self.replicantClientModel.polish.controller.decrypt(payload: encryptedData, usingPrivateKey: self.replicantClientModel.polish.privateKey)
         else
         {
             print("Unable to decrypt encrypted receive buffer")
@@ -284,7 +267,7 @@ open class ReplicantConnection: Connection
     
     func toneBurstSend(completion: @escaping (Error?) -> Void)
     {
-        guard let toneBurst = replicant.toneBurst
+        guard let toneBurst = replicantClientModel.toneBurst
         else
         {
             print("\nOur instance of Replicant does not have a ToneBurst instance.\n")
@@ -325,14 +308,14 @@ open class ReplicantConnection: Connection
     
     func toneBurstReceive(finalToneSent: Bool, completion: @escaping (Error?) -> Void)
     {
-        guard let toneBurst = replicant.toneBurst
+        guard let toneBurst = replicantClientModel.toneBurst
             else
         {
             print("\nOur instance of Replicant does not have a ToneBurst instance.\n")
             return
         }
         
-        guard let toneLength = self.replicant.toneBurst?.nextRemoveSequenceLength
+        guard let toneLength = self.replicantClientModel.toneBurst?.nextRemoveSequenceLength
             else
         {
             // Tone burst is finished
@@ -384,18 +367,10 @@ open class ReplicantConnection: Connection
     func handshake(completion: @escaping (Error?) -> Void)
     {
         // Send public key to server
-        guard let serverPublicKey = self.replicant.polish.recipientPublicKey
-        else
-        {
-            print("\nHandshake failed, we do not have the server public key.\n")
-            completion(HandshakeError.missingClientKey)
-            return
-        }
-        
-        guard let ourPublicKeyData = self.replicant.polish.generateAndEncryptPaddedKeyData(
-            fromKey: self.replicant.polish.publicKey,
-            withChunkSize: self.replicant.config.chunkSize,
-            usingServerKey: serverPublicKey)
+        guard let ourPublicKeyData = self.replicantClientModel.polish.controller.generateAndEncryptPaddedKeyData(
+            fromKey: self.replicantClientModel.polish.publicKey,
+            withChunkSize: self.replicantClientModel.config.chunkSize,
+            usingServerKey: self.replicantClientModel.polish.serverPublicKey)
             else
         {
             print("\nUnable to generate public key data.\n")
@@ -415,7 +390,7 @@ open class ReplicantConnection: Connection
                 return
             }
             
-            let replicantChunkSize = self.replicant.config.chunkSize
+            let replicantChunkSize = self.replicantClientModel.config.chunkSize
             self.network.receive(minimumIncompleteLength: replicantChunkSize, maximumLength: replicantChunkSize, completion:
             {
                 (maybeResponse1Data, maybeResponse1Context, _, maybeResponse1Error) in
@@ -482,6 +457,7 @@ open class ReplicantConnection: Connection
     
     @objc func chunkTimeout()
     {
+        // Double check the buffer to be sure that there is still data in there.
         print("\n⏰  Chunk Timeout Reached\n  ⏰")
     }
     
