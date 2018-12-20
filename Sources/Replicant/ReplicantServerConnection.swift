@@ -16,7 +16,7 @@ open class ReplicantServerConnection: Connection
     public let aesOverheadSize = 81
     public var stateUpdateHandler: ((NWConnection.State) -> Void)?
     public var viabilityUpdateHandler: ((Bool) -> Void)?
-    public var config: ReplicantServerConfig
+    public var replicantConfig: ReplicantServerConfig
     public var replicantServerModel: ReplicantServerModel
     
     var sendTimer: Timer?
@@ -29,7 +29,7 @@ open class ReplicantServerConnection: Connection
     
     public init?(connection: Connection,
                  using parameters: NWParameters,
-                 and config: ReplicantServerConfig)
+                 andReplicantConfig replicantConfig: ReplicantServerConfig)
     {
         guard let prot = parameters.defaultProtocolStack.internetProtocol, let _ = prot as? NWProtocolTCP.Options
             else
@@ -38,7 +38,7 @@ open class ReplicantServerConnection: Connection
             return nil
         }
         
-        guard let newReplicant = ReplicantServerModel(withConfig: config)
+        guard let newReplicant = ReplicantServerModel(withConfig: replicantConfig)
             else
         {
             print("\nFailed to initialize ReplicantConnection because we failed to initialize Replicant.\n")
@@ -46,7 +46,7 @@ open class ReplicantServerConnection: Connection
         }
         
         self.network = connection
-        self.config = config
+        self.replicantConfig = replicantConfig
         self.replicantServerModel = newReplicant
         
         introductions
@@ -134,7 +134,7 @@ open class ReplicantServerConnection: Connection
             // Reset or stop the timer
             if sendBuffer.count > 0
             {
-                sendTimer = Timer(timeInterval: TimeInterval(config.chunkTimeout), target: self, selector: #selector(chunkTimeout), userInfo: nil, repeats: true)
+                sendTimer = Timer(timeInterval: TimeInterval(replicantConfig.chunkTimeout), target: self, selector: #selector(chunkTimeout), userInfo: nil, repeats: true)
             }
             else if sendTimer != nil
             {

@@ -13,38 +13,20 @@ import ReplicantSwift
 open class ReplicantServerConnectionFactory
 {
     public var connection: Connection?
-    public var port: NWEndpoint.Port?
-    public var config: ReplicantServerConfig
+    public var replicantConfig: ReplicantServerConfig
     
-    public init(port: NWEndpoint.Port, config: ReplicantServerConfig)
-    {
-        self.port = port
-        self.config = config
-    }
-    
-    public init(connection: Connection, config: ReplicantServerConfig)
+    public init(connection: Connection, replicantConfig: ReplicantServerConfig)
     {
         self.connection = connection
-        self.config = config
+        self.replicantConfig = replicantConfig
     }
     
-    //FIXME: Handle case with no current connection
-    public func connect(using parameters: NWParameters) -> Connection?
+    public func connect() -> Connection?
     {
         if let currentConnection = connection
         {
-            return ReplicantServerConnection(connection: currentConnection, using: parameters, and: config)
+            return ReplicantServerConnection(connection: currentConnection, using: .tcp, andReplicantConfig: replicantConfig)
         }
-//        else
-//        {
-//            guard let currentPort = port
-//                else
-//            {
-//                return nil
-//            }
-//
-//            return ReplicantConnection(host: currentHost, port: currentPort, using: parameters, and: config)
-//        }
         
         return nil
     }
