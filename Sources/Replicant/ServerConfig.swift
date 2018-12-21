@@ -13,6 +13,12 @@ public struct ServerConfig: Codable
     public let ipString: String?
     public let port: NWEndpoint.Port
     
+    public init(withPort port: NWEndpoint.Port, andIP ipAddressString: String? = nil)
+    {
+        self.port = port
+        self.ipString = ipAddressString
+    }
+    
     /// Creates and returns a JSON representation of the ServerConfig struct.
     public func createJSON() -> Data?
     {
