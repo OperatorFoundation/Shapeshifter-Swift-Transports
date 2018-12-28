@@ -109,7 +109,7 @@ open class ReplicantServerConnection: Connection
             self.sendBuffer.append(someData)
             
             // Only encrypt and send over network when chunk size is available, leftovers to the buffer
-            let unencryptedChunkSize = self.replicantServerModel.config.chunkSize - aesOverheadSize
+            let unencryptedChunkSize = Int(self.replicantServerModel.config.chunkSize) - aesOverheadSize
             guard sendBuffer.count >= (unencryptedChunkSize)
                 else
             {
@@ -169,7 +169,7 @@ open class ReplicantServerConnection: Connection
         }
         else
         {
-            network.receive(minimumIncompleteLength: replicantServerModel.config.chunkSize, maximumLength: replicantServerModel.config.chunkSize)
+            network.receive(minimumIncompleteLength: Int(replicantServerModel.config.chunkSize), maximumLength: Int(replicantServerModel.config.chunkSize))
             { (maybeData, maybeContext, connectionComplete, maybeError) in
                 
                 // Check to see if we got data
@@ -364,7 +364,7 @@ open class ReplicantServerConnection: Connection
         let keyDataSize = keySize + 1
         
         //Call receive first
-        self.network.receive(minimumIncompleteLength: replicantChunkSize, maximumLength: replicantChunkSize, completion:
+        self.network.receive(minimumIncompleteLength: Int(replicantChunkSize), maximumLength: Int(replicantChunkSize), completion:
         {
             (maybeResponse1Data, maybeResponse1Context, _, maybeResponse1Error) in
             
@@ -419,10 +419,12 @@ open class ReplicantServerConnection: Connection
             
             self.replicantServerModel.polish.clientPublicKey = clientKey
             
+            let configChunkSize = Int(self.replicantServerModel.config.chunkSize)
+            
             //Generate random data of chunk size
-            var randomData = Data(count: self.replicantServerModel.config.chunkSize)
+            var randomData = Data(count: configChunkSize)
             let result = randomData.withUnsafeMutableBytes{
-                SecRandomCopyBytes(kSecRandomDefault, self.replicantServerModel.config.chunkSize, $0)
+                SecRandomCopyBytes(kSecRandomDefault, configChunkSize, $0)
             }
             
             guard result == errSecSuccess

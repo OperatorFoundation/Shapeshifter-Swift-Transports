@@ -19,7 +19,7 @@ open class ReplicantConnection: Connection
     public var viabilityUpdateHandler: ((Bool) -> Void)?
     public var config: ReplicantConfig
     public var replicantClientModel: ReplicantClientModel
-    let unencryptedChunkSize: Int
+    let unencryptedChunkSize: UInt16
     var sendTimer: Timer?
     
     var networkQueue = DispatchQueue(label: "Replicant Queue")
@@ -67,7 +67,7 @@ open class ReplicantConnection: Connection
         self.replicantClientModel = newReplicant
         self.decryptedReceiveBuffer = Data()
         self.sendBuffer = Data()
-        self.unencryptedChunkSize = replicantClientModel.config.chunkSize - (aesOverheadSize + payloadLengthOverhead)
+        self.unencryptedChunkSize = replicantClientModel.config.chunkSize - UInt16(aesOverheadSize + payloadLengthOverhead)
         
         introductions
         {
@@ -221,7 +221,7 @@ open class ReplicantConnection: Connection
         }
         else
         {
-            network.receive(minimumIncompleteLength: replicantClientModel.config.chunkSize, maximumLength: replicantClientModel.config.chunkSize)
+            network.receive(minimumIncompleteLength: Int(replicantClientModel.config.chunkSize), maximumLength: Int(replicantClientModel.config.chunkSize))
             { (maybeData, maybeContext, connectionComplete, maybeError) in
                 
                 // Check to see if we got data
@@ -441,7 +441,7 @@ open class ReplicantConnection: Connection
                 return
             }
             
-            let replicantChunkSize = self.replicantClientModel.config.chunkSize
+            let replicantChunkSize = Int(self.replicantClientModel.config.chunkSize)
             self.network.receive(minimumIncompleteLength: replicantChunkSize, maximumLength: replicantChunkSize, completion:
             {
                 (maybeResponse1Data, maybeResponse1Context, _, maybeResponse1Error) in
@@ -529,7 +529,7 @@ open class ReplicantConnection: Connection
         }
         
         let payloadData = self.sendBuffer
-        let paddingSize = unencryptedChunkSize - payloadSize
+        let paddingSize = Int(unencryptedChunkSize) - payloadSize
         let padding = Data(repeating: 0, count: paddingSize)
         let dataChunk = UInt16(payloadSize).data + payloadData + padding
         let maybeEncryptedData = self.replicantClientModel.polish.controller.encrypt(payload: dataChunk, usingPublicKey: self.replicantClientModel.polish.serverPublicKey)
