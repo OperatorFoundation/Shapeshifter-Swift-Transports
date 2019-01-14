@@ -13,6 +13,7 @@ enum ReplicantError: Error
     case invalidServerHandshake
     case invalidClientHandshake
     case invalidCertString
+    case invalidPort
     case decoderNotFound
     case decoderFailure
     case connectionClosed
