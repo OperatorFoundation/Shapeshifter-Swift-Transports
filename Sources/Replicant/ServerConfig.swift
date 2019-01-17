@@ -74,6 +74,47 @@ extension String
     }
 }
 
+extension NWEndpoint.Host: Encodable
+{
+    public func encode(to encoder: Encoder) throws
+    {
+        var container = encoder.singleValueContainer()
+        
+        switch self
+        {
+        case .ipv4(let ipv4Address):
+            do
+            {
+                let addressData = ipv4Address.rawValue
+                try container.encode(addressData)
+            }
+            catch let error
+            {
+                throw error
+            }
+        case .ipv6(let ipv6Address):
+            do
+            {
+                let addressData = ipv6Address.rawValue
+                try container.encode(addressData)
+            }
+            catch let error
+            {
+                throw error
+            }
+        case .name(let nameString, let maybeInterface):
+            do
+            {
+                try container.encode(nameString)
+            }
+            catch let error
+            {
+                throw error
+            }
+        }
+    }
+}
+
 extension NWEndpoint.Port: Encodable
 {
     public func encode(to encoder: Encoder) throws
@@ -92,6 +133,36 @@ extension NWEndpoint.Port: Encodable
     }
 }
 
+extension NWEndpoint.Host: Decodable
+{
+    public init(from decoder: Decoder) throws
+    {
+        do
+        {
+            let container = try decoder.singleValueContainer()
+            
+            switch self
+            {
+            case .ipv4(let ipv4Address):
+                do
+                {
+                    let ipv4Data = try container.decode(Data.self)
+                }
+                catch let error
+                {
+                    throw error
+                }
+                
+            default:
+                <#code#>
+            }
+        }
+        catch let error
+        {
+            throw error
+        }
+    }
+}
 extension NWEndpoint.Port: Decodable
 {
     public init(from decoder: Decoder) throws
