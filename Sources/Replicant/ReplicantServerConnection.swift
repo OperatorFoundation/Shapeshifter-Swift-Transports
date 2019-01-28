@@ -36,13 +36,6 @@ open class ReplicantServerConnection: Connection
                  using parameters: NWParameters,
                  andReplicantConfig replicantConfig: ReplicantServerConfig)
     {
-        guard let prot = parameters.defaultProtocolStack.internetProtocol, let _ = prot as? NWProtocolTCP.Options
-            else
-        {
-            print("Attempted to initialize Replicant not as a TCP connection.")
-            return nil
-        }
-        
         guard let newReplicant = ReplicantServerModel(withConfig: replicantConfig)
             else
         {
