@@ -10,13 +10,13 @@ import Network
 
 public struct ServerConfig: Codable
 {
-    public let ipString: String?
+    public let host: NWEndpoint.Host?
     public let port: NWEndpoint.Port
     
-    public init(withPort port: NWEndpoint.Port, andIP ipAddressString: String? = nil)
+    public init(withPort port: NWEndpoint.Port, andHost host: NWEndpoint.Host?)
     {
         self.port = port
-        self.ipString = ipAddressString
+        self.host = host
     }
     
     /// Creates and returns a JSON representation of the ServerConfig struct.
@@ -71,97 +71,5 @@ extension String
     var host: NWEndpoint.Host?
     {
         return NWEndpoint.Host(self)
-    }
-}
-
-extension NWEndpoint.Host: Encodable
-{
-    public func encode(to encoder: Encoder) throws
-    {
-        var container = encoder.singleValueContainer()
-        let hostString = "\(self)"
-        
-        do
-        {
-            try container.encode(hostString)
-        }
-        catch let error
-        {
-            throw error
-        }
-    }
-}
-
-extension NWEndpoint.Port: Encodable
-{
-    public func encode(to encoder: Encoder) throws
-    {
-        let portInt = self.rawValue
-        var container = encoder.singleValueContainer()
-        
-        do
-        {
-            try container.encode(portInt)
-        }
-        catch let error
-        {
-            throw error
-        }
-    }
-}
-
-extension NWEndpoint.Host: Decodable
-{
-    public init(from decoder: Decoder) throws
-    {
-        do
-        {
-            let container = try decoder.singleValueContainer()
-            
-            do
-            {
-                let hostString = try container.decode(String.self)
-                let host = NWEndpoint.Host(hostString)
-                self = host
-            }
-            catch let error
-            {
-                throw error
-            }
-        }
-        catch let error
-        {
-            throw error
-        }
-    }
-}
-extension NWEndpoint.Port: Decodable
-{
-    public init(from decoder: Decoder) throws
-    {
-        do
-        {
-            let container = try decoder.singleValueContainer()
-            
-            do
-            {
-                let portInt = try container.decode(UInt16.self)
-                guard let port = NWEndpoint.Port(rawValue: portInt)
-                else
-                {
-                    throw ReplicantError.invalidPort
-                }
-                
-                self = port
-            }
-            catch let error
-            {
-                throw error
-            }
-        }
-        catch let error
-        {
-            throw error
-        }
     }
 }
