@@ -146,8 +146,11 @@ open class ReplicantConnection: Connection
         self.sendBuffer = self.sendBuffer[unencryptedChunkSize...]
         
         // Turn off the timer
-        self.sendTimer!.invalidate()
-        self.sendTimer = nil
+        if self.sendTimer != nil
+        {
+            self.sendTimer!.invalidate()
+            self.sendTimer = nil
+        }
         
         // Keep calling network.send if the leftover data is at least chunk size
         self.network.send(content: maybeEncryptedData, contentContext: contentContext, isComplete: isComplete, completion: NWConnection.SendCompletion.contentProcessed(
@@ -156,8 +159,11 @@ open class ReplicantConnection: Connection
             if let error = maybeError
             {
                 print("Received an error on Send:\(error)")
-                self.sendTimer!.invalidate()
-                self.sendTimer = nil
+                if self.sendTimer != nil
+                {
+                    self.sendTimer!.invalidate()
+                    self.sendTimer = nil
+                }
                 
                 switch completion
                 {
