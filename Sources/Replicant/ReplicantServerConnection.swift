@@ -25,7 +25,7 @@ open class ReplicantServerConnection: Connection
     let unencryptedChunkSize: UInt16
     
     var sendTimer: Timer?
-    var dispatchGroup = DispatchGroup()
+    var bufferLock = DispatchGroup()
     var networkQueue = DispatchQueue(label: "Replicant Queue")
     var sendBufferQueue = DispatchQueue(label: "SendBuffer Queue")
     var network: Connection
@@ -36,8 +36,7 @@ open class ReplicantServerConnection: Connection
                  using parameters: NWParameters,
                  andReplicantConfig replicantConfig: ReplicantServerConfig)
     {
-        guard let newReplicant = ReplicantServerModel(withConfig: replicantConfig)
-            else
+        guard let newReplicant = ReplicantServerModel(withConfig: replicantConfig) else
         {
             print("\nFailed to initialize ReplicantConnection because we failed to initialize Replicant.\n")
             return nil
@@ -71,24 +70,22 @@ open class ReplicantServerConnection: Connection
     
     public func send(content: Data?, contentContext: NWConnection.ContentContext, isComplete: Bool, completion: NWConnection.SendCompletion)
     {
-        // Lock so that the timer cannot fire and change the buffer
-        dispatchGroup.enter()
+        // Lock so that the timer cannot fire and change the buffer.
+        bufferLock.enter()
         
-        guard let someData = content
-            else
+        guard let someData = content else
         {
             print("Received a send command with no content.")
             switch completion
             {
             case .contentProcessed(let handler):
                 handler(nil)
+                bufferLock.leave()
+                return
             default:
-                dispatchGroup.leave()
+                bufferLock.leave()
                 return
             }
-            
-            dispatchGroup.leave()
-            return
         }
         
         self.sendBuffer.append(someData)
@@ -99,35 +96,33 @@ open class ReplicantServerConnection: Connection
     func sendBufferChunks(contentContext: NWConnection.ContentContext, isComplete: Bool, completion: NWConnection.SendCompletion)
     {
         // Only encrypt and send over network when chunk size is available, leftovers to the buffer
-        guard self.sendBuffer.count >= (unencryptedChunkSize)
-            else
+        guard self.sendBuffer.count >= (unencryptedChunkSize) else
         {
             print("Received a send command with content less than chunk size.")
             switch completion
             {
-            case .contentProcessed(let handler):
-                handler(nil)
-                dispatchGroup.leave()
-                return
-            default:
-                dispatchGroup.leave()
-                return
+                case .contentProcessed(let handler):
+                    handler(nil)
+                    bufferLock.leave()
+                    return
+                default:
+                    bufferLock.leave()
+                    return
             }
         }
         
-        guard let clientPublicKey = self.replicantServerModel.polish.clientPublicKey
-        else
+        guard let clientPublicKey = self.replicantServerModel.polish.clientPublicKey else
         {
             print("Received a send command when we do not yet have the client's public key.")
             switch completion
             {
-            case .contentProcessed(let handler):
-                handler(NWError.posix(POSIXErrorCode.ENOATTR))
-                dispatchGroup.leave()
-                return
-            default:
-                dispatchGroup.leave()
-                return
+                case .contentProcessed(let handler):
+                    handler(NWError.posix(POSIXErrorCode.ENOATTR))
+                    bufferLock.leave()
+                    return
+                default:
+                    bufferLock.leave()
+                    return
             }
         }
         
@@ -140,56 +135,60 @@ open class ReplicantServerConnection: Connection
         self.sendBuffer = self.sendBuffer[unencryptedChunkSize...]
         
         // Turn off the timer
-        self.sendTimer!.invalidate()
-        self.sendTimer = nil
+        if sendTimer != nil
+        {
+            self.sendTimer!.invalidate()
+            self.sendTimer = nil
+        }
         
         // Keep calling network.send if the leftover data is at least chunk size
         self.network.send(content: maybeEncryptedData, contentContext: contentContext, isComplete: isComplete, completion: NWConnection.SendCompletion.contentProcessed(
-            { (maybeError) in
+        {
+            (maybeError) in
+            
+            if let error = maybeError
+            {
+                print("Received an error on Send:\(error)")
+                self.sendTimer!.invalidate()
+                self.sendTimer = nil
                 
-                if let error = maybeError
+                switch completion
                 {
-                    print("Received an error on Send:\(error)")
-                    self.sendTimer!.invalidate()
-                    self.sendTimer = nil
-                    
-                    switch completion
-                    {
                     case .contentProcessed(let handler):
                         handler(error)
-                        self.dispatchGroup.leave()
+                        self.bufferLock.leave()
                         return
                     default:
-                        self.dispatchGroup.leave()
+                        self.bufferLock.leave()
                         return
-                    }
+                }
+            }
+            
+            if self.sendBuffer.count >= (self.unencryptedChunkSize)
+            {
+                // Play it again Sam
+                self.sendBufferChunks(contentContext: contentContext, isComplete: isComplete, completion: completion)
+            }
+            else
+            {
+                // Start the timer
+                if self.sendBuffer.count > 0
+                {
+                    self.sendTimer = Timer(timeInterval: TimeInterval(self.replicantConfig.chunkTimeout), target: self, selector: #selector(self.chunkTimeout), userInfo: nil, repeats: true)
                 }
                 
-                if self.sendBuffer.count >= (self.unencryptedChunkSize)
+                switch completion
                 {
-                    // Play it again Sam
-                    self.sendBufferChunks(contentContext: contentContext, isComplete: isComplete, completion: completion)
-                }
-                else
-                {
-                    // Start the timer
-                    if self.sendBuffer.count > 0
-                    {
-                        self.sendTimer = Timer(timeInterval: TimeInterval(self.replicantConfig.chunkTimeout), target: self, selector: #selector(self.chunkTimeout), userInfo: nil, repeats: true)
-                    }
-                    
-                    switch completion
-                    {
                     // FIXME: There might be data in the buffer
                     case .contentProcessed(let handler):
                         handler(nil)
-                        self.dispatchGroup.leave()
+                        self.bufferLock.leave()
                         return
                     default:
-                        self.dispatchGroup.leave()
+                        self.bufferLock.leave()
                         return
-                    }
                 }
+            }
         }))
     }
     
@@ -200,6 +199,8 @@ open class ReplicantServerConnection: Connection
     
     public func receive(minimumIncompleteLength: Int, maximumLength: Int, completion: @escaping (Data?, NWConnection.ContentContext?, Bool, NWError?) -> Void)
     {
+        bufferLock.enter()
+        
         // Check to see if we have min length data in decrypted buffer before calling network receive. Skip the call if we do.
         if decryptedReceiveBuffer.count >= minimumIncompleteLength
         {
@@ -213,11 +214,14 @@ open class ReplicantServerConnection: Connection
             self.decryptedReceiveBuffer = self.decryptedReceiveBuffer[sliceLength...]
             
             completion(returnData, NWConnection.ContentContext.defaultMessage, false, nil)
+            bufferLock.leave()
+            return
         }
         else
         {
             network.receive(minimumIncompleteLength: Int(replicantServerModel.config.chunkSize), maximumLength: Int(replicantServerModel.config.chunkSize))
-            { (maybeData, maybeContext, connectionComplete, maybeError) in
+            {
+                (maybeData, maybeContext, connectionComplete, maybeError) in
                 
                 // Check to see if we got data
                 guard let someData = maybeData
@@ -231,6 +235,8 @@ open class ReplicantServerConnection: Connection
                 let maybeReturnData = self.handleReceivedData(minimumIncompleteLength: minimumIncompleteLength, maximumLength: maximumLength, encryptedData: someData)
                 
                 completion(maybeReturnData, maybeContext, connectionComplete, maybeError)
+                self.bufferLock.leave()
+                return
             }
         }
     }
@@ -540,12 +546,9 @@ open class ReplicantServerConnection: Connection
     
     @objc func chunkTimeout()
     {
-        // Respect the lock
-        dispatchGroup.wait()
-        
         // Lock so that send isn't called while we're working
-        dispatchGroup.enter()
-        
+        bufferLock.enter()
+
         self.sendTimer = nil
         
         // Double check the buffer to be sure that there is still data in there.
@@ -553,18 +556,16 @@ open class ReplicantServerConnection: Connection
         
         let payloadSize = sendBuffer.count
         
-        guard payloadSize > 0, payloadSize < replicantServerModel.config.chunkSize
-            else
+        guard payloadSize > 0, payloadSize < replicantServerModel.config.chunkSize else
         {
-            dispatchGroup.leave()
+            bufferLock.leave()
             return
         }
         
-        guard let clientPublicKey = self.replicantServerModel.polish.clientPublicKey
-            else
+        guard let clientPublicKey = self.replicantServerModel.polish.clientPublicKey else
         {
             print("Received a send command when we do not yet have the client's public key.")
-            dispatchGroup.leave()
+            bufferLock.leave()
             return
         }
         
@@ -579,17 +580,21 @@ open class ReplicantServerConnection: Connection
         
         // Keep calling network.send if the leftover data is at least chunk size
         self.network.send(content: maybeEncryptedData, contentContext: .defaultMessage, isComplete: false, completion: NWConnection.SendCompletion.contentProcessed(
-        { (maybeError) in
+        {
+            (maybeError) in
             
             if let error = maybeError
             {
                 print("Received an error on Send:\(error)")
                 
-                self.dispatchGroup.leave()
+                self.bufferLock.leave()
                 return
             }
-            
-            self.dispatchGroup.leave()
+            else
+            {
+                self.bufferLock.leave()
+                return
+            }
         }))
     }
     
