@@ -310,16 +310,28 @@ open class ReplicantConnection: Connection
     func voightKampffTest(completion: @escaping (Error?) -> Void)
     {
         // Tone Burst
-        self.toneBurstSend
-        { (maybeError) in
-            
-            guard maybeError == nil
-            else
+        if var toneBurst = self.replicantClientModel.toneBurst
+        {
+            toneBurst.play(connection: self.network)
             {
-                print("ToneBurst failed: \(maybeError!)")
-                return
+                maybeError in
+                
+                guard maybeError == nil else
+                {
+                    print("ToneBurst failed: \(maybeError!)")
+                    return
+                }
+                
+                self.handshake
+                {
+                    (maybeHandshakeError) in
+                    
+                    completion(maybeHandshakeError)
+                }
             }
-            
+        }
+        else
+        {
             self.handshake
             {
                 (maybeHandshakeError) in
@@ -327,105 +339,6 @@ open class ReplicantConnection: Connection
                 completion(maybeHandshakeError)
             }
         }
-    }
-    
-    func toneBurstSend(completion: @escaping (Error?) -> Void)
-    {
-        guard let toneBurst = replicantClientModel.toneBurst
-        else
-        {
-            print("\nOur instance of Replicant does not have a ToneBurst instance.\n")
-            return
-        }
-        
-        let sendState = toneBurst.generate()
-        
-        switch sendState
-        {
-        case .generating(let nextTone):
-            print("\nGenerating tone bursts.\n")
-            network.send(content: nextTone, contentContext: .defaultMessage, isComplete: false, completion: NWConnection.SendCompletion.contentProcessed(
-            {
-                (maybeToneSendError) in
-                
-                guard maybeToneSendError == nil
-                    else
-                {
-                    print("Received error while sending tone burst: \(maybeToneSendError!)")
-                    return
-                }
-                
-                self.toneBurstReceive(finalToneSent: false, completion: completion)
-            }))
-            
-        case .completion:
-            print("\nGenerated final toneburst\n")
-            toneBurstReceive(finalToneSent: true, completion: completion)
-            
-        case .failure:
-            print("\nFailed to generate requested ToneBurst")
-            completion(ToneBurstError.generateFailure)
-        }
-
-        
-    }
-    
-    func toneBurstReceive(finalToneSent: Bool, completion: @escaping (Error?) -> Void)
-    {
-        guard let toneBurst = replicantClientModel.toneBurst
-            else
-        {
-            print("\nOur instance of Replicant does not have a ToneBurst instance.\n")
-            return
-        }
-        
-        guard let toneLength = self.replicantClientModel.toneBurst?.nextRemoveSequenceLength
-            else
-        {
-            // Tone burst is finished
-            return
-        }
-        
-        self.network.receive(minimumIncompleteLength: Int(toneLength), maximumLength: Int(toneLength) , completion:
-            {
-                (maybeToneResponseData, maybeToneResponseContext, connectionComplete, maybeToneResponseError) in
-                
-                guard maybeToneResponseError == nil
-                    else
-                {
-                    print("\nReceived an error in the server tone response: \(maybeToneResponseError!)\n")
-                    return
-                }
-                
-                guard let toneResponseData = maybeToneResponseData
-                    else
-                {
-                    print("\nTone response was empty.\n")
-                    return
-                }
-                
-                let receiveState = toneBurst.remove(newData: toneResponseData)
-                
-                switch receiveState
-                {
-                case .completion:
-                    if !finalToneSent
-                    {
-                        self.toneBurstSend(completion: completion)
-                    }
-                    else
-                    {
-                        completion(nil)
-                    }
-                    
-                case .receiving:
-                    self.toneBurstSend(completion: completion)
-                    
-                case .failure:
-                    print("\nTone burst remove failure.\n")
-                    completion(ToneBurstError.removeFailure)
-                }
-        })
     }
     
     func handshake(completion: @escaping (Error?) -> Void)
