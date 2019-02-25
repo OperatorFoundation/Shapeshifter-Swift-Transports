@@ -302,25 +302,16 @@ open class ReplicantServerConnection: Connection
                 guard maybeError == nil else
                 {
                     print("ToneBurst failed: \(maybeError!)")
+                    completion(nil)
                     return
                 }
                 
-                self.handshake
-                    {
-                        (maybeHandshakeError) in
-                        
-                        completion(maybeHandshakeError)
-                }
+                completion(maybeError)
             }
         }
         else
         {
-            self.handshake
-                {
-                    (maybeHandshakeError) in
-                    
-                    completion(maybeHandshakeError)
-            }
+            completion(nil)
         }
     }
         
@@ -424,18 +415,10 @@ open class ReplicantServerConnection: Connection
         {
             (maybeVKError) in
             
-            // Set the connection state
-            guard let stateHandler = self.stateUpdateHandler
-                else
-            {
-                completion(IntroductionsError.nilStateHandler)
-                return
-            }
-            
             guard maybeVKError == nil
                 else
             {
-                stateHandler(NWConnection.State.cancelled)
+                self.stateUpdateHandler?(NWConnection.State.cancelled)
                 completion(maybeVKError)
                 return
             }
@@ -444,17 +427,18 @@ open class ReplicantServerConnection: Connection
             {
                 (maybeHandshakeError) in
                 
-                guard maybeHandshakeError == nil
-                    else
+                if let handshakeError = maybeHandshakeError
                 {
-                    stateHandler(NWConnection.State.cancelled)
-                    completion(maybeHandshakeError)
+                    self.stateUpdateHandler?(NWConnection.State.cancelled)
+                    completion(handshakeError)
                     return
                 }
+                else
+                {
+                    self.stateUpdateHandler?(NWConnection.State.ready)
+                    completion(nil)
+                }
             })
-            
-            stateHandler(NWConnection.State.ready)
-            completion(nil)
         }
     }
     
