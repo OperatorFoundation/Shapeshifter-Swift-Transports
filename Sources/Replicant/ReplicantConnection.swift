@@ -48,14 +48,6 @@ open class ReplicantConnection: Connection
                 using parameters: NWParameters,
                 and config: ReplicantConfig)
     {
-        ///FIXME: This check is failing though parameters are tcp, indefinite
-//        guard let prot = parameters.defaultProtocolStack.internetProtocol, let _ = prot as? NWProtocolTCP.Options
-//            else
-//        {
-//            print("Attempted to initialize Replicant not as a TCP connection. Parameters: \(parameters.debugDescription)")
-//            return nil
-//        }
-
         guard let newReplicant = ReplicantClientModel(withConfig: config)
         else
         {
@@ -425,10 +417,10 @@ open class ReplicantConnection: Connection
                     completion(maybeHandshakeError)
                     return
                 }
+                
+                stateHandler(NWConnection.State.ready)
+                completion(nil)
             })
-            
-            stateHandler(NWConnection.State.ready)
-            completion(nil)
         }
     }
     
