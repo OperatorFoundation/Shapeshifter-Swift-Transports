@@ -7,7 +7,7 @@
 
 import Foundation
 import Network
-
+import SwiftQueue
 import Transport
 import ReplicantSwift
 
@@ -24,6 +24,7 @@ open class ReplicantServerConnection: Connection
     
     let unencryptedChunkSize: UInt16
     
+    var logQueue: Queue<String>
     var sendTimer: Timer?
     var bufferLock = DispatchGroup()
     var networkQueue = DispatchQueue(label: "Replicant Queue")
@@ -33,15 +34,18 @@ open class ReplicantServerConnection: Connection
     var decryptedReceiveBuffer = Data()
     
     public init?(connection: Connection,
-                 using parameters: NWParameters,
-                 andReplicantConfig replicantConfig: ReplicantServerConfig)
+                 parameters: NWParameters,
+                 replicantConfig: ReplicantServerConfig,
+                 logQueue: Queue<String>)
     {
-        guard let newReplicant = ReplicantServerModel(withConfig: replicantConfig) else
+        guard let newReplicant = ReplicantServerModel(withConfig: replicantConfig, logQueue: logQueue)
+        else
         {
             print("\nFailed to initialize ReplicantConnection because we failed to initialize Replicant.\n")
             return nil
         }
         
+        self.logQueue = logQueue
         self.network = connection
         self.replicantConfig = replicantConfig
         self.replicantServerModel = newReplicant

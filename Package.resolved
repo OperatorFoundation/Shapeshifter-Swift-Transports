@@ -96,8 +96,8 @@
         "repositoryURL": "https://github.com/OperatorFoundation/ReplicantSwift.git",
         "state": {
           "branch": null,
-          "revision": "edc14c0bea6ad21ef56dc683e07c4fdce7062646",
-          "version": "0.3.2"
+          "revision": "5821acbb534709c2df468038d157df0175a99645",
+          "version": "0.3.3"
         }
       },
       {

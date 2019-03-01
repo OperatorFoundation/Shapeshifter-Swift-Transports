@@ -54,7 +54,7 @@ open class ReplicantConnection: Connection
                 config: ReplicantConfig,
                 logQueue: Queue<String>)
     {
-        guard let newReplicant = ReplicantClientModel(withConfig: config)
+        guard let newReplicant = ReplicantClientModel(withConfig: config, logQueue: logQueue)
         else
         {
             logQueue.enqueue("\nFailed to initialize ReplicantConnection because we failed to initialize Replicant.\n")
