@@ -9,6 +9,7 @@ import Foundation
 import Transport
 import Network
 import ReplicantSwift
+import SwiftQueue
 
 open class ReplicantConnectionFactory
 {
@@ -17,24 +18,28 @@ open class ReplicantConnectionFactory
     public var port: NWEndpoint.Port?
     public var config: ReplicantConfig
     
-    public init(host: NWEndpoint.Host, port: NWEndpoint.Port, config: ReplicantConfig)
+    var logQueue: Queue<String>
+    
+    public init(host: NWEndpoint.Host, port: NWEndpoint.Port, config: ReplicantConfig, logQueue: Queue<String>)
     {
         self.host = host
         self.port = port
         self.config = config
+        self.logQueue = logQueue
     }
     
-    public init(connection: Connection, config: ReplicantConfig)
+    public init(connection: Connection, config: ReplicantConfig, logQueue: Queue<String>)
     {
         self.connection = connection
         self.config = config
+        self.logQueue = logQueue
     }
     
     public func connect(using parameters: NWParameters) -> Connection?
     {
         if let currentConnection = connection
         {
-            return ReplicantConnection(connection: currentConnection, using: parameters, and: config)
+            return ReplicantConnection(connection: currentConnection, parameters: parameters, config: config, logQueue: logQueue)
         }
         else
         {
@@ -44,7 +49,7 @@ open class ReplicantConnectionFactory
                 return nil
             }
             
-            return ReplicantConnection(host: currentHost, port: currentPort, using: parameters, and: config)
+            return ReplicantConnection(host: currentHost, port: currentPort, parameters: parameters, config: config, logQueue: logQueue)
         }
     }
 }

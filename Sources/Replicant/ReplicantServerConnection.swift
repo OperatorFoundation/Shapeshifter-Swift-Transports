@@ -54,7 +54,7 @@ open class ReplicantServerConnection: Connection
             guard maybeIntroError == nil
                 else
             {
-                print("\nError attempting to meet the server during Replicant Connection Init.\n")
+                print("\nError attempting to meet the server during Replicant Connection Init: \(maybeIntroError!)\n")
                 return
             }
             
@@ -317,6 +317,7 @@ open class ReplicantServerConnection: Connection
         
     func handshake(completion: @escaping (Error?) -> Void)
     {
+        print("\n🤝  Replicant Server handshake called.")
         let replicantChunkSize = self.replicantServerModel.config.chunkSize
         let keySize = 64
         let keyDataSize = keySize + 1
@@ -326,11 +327,14 @@ open class ReplicantServerConnection: Connection
         {
             (maybeResponse1Data, maybeResponse1Context, _, maybeResponse1Error) in
             
+            print("\n🤝  network.receive callback from handshake.")
+            print("\n🤝  Data received: \(String(describing: maybeResponse1Data?.bytes))")
+            
             // Parse received public key and store it
             guard maybeResponse1Error == nil
             else
             {
-                print("\nReceived an error while waiting for response from server acfter sending key: \(maybeResponse1Error!)\n")
+                print("\n\n🤝  Received an error while waiting for response from server acfter sending key: \(maybeResponse1Error!)\n")
                 completion(maybeResponse1Error!)
                 return
             }
