@@ -24,6 +24,8 @@ open class ReplicantConnection: Connection
     
     var networkQueue = DispatchQueue(label: "Replicant Queue")
     var sendBufferQueue = DispatchQueue(label: "SendBuffer Queue")
+    //var sendBufferLock = DispatchGroup()
+    //var receiveBufferLock = DispatchGroup()
     var bufferLock = DispatchGroup()
     var network: Connection
     var decryptedReceiveBuffer: Data
@@ -203,6 +205,7 @@ open class ReplicantConnection: Connection
     
     public func receive(minimumIncompleteLength: Int, maximumLength: Int, completion: @escaping (Data?, NWConnection.ContentContext?, Bool, NWError?) -> Void)
     {
+        print("\n🙋‍♀️  Replicant connection receive called.\n")
         bufferLock.enter()
         
         // Check to see if we have min length data in decrypted buffer before calling network receive. Skip the call if we do.
@@ -231,7 +234,7 @@ open class ReplicantConnection: Connection
                 guard let someData = maybeData, someData.count == self.replicantClientModel.config.chunkSize
                     else
                 {
-                    print("\nReceive called with no content.\n")
+                    print("\n🙋‍♀️  Receive called with no content.\n")
                     completion(maybeData, maybeContext, connectionComplete, maybeError)
                     return
                 }
@@ -319,6 +322,7 @@ open class ReplicantConnection: Connection
     
     func handshake(completion: @escaping (Error?) -> Void)
     {
+        print("\n🤝  Client handshake initiation.")
         // Send public key to server
         guard let ourPublicKeyData = self.replicantClientModel.polish.controller.generateAndEncryptPaddedKeyData(
             fromKey: self.replicantClientModel.polish.publicKey,
@@ -326,7 +330,7 @@ open class ReplicantConnection: Connection
             usingServerKey: self.replicantClientModel.polish.serverPublicKey)
             else
         {
-            print("\nUnable to generate public key data.\n")
+            print("\n🤝  Unable to generate public key data.\n")
             completion(HandshakeError.publicKeyDataGenerationFailure)
             return
         }
@@ -334,11 +338,12 @@ open class ReplicantConnection: Connection
         self.network.send(content: ourPublicKeyData, contentContext: .defaultMessage, isComplete: false, completion: NWConnection.SendCompletion.contentProcessed(
         {
             (maybeError) in
-                
+            
+            print("\n🤝  Handshake: Returned from sending our public key to the server.\n")
             guard maybeError == nil
                 else
             {
-                print("\nReceived error from server when sending our key: \(maybeError!)")
+                print("\n🤝  Received error from server when sending our key: \(maybeError!)")
                 completion(maybeError!)
                 return
             }
@@ -348,22 +353,25 @@ open class ReplicantConnection: Connection
             {
                 (maybeResponse1Data, maybeResponse1Context, _, maybeResponse1Error) in
                 
+                print("\n🤝  Callback from handshake network.receive called.")
                 guard maybeResponse1Error == nil
                     else
                 {
-                    print("\nReceived an error while waiting for response from server acfter sending key: \(maybeResponse1Error!)\n")
+                    print("\n🤝  Received an error while waiting for response from server acfter sending key: \(maybeResponse1Error!)\n")
                     completion(maybeResponse1Error!)
                     return
                 }
                 
                 // This data is meaningless it can be discarded
-                guard let _ = maybeResponse1Data
+                guard let reponseData = maybeResponse1Data
                     else
                 {
                     print("\nServer key response did not contain data.\n")
                     completion(nil)
                     return
                 }
+                
+                print("\nReceived response data from the server during handshake: \(reponseData)\n")
             })
         }))
     }
@@ -388,12 +396,14 @@ open class ReplicantConnection: Connection
                 
                 if let handshakeError = maybeHandshakeError
                 {
+                    print("Received a handshake error: \(handshakeError)")
                     self.stateUpdateHandler?(NWConnection.State.cancelled)
                     completion(handshakeError)
                     return
                 }
                 else
                 {
+                    print("\n🤝  Client successfully completed handshake. 👏👏👏👏\n")
                     self.stateUpdateHandler?(NWConnection.State.ready)
                     completion(nil)
                 }
