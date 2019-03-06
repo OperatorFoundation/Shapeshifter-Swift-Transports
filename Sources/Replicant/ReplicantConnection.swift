@@ -13,7 +13,7 @@ import ReplicantSwift
 
 open class ReplicantConnection: Connection
 {
-    public let aesOverheadSize = 81
+    public let aesOverheadSize = 113
     public let payloadLengthOverhead = 2
     public var stateUpdateHandler: ((NWConnection.State) -> Void)?
     public var viabilityUpdateHandler: ((Bool) -> Void)?
@@ -340,6 +340,9 @@ open class ReplicantConnection: Connection
             return
         }
         
+        logQueue.enqueue("\n🤝  Sending Public Key Data")
+        logQueue.enqueue("\(ourPublicKeyData.count)")
+        logQueue.enqueue("\(ourPublicKeyData.bytes)")
         self.network.send(content: ourPublicKeyData, contentContext: .defaultMessage, isComplete: false, completion: NWConnection.SendCompletion.contentProcessed(
         {
             (maybeError) in

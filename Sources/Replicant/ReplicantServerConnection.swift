@@ -14,7 +14,7 @@ import ReplicantSwift
 open class ReplicantServerConnection: Connection
 {
     // FIXME: Constants called out twice, should be global
-    public let aesOverheadSize = 81
+    public let aesOverheadSize = 113
     public let payloadLengthOverhead = 2
     
     public var stateUpdateHandler: ((NWConnection.State) -> Void)?

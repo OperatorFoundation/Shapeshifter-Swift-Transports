@@ -11,6 +11,7 @@ import XCTest
 
 import Network
 import ReplicantSwift
+import SwiftQueue
 
 class ReplicantTests: XCTestCase
 {
@@ -26,7 +27,7 @@ class ReplicantTests: XCTestCase
         let chunkTimeout: Int = 1000
         let aesOverheadSize = 113
         let unencryptedChunkSize = chunkSize - UInt16(aesOverheadSize + 2)
-        let testIPString = "192.168.1.72"
+        let testIPString = "10.0.1.13"
         let testPort: UInt16 = 1234
         
         guard let serverPublicKey = Data(base64Encoded: "BL7+Vd087+p/roRp6jSzIWzG3qXhk2S4aefLcYjwRtxGanWUoeoIWmMkAHfiF11vA9d6rhiSjPDL0WFGiSr/Et+wwG7gOrLf8yovmtgSJlooqa7lcMtipTxegPAYtd5yZg==")
@@ -57,8 +58,8 @@ class ReplicantTests: XCTestCase
             XCTFail()
             return
         }
-        
-        let clientConnectionFactory = ReplicantConnectionFactory(host: host, port: port, config: replicantClientConfig)
+        let logQueue =  Queue<String>()
+        let clientConnectionFactory = ReplicantConnectionFactory(host: host, port: port, config: replicantClientConfig, logQueue: logQueue)
         guard var clientConnection = clientConnectionFactory.connect(using: .tcp)
             else
         {
