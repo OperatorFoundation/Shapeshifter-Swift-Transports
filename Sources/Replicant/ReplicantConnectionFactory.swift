@@ -11,7 +11,7 @@ import Network
 import ReplicantSwift
 import SwiftQueue
 
-open class ReplicantConnectionFactory
+open class ReplicantConnectionFactory: ConnectionFactory
 {
     public var connection: Connection?
     public var host: NWEndpoint.Host?

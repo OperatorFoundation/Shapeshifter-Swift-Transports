@@ -10,7 +10,7 @@ import Transport
 import Network
 import ProteanSwift
 
-open class ProteanConnectionFactory
+open class ProteanConnectionFactory: ConnectionFactory
 {
     public var connection: Connection?
     public var host: NWEndpoint.Host?
