@@ -142,8 +142,7 @@ struct WispEncoder
 //        print("encoder nonce key: \(nonce.prefix.count)")
         
 //        guard let encodedBytes = sodium.secretBox.seal(message: payload, secretKey: secretBoxKey, nonce: self.nonce.data)
-        guard let encodedBytes = sodium.secretBox.seal(message: payload.bytes, secretKey: secretBoxKey.bytes, nonce: self.nonce.data.bytes)
-        else
+        guard let encodedBytes = sodium.secretBox.seal(message: payload.bytes, secretKey: secretBoxKey.bytes, nonce: self.nonce.data.bytes) else
         {
             return nil
         }

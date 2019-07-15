@@ -191,7 +191,7 @@ public class WispConnection: Connection
         networkConnection.send(content: frame,
                                contentContext: contentContext,
                                isComplete: isComplete,
-                               completion: completion)
+                               completion: sendCompletion)
     }
     
     public func receive(completion: @escaping (Data?, NWConnection.ContentContext?, Bool, NWError?) -> Void)

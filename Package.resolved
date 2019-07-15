@@ -11,6 +11,15 @@
         }
       },
       {
+        "package": "Clibsodium",
+        "repositoryURL": "https://github.com/tiwoc/Clibsodium.git",
+        "state": {
+          "branch": null,
+          "revision": "2ac72772aae26b2da0b15c253d9bb79ba452f66a",
+          "version": "1.0.0"
+        }
+      },
+      {
         "package": "CryptoSwift",
         "repositoryURL": "https://github.com/krzyzanowskim/CryptoSwift.git",
         "state": {
@@ -69,8 +78,8 @@
         "repositoryURL": "https://github.com/OperatorFoundation/swift-sodium",
         "state": {
           "branch": null,
-          "revision": "bf86f64a4f28a75f6683078540f24727fad1b12c",
-          "version": "0.8.2"
+          "revision": "1e66f454379716cc7f2be875991ec7f6e37c2132",
+          "version": "0.8.4"
         }
       },
       {
