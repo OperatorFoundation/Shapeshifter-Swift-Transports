@@ -9,7 +9,7 @@ import Foundation
 import Transport
 import Network
 
-open class Rot13ConnectionFactory
+open class Rot13ConnectionFactory: ConnectionFactory
 {
     public var connection: Connection?
     public var host: NWEndpoint.Host?

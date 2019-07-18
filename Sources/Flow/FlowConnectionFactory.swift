@@ -10,7 +10,7 @@ import Transport
 import Network
 import Flower
 
-open class FlowConnectionFactory
+open class FlowConnectionFactory: ConnectionFactory
 {
     let flower: FlowerController
     let host: NWEndpoint.Host

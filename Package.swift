@@ -1,4 +1,4 @@
-// swift-tools-version:4.0
+// swift-tools-version:5.0
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -19,7 +19,6 @@ let package = Package(
         .package(url: "https://github.com/OperatorFoundation/ReplicantSwift.git", from: "0.3.0"),
         .package(url: "https://github.com/OperatorFoundation/Transport.git", from: "0.0.22"),
         .package(url: "https://github.com/OperatorFoundation/swift-sodium", from: "0.8.4"),
-        //.package(url: "https://github.com/jedisct1/swift-sodium", from: "0.8.0"),
         .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", from: "1.0.0"),
         .package(url: "https://github.com/OperatorFoundation/HKDF.git", from: "3.0.2"),
         .package(url: "https://github.com/OperatorFoundation/Elligator.git", from: "0.1.0"),

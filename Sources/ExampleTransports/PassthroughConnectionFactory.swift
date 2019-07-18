@@ -9,7 +9,7 @@ import Foundation
 import Transport
 import Network
 
-open class PassthroughConnectionFactory
+open class PassthroughConnectionFactory: ConnectionFactory
 {
     public var connection: Connection?
     public var host: NWEndpoint.Host?
