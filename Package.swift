@@ -10,6 +10,7 @@ let package = Package(
         .library(name: "Wisp", targets: ["Wisp"]),
         .library(name: "Protean", targets: ["Protean"]),
         .library(name: "Replicant", targets: ["Replicant"]),
+        .library(name: "Optimizer", targets: ["Optimizer"]),
         .library(name: "Flow", targets: ["Flow"]),
         .library(name: "ExampleTransports", targets: ["ExampleTransports"])
         ],
@@ -33,10 +34,12 @@ let package = Package(
         .target(name: "Flow", dependencies: ["Flower"]),
         .target(name: "Protean", dependencies: ["ProteanSwift", "Transport", "SwiftQueue"]),
         .target(name: "Replicant", dependencies: ["ReplicantSwift", "Transport", "SwiftQueue"]),
+        .target(name: "Optimizer", dependencies: ["Transport", "SwiftQueue"]),
         .target(name: "ExampleTransports", dependencies: ["Transport"]),
         .testTarget(name: "WispTests", dependencies: ["Wisp"]),
         .testTarget(name: "ProteanTests", dependencies: ["Protean"]),
         .testTarget(name: "ReplicantTests", dependencies: ["Replicant"]),
+        .testTarget(name: "OptimizerTests", dependencies: ["Optimizer"]),
         .testTarget(name: "ExampleTransportsTests", dependencies: ["ExampleTransports"])
         ]
 )

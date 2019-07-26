@@ -12,6 +12,7 @@ import Transport
 // TODO: Move to Optimizer Target
 public protocol Strategy {
     func choose(fromTransports transports: [ConnectionFactory]) -> ConnectionFactory?
+    func report(transport: ConnectionFactory, successfulConnection: Bool, millisecondsToConnect: Int)
 }
 
 //enum Transport

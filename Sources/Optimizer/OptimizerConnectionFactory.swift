@@ -9,45 +9,45 @@ import Foundation
 import Transport
 import Network
 
-open class OptimizerConnectionFactory: ConnectionFactory, Strategy
+open class OptimizerConnectionFactory: ConnectionFactory
 {
-    var currentConnectionFactory: ConnectionFactory?
-    var currentConnectionParameters: NWParameters = .tcp
+    let possibleTransports: [ConnectionFactory]
+    let currentStrategy: Strategy
     
-    public init?(possibleTransports transports: [ConnectionFactory])
+    public init?(possibleTransports transports: [ConnectionFactory], strategy: Strategy)
     {
-        if let connectionFactory = chooseFirst(fromTransports: transports)
-        {
-            self.currentConnectionFactory = connectionFactory
-        }
-        else
-        {
-            return nil
-        }
-    }
-    
-    public func choose(fromTransports transports: [ConnectionFactory]) -> ConnectionFactory?
-    {
-        return chooseFirst(fromTransports: transports)
-    }
-    
-    func chooseFirst(fromTransports transports: [ConnectionFactory]) -> ConnectionFactory?
-    {
-        return transports.first
-    }
-    
-    func chooseRandom(fromTransports transports: [ConnectionFactory]) -> ConnectionFactory?
-    {
-        return transports.randomElement()
+        self.possibleTransports = transports
+        self.currentStrategy = strategy
     }
     
     public func connect(using parameters: NWParameters) -> Connection?
     {
-        guard let connectionFactory = currentConnectionFactory
-            else { return nil }
+        var attemptCount = 0
+        var connection: Connection?
         
-        return connectionFactory.connect(using: currentConnectionParameters)
+        while connection == nil && attemptCount < 10
+        {
+            attemptCount += 1
+            print("\nOptimizer is attempting to connect.\nRound \(attemptCount)")
+            
+            guard let connectionFactory = currentStrategy.choose(fromTransports: possibleTransports)
+                else
+            {
+                continue
+            }
+            
+            let preConnectionDate = Date()
+            connection = connectionFactory.connect(using: parameters)
+            let postConnectionDate = Date()
+            
+            // If we don't have a connection yet, report it
+            if connection == nil
+            {
+                let connectTime = postConnectionDate.timeIntervalSince(preConnectionDate)
+                currentStrategy.report(transport: connectionFactory, successfulConnection: false, millisecondsToConnect: Int(connectTime*1000))
+            }
+        }
+        
+        return connection
     }
-    
-    
 }
