@@ -16,9 +16,7 @@ import ProteanSwift
 
 class ProteanTests: XCTestCase
 {
-    
-    //let ipAddressString = "159.203.158.90"
-    let ipAddressString = "127.0.0.1"
+    let ipAddressString = ""
     let portString = "1234"
     
     func makeSampleProteanConfig() -> Protean.Config

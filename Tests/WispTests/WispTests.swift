@@ -20,7 +20,7 @@ import Network
 class Shapeshifter_WispTests: XCTestCase
 {
     let certString = "60RNHBMRrf+aOSPzSj8bD4ASGyyPl0mkaOUAQsAYljSkFB0G8B8m9fGvGJCpOxwoXS1baA"
-    let ipAddressString = "159.203.158.90"
+    let ipAddressString = ""
     let portString = "1234"
     let secretKeyMaterial = Data(repeating: 0x0A, count: keyMaterialLength)
     static let publicKey = Data(bytes: [139, 210, 37, 89, 10, 47, 113, 85, 13, 53, 118, 181, 28, 8, 202, 146, 220, 206, 224, 143, 24, 159, 235, 136, 173, 194, 120, 171, 201, 54, 238, 76])

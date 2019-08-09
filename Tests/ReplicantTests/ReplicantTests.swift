@@ -27,7 +27,7 @@ class ReplicantTests: XCTestCase
         let chunkTimeout: Int = 1000
         let aesOverheadSize = 113
         let unencryptedChunkSize = chunkSize - UInt16(aesOverheadSize + 2)
-        let testIPString = "10.0.1.13"
+        let testIPString = ""
         let testPort: UInt16 = 1234
         
         guard let serverPublicKey = Data(base64Encoded: "BL7+Vd087+p/roRp6jSzIWzG3qXhk2S4aefLcYjwRtxGanWUoeoIWmMkAHfiF11vA9d6rhiSjPDL0WFGiSr/Et+wwG7gOrLf8yovmtgSJlooqa7lcMtipTxegPAYtd5yZg==")

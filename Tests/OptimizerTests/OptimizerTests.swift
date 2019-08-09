@@ -6,28 +6,97 @@
 //
 
 import XCTest
+import Network
+import Transport
+import Protean
+import ProteanSwift
+import Wisp
+
 @testable import Optimizer
 
-class OptimizerTests: XCTestCase {
+class OptimizerTests: XCTestCase
+{
 
-    override func setUp() {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-    }
-
-    override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-    }
-
-    func testExample() {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-    }
-
-    func testPerformanceExample() {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
+    func testChooseFirst()
+    {
+        let ipAddressString = ""
+        let portString = "1234"
+        let certString = ""
+        let proteanConfig = Protean.Config(byteSequenceConfig: sampleSequenceConfig(),
+                                           encryptionConfig: sampleEncryptionConfig(),
+                                           headerConfig: sampleHeaderConfig())
+        
+        guard let portUInt = UInt16(portString), let port = NWEndpoint.Port(rawValue: portUInt)
+            else
+        {
+            print("Unable to resolve port for test")
+            XCTFail()
+            return
         }
+        guard let ipv4Address = IPv4Address(ipAddressString)
+            else
+        {
+            print("Unable to resolve ipv4 address for test")
+            XCTFail()
+            return
+        }
+        
+        //let connected = expectation(description: "Connected to server.")
+        let host = NWEndpoint.Host.ipv4(ipv4Address)
+        
+        let wispTransport = WispConnectionFactory(host: host, port: port, cert: certString, iatMode: false)
+        let proteanTransport = ProteanConnectionFactory(host: host, port: port, config: proteanConfig)
+        
+        let possibleTransports:[ConnectionFactory] = [wispTransport, proteanTransport]
+        
+        let connectionFactory = OptimizerConnectionFactory(possibleTransports: possibleTransports, strategy: ChooseFirst())
+
+        XCTAssert(connectionFactory != nil)
+        
+        let possibleConnection = connectionFactory!.connect(using: .tcp)
+        
+        XCTAssert(possibleConnection != nil)
+    }
+    
+    func testChooseRandom()
+    {
+        let ipAddressString = ""
+        let portString = "1234"
+        let certString = ""
+        let proteanConfig = Protean.Config(byteSequenceConfig: sampleSequenceConfig(),
+                                           encryptionConfig: sampleEncryptionConfig(),
+                                           headerConfig: sampleHeaderConfig())
+        
+        guard let portUInt = UInt16(portString), let port = NWEndpoint.Port(rawValue: portUInt)
+            else
+        {
+            print("Unable to resolve port for test")
+            XCTFail()
+            return
+        }
+        guard let ipv4Address = IPv4Address(ipAddressString)
+            else
+        {
+            print("Unable to resolve ipv4 address for test")
+            XCTFail()
+            return
+        }
+        
+        //let connected = expectation(description: "Connected to server.")
+        let host = NWEndpoint.Host.ipv4(ipv4Address)
+        
+        let wispTransport = WispConnectionFactory(host: host, port: port, cert: certString, iatMode: false)
+        let proteanTransport = ProteanConnectionFactory(host: host, port: port, config: proteanConfig)
+        
+        let possibleTransports:[ConnectionFactory] = [wispTransport, proteanTransport]
+        
+        let connectionFactory = OptimizerConnectionFactory(possibleTransports: possibleTransports, strategy: ChooseRandom())
+        
+        XCTAssert(connectionFactory != nil)
+        
+        let possibleConnection = connectionFactory!.connect(using: .tcp)
+        
+        XCTAssert(possibleConnection != nil)
     }
 
 }

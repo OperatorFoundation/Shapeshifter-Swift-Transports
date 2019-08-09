@@ -39,7 +39,7 @@ let package = Package(
         .testTarget(name: "WispTests", dependencies: ["Wisp"]),
         .testTarget(name: "ProteanTests", dependencies: ["Protean"]),
         .testTarget(name: "ReplicantTests", dependencies: ["Replicant"]),
-        .testTarget(name: "OptimizerTests", dependencies: ["Optimizer"]),
+        .testTarget(name: "OptimizerTests", dependencies: ["Optimizer", "Wisp", "Protean"]),
         .testTarget(name: "ExampleTransportsTests", dependencies: ["ExampleTransports"])
         ]
 )
