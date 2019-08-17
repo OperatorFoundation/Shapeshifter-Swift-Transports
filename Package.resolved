@@ -96,8 +96,8 @@
         "repositoryURL": "https://github.com/OperatorFoundation/Transport.git",
         "state": {
           "branch": null,
-          "revision": "50f77398e9914d9d53260eeea5f3c14aa39e2b4a",
-          "version": "0.1.1"
+          "revision": "280eaf03622e1fa25e113f58479ae7187e03a14c",
+          "version": "0.1.2"
         }
       }
     ]

@@ -13,6 +13,8 @@ import SwiftQueue
 
 open class ReplicantConnectionFactory: ConnectionFactory
 {
+    public var name: String = "Replicant"
+    
     public var connection: Connection?
     public var host: NWEndpoint.Host?
     public var port: NWEndpoint.Port?

@@ -12,6 +12,8 @@ import Flower
 
 open class FlowConnectionFactory: ConnectionFactory
 {
+    public var name: String = "Flow"
+    
     let flower: FlowerController
     let host: NWEndpoint.Host
     let port: NWEndpoint.Port

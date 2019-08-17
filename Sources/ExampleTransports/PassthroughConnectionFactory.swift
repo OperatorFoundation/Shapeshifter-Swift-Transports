@@ -11,6 +11,8 @@ import Network
 
 open class PassthroughConnectionFactory: ConnectionFactory
 {
+    public var name: String = "Passthrough"
+    
     public var connection: Connection?
     public var host: NWEndpoint.Host?
     public var port: NWEndpoint.Port?

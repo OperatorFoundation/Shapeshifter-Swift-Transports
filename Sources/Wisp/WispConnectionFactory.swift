@@ -11,6 +11,8 @@ import Network
 
 open class WispConnectionFactory: ConnectionFactory
 {
+    public var name: String = "Wisp"
+    
     public var connection: NWConnection?
     public var host: NWEndpoint.Host?
     public var port: NWEndpoint.Port?

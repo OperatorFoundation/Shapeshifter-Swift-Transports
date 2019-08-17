@@ -11,6 +11,8 @@ import Network
 
 open class OptimizerConnectionFactory: ConnectionFactory
 {
+    public var name: String = "Optimizer"
+    
     let possibleTransports: [ConnectionFactory]
     let currentStrategy: Strategy
     

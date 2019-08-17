@@ -11,6 +11,7 @@ import Network
 
 open class Rot13ConnectionFactory: ConnectionFactory
 {
+    public var name: String = "Rot13"
     public var connection: Connection?
     public var host: NWEndpoint.Host?
     public var port: NWEndpoint.Port?

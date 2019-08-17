@@ -12,6 +12,7 @@ import ProteanSwift
 
 open class ProteanConnectionFactory: ConnectionFactory
 {
+    public var name: String = "Protean"
     public var connection: Connection?
     public var host: NWEndpoint.Host?
     public var port: NWEndpoint.Port?
