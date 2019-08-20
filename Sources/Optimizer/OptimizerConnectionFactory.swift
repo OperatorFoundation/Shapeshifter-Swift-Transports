@@ -12,13 +12,10 @@ import Network
 open class OptimizerConnectionFactory: ConnectionFactory
 {
     public var name: String = "Optimizer"
-    
-    let possibleTransports: [ConnectionFactory]
     let currentStrategy: Strategy
     
-    public init?(possibleTransports transports: [ConnectionFactory], strategy: Strategy)
+    public init?(strategy: Strategy)
     {
-        self.possibleTransports = transports
         self.currentStrategy = strategy
     }
     
@@ -32,7 +29,7 @@ open class OptimizerConnectionFactory: ConnectionFactory
             attemptCount += 1
             print("\nOptimizer is attempting to connect.\nRound \(attemptCount)")
             
-            guard let connectionFactory = currentStrategy.choose(fromTransports: possibleTransports)
+            guard let connectionFactory = currentStrategy.choose()
                 else
             {
                 continue
@@ -47,6 +44,11 @@ open class OptimizerConnectionFactory: ConnectionFactory
             {
                 let connectTime = postConnectionDate.timeIntervalSince(preConnectionDate)
                 currentStrategy.report(transport: connectionFactory, successfulConnection: false, millisecondsToConnect: Int(connectTime*1000))
+            }
+            else
+            {
+                let connectTime = postConnectionDate.timeIntervalSince(preConnectionDate)
+                currentStrategy.report(transport: connectionFactory, successfulConnection: true, millisecondsToConnect: Int(connectTime*1000))
             }
         }
         

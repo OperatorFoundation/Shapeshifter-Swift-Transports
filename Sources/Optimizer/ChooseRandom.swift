@@ -10,14 +10,21 @@ import Transport
 
 struct ChooseRandom: Strategy
 {
-    func choose(fromTransports transports: [ConnectionFactory]) -> ConnectionFactory?
+    var transports: [ConnectionFactory]
+    
+    init(transports: [ConnectionFactory])
+    {
+        self.transports = transports
+    }
+    
+    func choose() -> ConnectionFactory?
     {
         return transports.randomElement()
     }
     
     func report(transport: ConnectionFactory, successfulConnection: Bool, millisecondsToConnect: Int)
     {
-        
+        //
     }
 
 }

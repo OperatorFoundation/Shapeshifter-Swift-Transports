@@ -7,15 +7,141 @@
 
 import Foundation
 import Transport
+import CoreML
+import CreateML
 
-struct CoreMLStrategy: Strategy
+class CoreMLStrategy: Strategy
 {
-    func choose(fromTransports transports: [ConnectionFactory]) -> ConnectionFactory?
+    var transports: [ConnectionFactory]
+    var index = 0
+    var indices = [Int]()
+    var durations = [Int]()
+    var trackDictionary = [String: Bool]()
+    
+    var classifier: MLClassifier?
+    
+    init(transports: [ConnectionFactory])
     {
-        return transports.first
+        self.transports = transports
     }
     
-    func report(transport: ConnectionFactory, successfulConnection: Bool, millisecondsToConnect: Int) {
-        //
+    func choose() -> ConnectionFactory?
+    {
+        var transport = transports[index]
+        var alreadyTried = checkIfTried()
+        let startIndex = index
+        incrementIndex()
+        
+        // Make sure that every transport in the list has been tried at least once
+        while startIndex != index
+        {
+            if alreadyTried == false
+            {
+                return transport
+            }
+            else
+            {
+                incrementIndex()
+                transport = transports[index]
+                alreadyTried = checkIfTried()
+                continue
+            }
+        }
+        
+        // If we have tried all of the transports
+        // Use the model to make a prediction
+        if classifier != nil
+        {
+            var dataTable = MLDataTable()
+            let durationColumnName = "millisecondsToConnect"
+            let durationColumn = MLDataColumn([1])
+            
+            dataTable.addColumn(durationColumn, named: durationColumnName)
+            
+            do
+            {
+                let predictions = try classifier!.predictions(from: dataTable)
+                if let firstIndexPrediction = predictions.ints?.element(at: 0)
+                {
+                    print("\nChose a CoreML predicted transport: \(transports[firstIndexPrediction].name)")
+                    return transports[firstIndexPrediction]
+                }
+            }
+            catch
+            {
+                print("\nError using classifier: \(error)")
+                return nil
+            }
+        }
+        
+        print("\nFailed to predict a transport, choosing transport at index \(index).")        
+        return transports[index]
     }
+    
+    func report(transport: ConnectionFactory, successfulConnection: Bool, millisecondsToConnect: Int)
+    {
+        print("\n📋  CoreMLStrategy received a report.  📋\nTransport: \(transport.name)\nSuccessfulConnection?: \(successfulConnection)\nMillisecondsToConnect: \(millisecondsToConnect)")
+        
+        trackDictionary[transport.name] = true
+        
+        if successfulConnection
+        {
+            // Get the index in our array for this transport
+            if let thisIndex = getIndex(ofTransport: transport, inTransports: transports)
+            {
+                // Add Index to our list
+                indices.append(thisIndex)
+                
+                // Add milliseconds to our list in parallel
+                durations.append(millisecondsToConnect)
+            }
+        }
+        
+        //Create a model
+        var dataTable = MLDataTable()
+        let indexColumnName = "index"
+        let durationColumnName = "millisecondsToConnect"
+        let indexColumn = MLDataColumn(indices)
+        let durationColumn = MLDataColumn(durations)
+        
+        dataTable.addColumn(indexColumn, named: indexColumnName)
+        dataTable.addColumn(durationColumn, named: durationColumnName)
+        
+        let (evaluationTable, trainingTable) = dataTable.randomSplit(by: 0.20)
+        
+        do
+        {
+            let classifier = try MLClassifier(trainingData: trainingTable, targetColumn: indexColumnName)
+            self.classifier = classifier
+        }
+        catch
+        {
+            print("\nError creating a classifier: \(error)")
+        }
+    }
+    
+    func incrementIndex()
+    {
+        index += 1
+        
+        if index >= transports.count
+        {
+            index = 0
+        }
+    }
+    
+    func checkIfTried() -> Bool
+    {
+        let transport = transports[index]
+        if let triedTransport = trackDictionary[transport.name]
+        {
+            return triedTransport
+        }
+        else
+        {
+            return false
+        }
+    }
+    
+    
 }

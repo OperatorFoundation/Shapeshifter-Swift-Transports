@@ -10,7 +10,14 @@ import Transport
 
 struct ChooseFirst: Strategy
 {
-    func choose(fromTransports transports: [ConnectionFactory]) -> ConnectionFactory?
+    var transports: [ConnectionFactory]
+    
+    init(transports: [ConnectionFactory])
+    {
+        self.transports = transports
+    }
+    
+    func choose() -> ConnectionFactory?
     {
         return transports.first
     }

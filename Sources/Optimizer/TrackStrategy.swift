@@ -10,16 +10,23 @@ import Transport
 
 class TrackStrategy: Strategy
 {
+    var transports: [ConnectionFactory]
     var index = 0
     var trackDictionary = [String: Int]()
+    // TODO: If we run out of transports to try because they have all failed just once start over
     
-    func choose(fromTransports transports: [ConnectionFactory]) -> ConnectionFactory?
+    init(transports: [ConnectionFactory])
+    {
+        self.transports = transports
+    }
+    
+    func choose() -> ConnectionFactory?
     {
         var transport = transports[index]
-        var score = findScore(transports: transports)
+        var score = findScore()
         let startIndex = index
         
-        incrementIndex(transports: transports)
+        incrementIndex()
         
         while startIndex != index
         {
@@ -30,15 +37,24 @@ class TrackStrategy: Strategy
             else
             {
                 transport = transports[index]
-                score = findScore(transports: transports)
-                incrementIndex(transports: transports)
+                score = findScore()
+                incrementIndex()
             }
         }
         
-        return nil
+        // If we've gotten this far, we've checked all but the transport we started with
+        // We're back at the beginning, let's try that one now
+        if findScore() == 1
+        {
+            return transports[index]
+        }
+        else
+        {
+            return nil
+        }
     }
     
-    func incrementIndex(transports: [ConnectionFactory])
+    func incrementIndex()
     {
         index += 1
         
@@ -48,7 +64,7 @@ class TrackStrategy: Strategy
         }
     }
     
-    func findScore(transports: [ConnectionFactory]) -> Int
+    func findScore() -> Int
     {
         let transport = transports[index]
         if let score = trackDictionary[transport.name]

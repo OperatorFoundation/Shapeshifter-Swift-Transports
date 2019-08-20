@@ -10,16 +10,22 @@ import Transport
 
 class MinimizeDialStrategy: Strategy
 {
+    var transports: [ConnectionFactory]
     var index = 0
     var trackDictionary = [String: Int]()
     
-    func choose(fromTransports transports: [ConnectionFactory]) -> ConnectionFactory?
+    init(transports: [ConnectionFactory])
+    {
+        self.transports = transports
+    }
+    
+    func choose() -> ConnectionFactory?
     {
         var transport = transports[index]
-        var score = findScore(transports: transports)
+        var score = findScore()
         let startIndex = index
         
-        incrementIndex(transports: transports)
+        incrementIndex()
         
         while startIndex != index
         {
@@ -29,7 +35,7 @@ class MinimizeDialStrategy: Strategy
             }
             else
             {
-                incrementIndex(transports: transports)
+                incrementIndex()
                 
                 if let transportName = minDuration(), let minTransport = getTransport(named: transportName, fromTransports: transports)
                 {
@@ -38,10 +44,9 @@ class MinimizeDialStrategy: Strategy
                 else
                 {
                     transport = transports[index]
-                    score = findScore(transports: transports)
+                    score = findScore()
                     continue
                 }
-                
             }
         }
         
@@ -62,7 +67,7 @@ class MinimizeDialStrategy: Strategy
         }
     }
     
-    func findScore(transports: [ConnectionFactory]) -> Int
+    func findScore() -> Int
     {
         let transport = transports[index]
         if let score = trackDictionary[transport.name]
@@ -75,7 +80,7 @@ class MinimizeDialStrategy: Strategy
         }
     }
     
-    func incrementIndex(transports:[ConnectionFactory])
+    func incrementIndex()
     {
         index += 1
         
@@ -101,19 +106,6 @@ class MinimizeDialStrategy: Strategy
 
         return transport
     }
-    
-    func getTransport(named name: String, fromTransports transports: [ConnectionFactory]) -> ConnectionFactory?
-    {
-        for transport in transports
-        {
-            if transport.name == name
-            {
-                return transport
-            }
-        }
-        
-        return nil
-    }
-    
+
     
 }

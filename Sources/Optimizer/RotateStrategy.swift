@@ -10,9 +10,15 @@ import Transport
 
 class RotateStrategy: Strategy
 {
+    var transports: [ConnectionFactory]
     var index: Int = 0
     
-    func choose(fromTransports transports: [ConnectionFactory]) -> ConnectionFactory?
+    init(transports: [ConnectionFactory])
+    {
+        self.transports = transports
+    }
+    
+    func choose() -> ConnectionFactory?
     {
         let transport = transports[index]
         index += 1

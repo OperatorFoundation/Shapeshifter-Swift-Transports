@@ -24,6 +24,7 @@ open class ProteanConnection: Connection
                  config: Protean.Config,
                  using parameters: NWParameters)
     {
+
         guard let prot = parameters.defaultProtocolStack.transportProtocol
             else
         {
