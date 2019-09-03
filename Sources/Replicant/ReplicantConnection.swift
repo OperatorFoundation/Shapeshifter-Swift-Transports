@@ -80,7 +80,7 @@ open class ReplicantConnection: Connection
                 return
             }
             
-            logQueue.enqueue("\n New Replicant connection is ready. 🎉 \n")
+            logQueue.enqueue("\nNew Replicant connection is ready. 🎉 \n")
         }
     }
     

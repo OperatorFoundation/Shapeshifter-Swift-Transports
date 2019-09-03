@@ -73,3 +73,4 @@ fastlane/test_output
 Sources/libsodium-ios.a
 
 .DS_Store
+Tests/OptimizerTests/OptimizerTests.swift

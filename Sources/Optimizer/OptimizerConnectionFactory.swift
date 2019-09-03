@@ -12,13 +12,14 @@ import Network
 open class OptimizerConnectionFactory: ConnectionFactory
 {
     public var name: String = "Optimizer"
+    
     let currentStrategy: Strategy
     
     public init?(strategy: Strategy)
     {
         self.currentStrategy = strategy
     }
-    
+
     public func connect(using parameters: NWParameters) -> Connection?
     {
         var attemptCount = 0
@@ -35,21 +36,7 @@ open class OptimizerConnectionFactory: ConnectionFactory
                 continue
             }
             
-            let preConnectionDate = Date()
-            connection = connectionFactory.connect(using: parameters)
-            let postConnectionDate = Date()
-            
-            // If we don't have a connection yet, report it
-            if connection == nil
-            {
-                let connectTime = postConnectionDate.timeIntervalSince(preConnectionDate)
-                currentStrategy.report(transport: connectionFactory, successfulConnection: false, millisecondsToConnect: Int(connectTime*1000))
-            }
-            else
-            {
-                let connectTime = postConnectionDate.timeIntervalSince(preConnectionDate)
-                currentStrategy.report(transport: connectionFactory, successfulConnection: true, millisecondsToConnect: Int(connectTime*1000))
-            }
+            connection = OptimizerConnection(strategy: currentStrategy, connectionFactory: connectionFactory, using: parameters)
         }
         
         return connection

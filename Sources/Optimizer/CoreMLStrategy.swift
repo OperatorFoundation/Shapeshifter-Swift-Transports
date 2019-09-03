@@ -97,26 +97,29 @@ class CoreMLStrategy: Strategy
             }
         }
         
-        //Create a model
-        var dataTable = MLDataTable()
-        let indexColumnName = "index"
-        let durationColumnName = "millisecondsToConnect"
-        let indexColumn = MLDataColumn(indices)
-        let durationColumn = MLDataColumn(durations)
-        
-        dataTable.addColumn(indexColumn, named: indexColumnName)
-        dataTable.addColumn(durationColumn, named: durationColumnName)
-        
-        let (evaluationTable, trainingTable) = dataTable.randomSplit(by: 0.20)
-        
-        do
+        if !indices.isEmpty && !durations.isEmpty
         {
-            let classifier = try MLClassifier(trainingData: trainingTable, targetColumn: indexColumnName)
-            self.classifier = classifier
-        }
-        catch
-        {
-            print("\nError creating a classifier: \(error)")
+            //Create a model
+            var dataTable = MLDataTable()
+            let indexColumnName = "index"
+            let durationColumnName = "millisecondsToConnect"
+            let indexColumn = MLDataColumn(indices)
+            let durationColumn = MLDataColumn(durations)
+            
+            dataTable.addColumn(indexColumn, named: indexColumnName)
+            dataTable.addColumn(durationColumn, named: durationColumnName)
+            
+            let (evaluationTable, trainingTable) = dataTable.randomSplit(by: 0.20)
+            
+            do
+            {
+                let classifier = try MLClassifier(trainingData: trainingTable, targetColumn: indexColumnName)
+                self.classifier = classifier
+            }
+            catch
+            {
+                print("\nError creating a classifier: \(error)")
+            }
         }
     }
     

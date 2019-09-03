@@ -101,6 +101,9 @@ class OptimizerTests: XCTestCase
         let ipAddressString = "159.203.158.90"
         let portString = "1234"
         
+        let logQueue =  Queue<String>()
+        let certString = "60RNHBMRrf+aOSPzSj8bD4ASGyyPl0mkaOUAQsAYljSkFB0G8B8m9fGvGJCpOxwoXS1baA"
+        
         guard let serverPublicKey = Data(base64Encoded: "BL7+Vd087+p/roRp6jSzIWzG3qXhk2S4aefLcYjwRtxGanWUoeoIWmMkAHfiF11vA9d6rhiSjPDL0WFGiSr/Et+wwG7gOrLf8yovmtgSJlooqa7lcMtipTxegPAYtd5yZg==")
             else
         {
@@ -109,10 +112,9 @@ class OptimizerTests: XCTestCase
             return
         }
         
-        let certString = "60RNHBMRrf+aOSPzSj8bD4ASGyyPl0mkaOUAQsAYljSkFB0G8B8m9fGvGJCpOxwoXS1baA"
-//        let proteanConfig = Protean.Config(byteSequenceConfig: sampleSequenceConfig(),
-//                                           encryptionConfig: sampleEncryptionConfig(),
-//                                           headerConfig: sampleHeaderConfig())
+        let proteanConfig = Protean.Config(byteSequenceConfig: sampleSequenceConfig(),
+                                           encryptionConfig: sampleEncryptionConfig(),
+                                           headerConfig: sampleHeaderConfig())
         guard let replicantClientConfig = ReplicantConfig(serverPublicKey: serverPublicKey, chunkSize: 2000, chunkTimeout: 1000, toneBurst: nil)
             else
         {
@@ -120,7 +122,6 @@ class OptimizerTests: XCTestCase
             XCTFail()
             return
         }
-        let logQueue =  Queue<String>()
         
         guard let portUInt = UInt16(portString), let port = NWEndpoint.Port(rawValue: portUInt)
             else
@@ -129,6 +130,7 @@ class OptimizerTests: XCTestCase
             XCTFail()
             return
         }
+        
         guard let ipv4Address = IPv4Address(ipAddressString)
             else
         {
@@ -137,37 +139,202 @@ class OptimizerTests: XCTestCase
             return
         }
         
-        //let connected = expectation(description: "Connected to server.")
         let host = NWEndpoint.Host.ipv4(ipv4Address)
         let wispTransport = WispConnectionFactory(host: host, port: port, cert: certString, iatMode: false)
         let replicantTransport = ReplicantConnectionFactory(host: host, port: port, config: replicantClientConfig, logQueue: logQueue)
-        //let proteanTransport = ProteanConnectionFactory(host: host, port: port, config: proteanConfig)
+        let proteanTransport = ProteanConnectionFactory(host: host, port: port, config: proteanConfig)
         let passthroughTransport = PassthroughConnectionFactory(host: host, port: port)
         let rot13Transport = Rot13ConnectionFactory(host: host, port: port)
         
-        let possibleTransports:[ConnectionFactory] = [passthroughTransport, rot13Transport, wispTransport, replicantTransport]
+        let possibleTransports:[ConnectionFactory] = [passthroughTransport, rot13Transport, wispTransport, replicantTransport, proteanTransport]
         let strategy = CoreMLStrategy(transports: possibleTransports)
         
+        let connected1 = expectation(description: "Connected 1.")
         let connectionFactory1 = OptimizerConnectionFactory(strategy: strategy)
-        XCTAssert(connectionFactory1 != nil)
+        guard var connection1 = connectionFactory1!.connect(using: .tcp)
+            else
+        {
+            XCTFail()
+            return
+        }
         
-        let maybeConnection1 = connectionFactory1!.connect(using: .tcp)
-        XCTAssert(maybeConnection1 != nil)
+        connection1.stateUpdateHandler =
+        {
+            (newState) in
+            
+            switch newState
+            {
+            case .ready:
+                print("\n🚀 Connection 1 is ready  🚀\n")
+                connected1.fulfill()
+                
+            case .failed(let error):
+                print("\n🐒💨  Connection 1 Failed  🐒💨")
+                print("Failure Error: \(error.localizedDescription)\n")
+                connected1.fulfill()
+                
+            default:
+                print("\n🤷‍♀️ Connection 1  Other State: \(newState)  🤷‍♀️\n")
+            }
+        }
         
+        connection1.start(queue: DispatchQueue(label: "TestQueue"))
+        
+        let connected2 = expectation(description: "Connected 2.")
         let connectionFactory2 = OptimizerConnectionFactory(strategy: strategy)
-        let maybeConnection2 = connectionFactory2!.connect(using: .tcp)
-        XCTAssert(maybeConnection2 != nil)
+        guard var connection2 = connectionFactory2!.connect(using: .tcp)
+        else
+        {
+            XCTFail()
+            return
+        }
         
+        connection2.stateUpdateHandler =
+        {
+            (newState) in
+            
+            switch newState
+            {
+            case .ready:
+                print("\n🚀 Connection 2 is ready  🚀\n")
+                connected2.fulfill()
+                
+            case .failed(let error):
+                print("\n🐒💨  Connection 2 Failed  🐒💨")
+                print("Failure Error: \(error.localizedDescription)\n")
+                connected2.fulfill()
+                
+            default:
+                print("\n🤷‍♀️  Connection 2 Other State: \(newState))  🤷‍♀️\n")
+            }
+        }
+        
+        connection2.start(queue: DispatchQueue(label: "TestQueue"))
+        
+        let connected3 = expectation(description: "Connected 3.")
         let connectionFactory3 = OptimizerConnectionFactory(strategy: strategy)
-        let maybeConnection3 = connectionFactory3!.connect(using: .tcp)
-        XCTAssert(maybeConnection3 != nil)
+        guard var connection3 = connectionFactory3!.connect(using: .tcp)
+        else
+        {
+            XCTFail()
+            return
+        }
         
+        connection3.stateUpdateHandler =
+        {
+            (newState) in
+            
+            switch newState
+            {
+            case .ready:
+                print("\n🚀 Connection 3 is ready  🚀\n")
+                connected3.fulfill()
+                
+            case .failed(let error):
+                print("\n🐒💨  Connection 3 Failed  🐒💨")
+                print("Failure Error: \(error.localizedDescription)\n")
+                connected3.fulfill()
+                
+            default:
+                print("\n🤷‍♀️  Connection 3 Other State: \(newState))  🤷‍♀️\n")
+            }
+        }
+        
+        connection3.start(queue: DispatchQueue(label: "TestQueue"))
+        
+        let connected4 = expectation(description: "Connected 4.")
         let connectionFactory4 = OptimizerConnectionFactory(strategy: strategy)
-        let maybeConnection4 = connectionFactory4!.connect(using: .tcp)
-        XCTAssert(maybeConnection4 != nil)
+        guard var connection4 = connectionFactory4!.connect(using: .tcp)
+            else
+        {
+            XCTFail()
+            return
+        }
         
+        connection4.stateUpdateHandler =
+        {
+            (newState) in
+            
+            switch newState
+            {
+            case .ready:
+                print("\n🚀 Connection 4 is ready  🚀\n")
+                connected4.fulfill()
+                
+            case .failed(let error):
+                print("\n🐒💨  Connection 4 Failed  🐒💨")
+                print("Failure Error: \(error.localizedDescription)\n")
+                connected4.fulfill()
+                
+            default:
+                print("\n🤷‍♀️  Connection 4 Other State: \(newState))  🤷‍♀️\n")
+                }
+        }
+        
+        connection4.start(queue: DispatchQueue(label: "TestQueue"))
+        
+        let connected5 = expectation(description: "Connected 5.")
         let connectionFactory5 = OptimizerConnectionFactory(strategy: strategy)
-        let maybeConnection5 = connectionFactory5!.connect(using: .tcp)
-        XCTAssert(maybeConnection5 != nil)
+        guard var connection5 = connectionFactory5!.connect(using: .tcp)
+            else
+        {
+            XCTFail()
+            return
+        }
+        
+        connection5.stateUpdateHandler =
+        {
+            (newState) in
+            
+            switch newState
+            {
+            case .ready:
+                print("\n🚀 Connection 5 is ready  🚀\n")
+                connected5.fulfill()
+                
+            case .failed(let error):
+                print("\n🐒💨  Connection 5 Failed  🐒💨")
+                print("Failure Error: \(error.localizedDescription)\n")
+                connected5.fulfill()
+                
+            default:
+                print("\n🤷‍♀️  Connection 5 Other State: \(newState))  🤷‍♀️\n")
+            }
+        }
+        
+        connection5.start(queue: DispatchQueue(label: "TestQueue"))
+        
+        let connected6 = expectation(description: "Connected 6.")
+        let connectionFactory6 = OptimizerConnectionFactory(strategy: strategy)
+        guard var connection6 = connectionFactory6!.connect(using: .tcp)
+            else
+        {
+            XCTFail()
+            return
+        }
+        
+        connection6.stateUpdateHandler =
+        {
+            (newState) in
+            
+            switch newState
+            {
+            case .ready:
+                print("\n🚀 Connection 6 is ready  🚀\n")
+                connected6.fulfill()
+                
+            case .failed(let error):
+                print("\n🐒💨  Connection 6 Failed  🐒💨")
+                print("Failure Error: \(error.localizedDescription)\n")
+                connected6.fulfill()
+                
+            default:
+                print("\n🤷‍♀️  Connection 6 Other State: \(newState))  🤷‍♀️\n")
+            }
+        }
+        
+        connection6.start(queue: DispatchQueue(label: "TestQueue"))
+        
+        wait(for: [connected1, connected2, connected3, connected4, connected5, connected6], timeout: 300)
     }
 }
