@@ -98,13 +98,13 @@ class OptimizerTests: XCTestCase
 
     func testCoreMLStrategy()
     {
-        let ipAddressString = "159.203.158.90"
-        let portString = "1234"
+        let ipAddressString = "10.10.10.10"
+        let portString = "2222"
         
         let logQueue =  Queue<String>()
-        let certString = "60RNHBMRrf+aOSPzSj8bD4ASGyyPl0mkaOUAQsAYljSkFB0G8B8m9fGvGJCpOxwoXS1baA"
+        let certString = "bD4ASGyyPl0mkaOUm9fGvGJCpOxwoXS1baAAQsAYljSkF60RNHBMRrf+aOSPzSj8B0G8B8"
         
-        guard let serverPublicKey = Data(base64Encoded: "BL7+Vd087+p/roRp6jSzIWzG3qXhk2S4aefLcYjwRtxGanWUoeoIWmMkAHfiF11vA9d6rhiSjPDL0WFGiSr/Et+wwG7gOrLf8yovmtgSJlooqa7lcMtipTxegPAYtd5yZg==")
+        guard let serverPublicKey = Data(base64Encoded: "3qXWmMkAHfiF11vA9d6rhiSjPBL7+Vd087+p/roRp6jSzIWzhk2S4aefLcYjwRtxGanWUoeoIGDL0WFGiSr/Et+wwG7gOrLf8yovmtgSJlooqa7lcMtipTxegPAYtd5yZg==")
             else
         {
             print("Unable to get base64 encoded key from the provided string.")
