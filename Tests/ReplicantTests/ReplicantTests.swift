@@ -58,8 +58,7 @@ class ReplicantTests: XCTestCase
             XCTFail()
             return
         }
-        let logQueue =  Queue<String>()
-        let clientConnectionFactory = ReplicantConnectionFactory(host: host, port: port, config: replicantClientConfig, logQueue: logQueue)
+        let clientConnectionFactory = ReplicantConnectionFactory(host: host, port: port, config: replicantClientConfig)
         guard var clientConnection = clientConnectionFactory.connect(using: .tcp)
             else
         {

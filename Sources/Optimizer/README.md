@@ -18,7 +18,7 @@ Here is a list of the currently available Optimizer strategies:
 
 ## Using Optimizer
 
-### Swift Version:
+### Swift Version (go version can be found [here](https://github.com/OperatorFoundation/shapeshifter-transports/tree/master/transports/Optimizer)):
 
 Optimizer is one of the transports available in the [Shapeshifter-Swift-Transports library](https://github.com/OperatorFoundation/Shapeshifter-Swift-Transports). We recommend that you add this library to your Swift project using [Swift Package Manager](https://swift.org/package-manager/).
 You can see example code for making a connection using Optimizer in the [example.swift](https://github.com/OperatorFoundation/Shapeshifter-Swift-Transports/blob/master/example.swift) file in the Shapeshifter-Swift-Transports project. Here is a summary of how you might make a connection with Optimizer:
