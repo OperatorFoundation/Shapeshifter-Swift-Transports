@@ -20,21 +20,33 @@ open class ReplicantConnectionFactory: ConnectionFactory
     public var port: NWEndpoint.Port?
     public var config: ReplicantConfig
     
-    var logQueue: Queue<String>
+    var logQueue = Queue<String>()
     
-    public init(host: NWEndpoint.Host, port: NWEndpoint.Port, config: ReplicantConfig, logQueue: Queue<String>)
+    public init?(ipString: String, portInt: UInt16, config: ReplicantConfig)
+    {
+        guard let port = NWEndpoint.Port(rawValue: portInt)
+        else
+        {
+            print("Unable to initialize ReplicantConnectionFactory, a port could not be resolved from the provided UInt16: \(portInt)")
+            return nil
+        }
+        
+        self.host = NWEndpoint.Host(ipString)
+        self.port = port
+        self.config = config
+    }
+    
+    public init(host: NWEndpoint.Host, port: NWEndpoint.Port, config: ReplicantConfig)
     {
         self.host = host
         self.port = port
         self.config = config
-        self.logQueue = logQueue
     }
     
-    public init(connection: Connection, config: ReplicantConfig, logQueue: Queue<String>)
+    public init(connection: Connection, config: ReplicantConfig)
     {
         self.connection = connection
         self.config = config
-        self.logQueue = logQueue
     }
     
     public func connect(using parameters: NWParameters) -> Connection?

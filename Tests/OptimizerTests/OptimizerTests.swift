@@ -100,8 +100,6 @@ class OptimizerTests: XCTestCase
     {
         let ipAddressString = "10.10.10.10"
         let portString = "2222"
-        
-        let logQueue =  Queue<String>()
         let certString = "bD4ASGyyPl0mkaOUm9fGvGJCpOxwoXS1baAAQsAYljSkF60RNHBMRrf+aOSPzSj8B0G8B8"
         
         guard let serverPublicKey = Data(base64Encoded: "3qXWmMkAHfiF11vA9d6rhiSjPBL7+Vd087+p/roRp6jSzIWzhk2S4aefLcYjwRtxGanWUoeoIGDL0WFGiSr/Et+wwG7gOrLf8yovmtgSJlooqa7lcMtipTxegPAYtd5yZg==")
@@ -141,7 +139,7 @@ class OptimizerTests: XCTestCase
         
         let host = NWEndpoint.Host.ipv4(ipv4Address)
         let wispTransport = WispConnectionFactory(host: host, port: port, cert: certString, iatMode: false)
-        let replicantTransport = ReplicantConnectionFactory(host: host, port: port, config: replicantClientConfig, logQueue: logQueue)
+        let replicantTransport = ReplicantConnectionFactory(host: host, port: port, config: replicantClientConfig)
         let proteanTransport = ProteanConnectionFactory(host: host, port: port, config: proteanConfig)
         let passthroughTransport = PassthroughConnectionFactory(host: host, port: port)
         let rot13Transport = Rot13ConnectionFactory(host: host, port: port)

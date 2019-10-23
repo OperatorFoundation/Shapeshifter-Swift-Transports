@@ -19,11 +19,20 @@ open class WispConnectionFactory: ConnectionFactory
     public var cert: String
     public var iatMode: Bool
     
+    public init?(hostString: String, portInt: UInt16, cert: String, iatMode: Bool)
+    {
+        guard let port = NWEndpoint.Port(rawValue: portInt)
+            else { return nil }
+        self.host = NWEndpoint.Host(hostString)
+        self.port = port
+        self.cert = cert
+        self.iatMode = iatMode
+    }
     
     public init(host: NWEndpoint.Host, port: NWEndpoint.Port, cert: String, iatMode: Bool)
     {
-        self.host=host
-        self.port=port
+        self.host = host
+        self.port = port
         self.cert = cert
         self.iatMode = iatMode
     }
