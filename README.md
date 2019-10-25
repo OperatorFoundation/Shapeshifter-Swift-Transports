@@ -31,6 +31,10 @@ See the [README](https://github.com/OperatorFoundation/Shapeshifter-Swift-Transp
 
 #### Protean
 
+Protean is a pluggable transport that allows you to configure your own obfuscation.
+
+See the [README](https://github.com/OperatorFoundation/Shapeshifter-Swift-Transports/tree/master/Sources/Protean)  for information on usage.
+
 #### Meek
 
 Swift implementation of the Meek transport
