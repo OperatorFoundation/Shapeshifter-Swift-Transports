@@ -6,9 +6,98 @@
 //
 
 import Foundation
+import Network
+
+import Datable
+import Protean
+import ProteanSwift
+import Optimizer
 
 /// This is example code to help illustrate how to use the transports provided in this library.
 /// This is an ongoing work in progress :)
+
+// MARK: Protean
+
+func exampleSequenceConfig() -> ByteSequenceShaper.Config?
+{
+    let sequence = Data(string: "OH HELLO")
+    
+    guard let sequenceModel = ByteSequenceShaper.SequenceModel(index: 0, offset: 0, sequence: sequence, length: 256)
+        else
+    {
+        return nil
+    }
+    
+    let sequenceConfig = ByteSequenceShaper.Config(addSequences: [sequenceModel], removeSequences: [sequenceModel])
+    
+    return sequenceConfig
+}
+
+public func exampleEncryptionConfig() -> EncryptionShaper.Config
+{
+    let bytes = Data(count: 32)
+    let encryptionConfig = EncryptionShaper.Config(key: bytes)
+    
+    return encryptionConfig
+}
+
+public func exampleHeaderConfig() -> HeaderShaper.Config
+{
+    // Creates a sample (non-random) config, suitable for testing.
+    let header = Data([139, 210, 37])
+    let headerConfig = HeaderShaper.Config(addHeader: header, removHeader: header)
+    
+    return headerConfig
+}
+
+func proteanExample()
+{
+    let ipv4Address = IPv4Address("10.10.10.10")!
+    let portUInt = UInt16("7007")!
+    let port = NWEndpoint.Port(rawValue: portUInt)!
+    let host = NWEndpoint.Host.ipv4(ipv4Address)
+    
+    // Create a Protean config using your chosen sequence, encryption, and header
+    let proteanConfig = Protean.Config(
+        byteSequenceConfig: exampleSequenceConfig(),
+        encryptionConfig: exampleEncryptionConfig(),
+        headerConfig: exampleHeaderConfig())
+    
+    // Create the connection factory providing your config and the desires IP and port
+    let proteanConnectionFactory = ProteanConnectionFactory(host: host, port: port, config: proteanConfig)
+    
+    // Create a connection using the Protean connection factory
+    guard var connection = proteanConnectionFactory.connect
+    else
+    {
+        print("Failed to create a Protean connection object.")
+        return
+    }
+    
+    // Set up your state update handler.
+    connection.stateUpdateHandler =
+    {
+        (newState) in
+        
+        switch newState
+        {
+        case .ready:
+            print("Connection is read")
+            connected1.fulfill()
+            
+        case .failed(let error):
+            print("Connection Failed")
+            print("Failure Error: \(error.localizedDescription)\n")
+            connected1.fulfill()
+            
+        default:
+            print("Connection Other State: \(newState)")
+        }
+    }
+    
+    // Tell the connection to start.
+    connection.start(queue: DispatchQueue(label: "TestQueue"))
+}
 
 // MARK: Optimizer
 
@@ -26,9 +115,9 @@ func coreMLStrategyExample()
     let serverPublicKey = Data(base64Encoded: "exampleserverpublickeystring")!
     
     // Create a Protean Transport Instance
-    let proteanConfig = Protean.Config(byteSequenceConfig: sampleSequenceConfig(),
-                                       encryptionConfig: sampleEncryptionConfig(),
-                                       headerConfig: sampleHeaderConfig())
+    let proteanConfig = Protean.Config(byteSequenceConfig: exampleSequenceConfig(),
+                                       encryptionConfig: exampleEncryptionConfig(),
+                                       headerConfig: exampleHeaderConfig())
      let proteanTransport = ProteanConnectionFactory(host: host, port: port, config: proteanConfig)
     
     // Create a Replicant transport instance.
@@ -56,7 +145,6 @@ func coreMLStrategyExample()
     guard var connection = connectionFactory!.connect(using: .tcp)
         else
     {
-        XCTFail()
         return
     }
     
@@ -68,16 +156,16 @@ func coreMLStrategyExample()
         switch newState
         {
         case .ready:
-            print("\n🚀 Connection 1 is ready  🚀\n")
+            print("Connection is read")
             connected1.fulfill()
             
         case .failed(let error):
-            print("\n🐒💨  Connection 1 Failed  🐒💨")
+            print("Connection Failed")
             print("Failure Error: \(error.localizedDescription)\n")
             connected1.fulfill()
             
         default:
-            print("\n🤷‍♀️ Connection 1  Other State: \(newState)  🤷‍♀️\n")
+            print("Connection Other State: \(newState)")
         }
     }
     

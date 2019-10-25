@@ -28,7 +28,7 @@ enum WispPacketType: UInt8
     {
         get
         {
-            return Data(bytes: [self.rawValue])
+            return Data([self.rawValue])
         }
     }
 }
@@ -672,8 +672,8 @@ class WispProtocol
             return nil
         }
         
-        secretInput.append(Data(bytes: ephemeralSharedSecret))
-        secretInput.append(Data(bytes: staticSharedSecret))
+        secretInput.append(Data(ephemeralSharedSecret))
+        secretInput.append(Data(staticSharedSecret))
         
 //        print("\n🤫 🤫 Secret input appending ephemeral shared secret: \(ephemeralSharedSecret)")
 //        print("\n🤫 🤫 Secret input appending static shared secret: \(staticSharedSecret)")
@@ -849,7 +849,7 @@ func newKeypair() -> Keypair?
             return nil
         }
         
-        if let result = representative(privateKey: Data(bytes: sodiumKeypair.secretKey))
+        if let result = representative(privateKey: Data(sodiumKeypair.secretKey))
         {
             maybeKeypair = sodiumKeypair
             elligatorRepresentative = result.representative
@@ -866,7 +866,7 @@ func newKeypair() -> Keypair?
     
     if let actualRepresentative = elligatorRepresentative?.bytes, let newKeypair = maybeKeypair
     {
-        let wispKeypair = Keypair(publicKey: Data(bytes: newKeypair.publicKey) , privateKey: Data(bytes: newKeypair.secretKey), representative: Data(actualRepresentative))
+        let wispKeypair = Keypair(publicKey: Data(newKeypair.publicKey) , privateKey: Data(newKeypair.secretKey), representative: Data(actualRepresentative))
         return wispKeypair
     }
     else

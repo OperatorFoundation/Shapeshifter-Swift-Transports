@@ -109,7 +109,7 @@ class CoreMLStrategy: Strategy
             dataTable.addColumn(indexColumn, named: indexColumnName)
             dataTable.addColumn(durationColumn, named: durationColumnName)
             
-            let (evaluationTable, trainingTable) = dataTable.randomSplit(by: 0.20)
+            let (_, trainingTable) = dataTable.randomSplit(by: 0.20)
             
             do
             {

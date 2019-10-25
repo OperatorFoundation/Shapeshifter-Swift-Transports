@@ -154,7 +154,7 @@ struct WispEncoder
         // Obfuscate the length.
         let length = UInt16(encodedBytes.count)
         let obfuscatedLength = obfuscate(length: length)
-        let encodedData = Data(bytes: encodedBytes)
+        let encodedData = Data(encodedBytes)
         
         var frame = Data()
         frame.append(obfuscatedLength)
@@ -298,7 +298,7 @@ struct WispDecoder
         // Clean up and prepare for the next frame.
         nextLength = nil
         
-        return .success(decodedData: Data(bytes: decodedData), leftovers: leftovers)
+        return .success(decodedData: Data(decodedData), leftovers: leftovers)
     }
     
     mutating func unobfuscate(obfuscatedLength: Data) -> UInt16

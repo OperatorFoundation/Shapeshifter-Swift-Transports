@@ -45,8 +45,15 @@ extension NWEndpoint.Host: Encodable
             {
                 throw error
             }
+        default:
+            throw HostError.invalidIP
         }
     }
+}
+
+enum HostError: Error
+{
+    case invalidIP
 }
 
 extension NWEndpoint.Host: Decodable
