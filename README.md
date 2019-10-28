@@ -21,7 +21,7 @@ The following transports are currently provided by this library:
 
 #### Wisp
 
-Wisp is a native Swift transport that is compatible with obfs4 servers.
+Wisp is a native Swift transport that is compatible with obfs4 servers. See the [README](https://github.com/OperatorFoundation/Shapeshifter-Swift-Transports/blob/master/Sources/Wisp/README.md) for information on usage.
 
 #### Optmizer
 
