@@ -21,7 +21,9 @@ The following transports are currently provided by this library:
 
 #### Wisp
 
-Wisp is a native Swift transport that is compatible with obfs4 servers. See the [README](https://github.com/OperatorFoundation/Shapeshifter-Swift-Transports/blob/master/Sources/Wisp/README.md) for information on usage.
+Wisp is a native Swift transport that is compatible with obfs4 servers. 
+
+See the [README](https://github.com/OperatorFoundation/Shapeshifter-Swift-Transports/blob/master/Sources/Wisp/README.md) for information on usage.
 
 #### Optmizer
 
@@ -42,3 +44,7 @@ Swift implementation of the Meek transport
 ## Installation
 
 This library can be installed using  [Swift Package Manager](https://swift.org/package-manager/). Please see instructions for using an individual transport in that transport's readme. 
+
+## Usage
+
+Each transport can be used in place of a Network.Framework Connection. It is necessary to create an instance of  a connection factory for the given transport and use that to create your connection. From that point forward the transports are designed to look and behave in your code in the same manner as Network.Framework. Please see the readmes for the individual transports for information on how to get a Connection instance for that transport.
