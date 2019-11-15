@@ -37,10 +37,6 @@ Protean is a pluggable transport that allows you to configure your own obfuscati
 
 See the [README](https://github.com/OperatorFoundation/Shapeshifter-Swift-Transports/tree/master/Sources/Protean)  for information on usage.
 
-#### Meek
-
-Swift implementation of the Meek transport
-
 ## Installation
 
 This library can be installed using  [Swift Package Manager](https://swift.org/package-manager/). Please see instructions for using an individual transport in that transport's readme. 
