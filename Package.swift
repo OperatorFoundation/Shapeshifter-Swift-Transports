@@ -5,7 +5,9 @@ import PackageDescription
 
 let package = Package(
     name: "Shapeshifter-Swift-Transports",
-    platforms: [.macOS(.v10_15)],
+    platforms: [
+       .macOS(.v10_14)
+    ],
     products: [
         // Products define the executables and libraries produced by a package, and make them visible to other packages.
         .library(name: "Wisp", targets: ["Wisp"]),
@@ -18,7 +20,7 @@ let package = Package(
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         .package(url: "https://github.com/OperatorFoundation/ProteanSwift.git", from: "1.1.0"),
-        .package(url: "https://github.com/OperatorFoundation/ReplicantSwift.git", from: "0.3.0"),
+        .package(url: "https://github.com/OperatorFoundation/ReplicantSwift.git", from: "0.4.1"),
         .package(url: "https://github.com/OperatorFoundation/Transport.git", from: "0.0.22"),
         .package(url: "https://github.com/OperatorFoundation/swift-sodium", from: "0.8.4"),
         .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", from: "1.0.0"),
