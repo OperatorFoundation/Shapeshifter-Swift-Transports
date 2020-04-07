@@ -7,6 +7,7 @@
 
 import Foundation
 import Network
+import CryptoKit
 import SwiftQueue
 import Transport
 import ReplicantSwift
@@ -133,7 +134,7 @@ open class ReplicantServerConnection: Connection
         let payloadData = self.sendBuffer[0 ..< unencryptedChunkSize]
         let payloadSize = UInt16(unencryptedChunkSize)
         let dataChunk = payloadSize.data + payloadData
-        let maybeEncryptedData = self.replicantServerModel.polish.controller.encrypt(payload: dataChunk, usingPublicKey: clientPublicKey)
+        let maybeEncryptedData = self.replicantServerModel.polish.controller.encrypt(payload: dataChunk, usingReceiverPublicKey: clientPublicKey, senderPrivateKey: replicantServerModel.polish.privateKey, andSalt: replicantServerModel.polish.salt)
         
         // Buffer should only contain unsent data
         self.sendBuffer = self.sendBuffer[unencryptedChunkSize...]
@@ -146,7 +147,7 @@ open class ReplicantServerConnection: Connection
         }
         
         // Keep calling network.send if the leftover data is at least chunk size
-        self.network.send(content: maybeEncryptedData, contentContext: contentContext, isComplete: isComplete, completion: NWConnection.SendCompletion.contentProcessed(
+        self.network.send(content: maybeEncryptedData?.ciphertext, contentContext: contentContext, isComplete: isComplete, completion: NWConnection.SendCompletion.contentProcessed(
         {
             (maybeError) in
             
@@ -264,34 +265,50 @@ open class ReplicantServerConnection: Connection
     func handleReceivedData(minimumIncompleteLength: Int, maximumLength: Int, encryptedData: Data) -> Data?
     {
         // Try to decrypt the entire contents of the encrypted buffer
-        guard let decryptedData = self.replicantServerModel.polish.controller.decrypt(payload: encryptedData, usingPrivateKey: self.replicantServerModel.polish.privateKey)
-            else
+        guard let clientPublicKey = self.replicantServerModel.polish.clientPublicKey
+        else
         {
-            print("Unable to decrypt encrypted receive buffer")
+            print("Unable to decrypt received data. We do not have the client's public key.")
             return nil
         }
         
-        // Add decrypted data to the decrypted buffer
-        self.decryptedReceiveBuffer.append(decryptedData)
-        
-        // Check to see if the decrypted buffer meets min/max parameters
-        guard decryptedReceiveBuffer.count >= minimumIncompleteLength
-            else
+        do
         {
-            // Not enough data return nothing
+            let data = try ChaChaPoly.SealedBox(combined: encryptedData)
+            guard let decryptedData = self.replicantServerModel.polish.controller.decrypt(payload: data, usingReceiverPrivateKey: self.replicantServerModel.polish.privateKey, senderPublicKey: clientPublicKey, andSalt: replicantServerModel.polish.salt)
+                else
+            {
+                print("Unable to decrypt encrypted receive buffer")
+                return nil
+            }
+            
+            // Add decrypted data to the decrypted buffer
+            self.decryptedReceiveBuffer.append(decryptedData)
+            
+            // Check to see if the decrypted buffer meets min/max parameters
+            guard decryptedReceiveBuffer.count >= minimumIncompleteLength
+                else
+            {
+                // Not enough data return nothing
+                return nil
+            }
+            
+            // Make sure that the slice we get isn't bigger than the available data count or the maximum requested.
+            let sliceLength = decryptedReceiveBuffer.count < maximumLength ? decryptedReceiveBuffer.count : maximumLength
+            
+            // Return the requested amount
+            let returnData = self.decryptedReceiveBuffer[0 ..< sliceLength]
+            
+            // Remove what was delivered from the buffer
+            self.decryptedReceiveBuffer = self.decryptedReceiveBuffer[sliceLength...]
+            
+            return returnData
+        }
+        catch let sealedBoxError
+        {
+            print("Failed to convert received data to sealed box: \(sealedBoxError.localizedDescription)")
             return nil
         }
-        
-        // Make sure that the slice we get isn't bigger than the available data count or the maximum requested.
-        let sliceLength = decryptedReceiveBuffer.count < maximumLength ? decryptedReceiveBuffer.count : maximumLength
-        
-        // Return the requested amount
-        let returnData = self.decryptedReceiveBuffer[0 ..< sliceLength]
-        
-        // Remove what was delivered from the buffer
-        self.decryptedReceiveBuffer = self.decryptedReceiveBuffer[sliceLength...]
-        
-        return returnData
     }
     
     func voightKampffTest(completion: @escaping (Error?) -> Void)
@@ -327,7 +344,7 @@ open class ReplicantServerConnection: Connection
         let keyDataSize = keySize + 1
         
         //Call receive first
-        self.network.receive(minimumIncompleteLength: Int(replicantChunkSize), maximumLength: Int(replicantChunkSize), completion:
+        self.network.receive(minimumIncompleteLength: Int(replicantChunkSize), maximumLength: Int(replicantChunkSize))
         {
             (maybeResponse1Data, maybeResponse1Context, _, maybeResponse1Error) in
             
@@ -352,69 +369,92 @@ open class ReplicantServerConnection: Connection
                 return
             }
             
+            guard let clientPublicKey = self.replicantServerModel.polish.clientPublicKey
+                else
+            {
+                print("Unable to complete handshake. We do not have the client's public key.")
+                completion(HandshakeError.missingClientKey)
+                return
+            }
+            
             // Decrypt the received data
-            guard let clientPaddedKey = self.replicantServerModel.polish.controller.decrypt(payload: clientEncryptedData, usingPrivateKey: self.replicantServerModel.polish.privateKey)
-            else
+            do
             {
-                print("\nCould not decrypt client introduction.\n")
-                completion(HandshakeError.unableToDecryptData)
-                return
-            }
-            
-            // Make sure the decrypted data is at least the size of a key
-            guard clientPaddedKey.count >= keyDataSize
-            else
-            {
-                print("\nReceived a client key that is \(clientPaddedKey.count), but it should have been \(keyDataSize)\n")
-                completion(HandshakeError.clientKeyDataIncorrectSize)
-                return
-            }
-            
-            // Key data is the first chunk of keyDataSize
-            let clientKeyData = clientPaddedKey[0 ..< keyDataSize]
-            
-            // Convert data to SecKey
-            //FIXME: Will decode key method account for leading 04?
-            guard let clientKey = self.replicantServerModel.polish.controller.decodeKey(fromData: clientKeyData)
-            else
-            {
-                print("\nUnable to decode client key.\n")
-                completion(HandshakeError.invalidClientKeyData)
-                return
-            }
-            
-            self.replicantServerModel.polish.clientPublicKey = clientKey
-            
-            let configChunkSize = Int(self.replicantServerModel.config.chunkSize)
-            
-            //Generate random data of chunk size
-            var randomData = Data(count: configChunkSize)
-            let result = randomData.withUnsafeMutableBytes{
-                SecRandomCopyBytes(kSecRandomDefault, configChunkSize, $0)
-            }
-            
-            guard result == errSecSuccess
-            else
-            {
-                print("\nUnable to create random bytes for response to client key.\n")
-                completion(HandshakeError.dataCreationError)
-                return
-            }
-            
-            //Send random data to client
-            self.network.send(content: randomData, contentContext: .defaultMessage, isComplete: false, completion: NWConnection.SendCompletion.contentProcessed(
-            {
-                (maybeError) in
-                
-                guard maybeError == nil
-                    else
+                let sealedBox = try ChaChaPoly.SealedBox(combined: clientEncryptedData)
+            guard let clientPaddedKey = self.replicantServerModel.polish.controller.decrypt(
+                payload: sealedBox,
+                usingReceiverPrivateKey: self.replicantServerModel.polish.privateKey,
+                senderPublicKey: clientPublicKey,
+                andSalt: self.replicantServerModel.polish.salt)
+                else
                 {
-                    print("\nReceived error from client when sending random data in handshake: \(maybeError!)")
-                    completion(maybeError!)
+                    print("\nCould not decrypt client introduction.\n")
+                    completion(HandshakeError.unableToDecryptData)
                     return
                 }
-            }))
-        })
+                
+                // Make sure the decrypted data is at least the size of a key
+                guard clientPaddedKey.count >= keyDataSize
+                else
+                {
+                    print("\nReceived a client key that is \(clientPaddedKey.count), but it should have been \(keyDataSize)\n")
+                    completion(HandshakeError.clientKeyDataIncorrectSize)
+                    return
+                }
+                
+                // Key data is the first chunk of keyDataSize
+                let clientKeyData = clientPaddedKey[0 ..< keyDataSize]
+                
+                // Convert data to SecKey
+                //FIXME: Will decode key method account for leading 04?
+                guard let clientKey = self.replicantServerModel.polish.controller.decodeKey(fromData: clientKeyData)
+                else
+                {
+                    print("\nUnable to decode client key.\n")
+                    completion(HandshakeError.invalidClientKeyData)
+                    return
+                }
+                
+                self.replicantServerModel.polish.clientPublicKey = clientKey
+                
+                let configChunkSize = Int(self.replicantServerModel.config.chunkSize)
+                
+                //Generate random data of chunk size
+                var randomData = Data(count: configChunkSize)
+                let result = randomData.withUnsafeMutableBytes{
+                    SecRandomCopyBytes(kSecRandomDefault, configChunkSize, $0)
+                }
+                
+                guard result == errSecSuccess
+                else
+                {
+                    print("\nUnable to create random bytes for response to client key.\n")
+                    completion(HandshakeError.dataCreationError)
+                    return
+                }
+                
+                //Send random data to client
+                self.network.send(content: randomData, contentContext: .defaultMessage, isComplete: false, completion: NWConnection.SendCompletion.contentProcessed(
+                {
+                    (maybeError) in
+                    
+                    guard maybeError == nil
+                        else
+                    {
+                        print("\nReceived error from client when sending random data in handshake: \(maybeError!)")
+                        completion(maybeError!)
+                        return
+                    }
+                }))
+                
+            }
+            catch let sealedBoxError
+            {
+                print("Error creating sealed box from received data: \(sealedBoxError)")
+                completion(sealedBoxError)
+                return
+            }
+        }
     }
     
     func introductions(completion: @escaping (Error?) -> Void)
@@ -479,13 +519,13 @@ open class ReplicantServerConnection: Connection
         let paddingSize = Int(unencryptedChunkSize) - payloadSize
         let padding = Data(repeating: 0, count: paddingSize)
         let dataChunk = UInt16(payloadSize).data + payloadData + padding
-        let maybeEncryptedData = self.replicantServerModel.polish.controller.encrypt(payload: dataChunk, usingPublicKey: clientPublicKey)
+        let maybeEncryptedData = self.replicantServerModel.polish.controller.encrypt(payload: dataChunk, usingReceiverPublicKey: clientPublicKey, senderPrivateKey: self.replicantServerModel.polish.privateKey, andSalt: self.replicantServerModel.polish.salt)
         
         // Buffer should only contain unsent data
         self.sendBuffer = Data()
         
         // Keep calling network.send if the leftover data is at least chunk size
-        self.network.send(content: maybeEncryptedData, contentContext: .defaultMessage, isComplete: false, completion: NWConnection.SendCompletion.contentProcessed(
+        self.network.send(content: maybeEncryptedData?.ciphertext, contentContext: .defaultMessage, isComplete: false, completion: NWConnection.SendCompletion.contentProcessed(
         {
             (maybeError) in
             

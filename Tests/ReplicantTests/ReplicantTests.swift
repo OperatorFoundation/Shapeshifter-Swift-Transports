@@ -29,7 +29,7 @@ class ReplicantTests: XCTestCase
         let unencryptedChunkSize = chunkSize - UInt16(aesOverheadSize + 2)
         let testIPString = ""
         let testPort: UInt16 = 1234
-        
+        let salt = "pepper".data
         guard let serverPublicKey = Data(base64Encoded: "BL7+Vd087+p/roRp6jSzIWzG3qXhk2S4aefLcYjwRtxGanWUoeoIWmMkAHfiF11vA9d6rhiSjPDL0WFGiSr/Et+wwG7gOrLf8yovmtgSJlooqa7lcMtipTxegPAYtd5yZg==")
             else
         {
@@ -51,7 +51,7 @@ class ReplicantTests: XCTestCase
         }
         
         // Make a Client Connection
-        guard let replicantClientConfig = ReplicantConfig(serverPublicKey: serverPublicKey, chunkSize: chunkSize, chunkTimeout: chunkTimeout, toneBurst: nil)
+        guard let replicantClientConfig = ReplicantConfig(salt: salt, serverPublicKey: serverPublicKey, chunkSize: chunkSize, chunkTimeout: chunkTimeout, toneBurst: nil)
             else
         {
             print("\nUnable to create ReplicantClient config.\n")
