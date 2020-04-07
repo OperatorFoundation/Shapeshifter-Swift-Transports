@@ -20,14 +20,14 @@ let package = Package(
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         .package(url: "https://github.com/OperatorFoundation/ProteanSwift.git", from: "1.1.0"),
-        .package(url: "https://github.com/OperatorFoundation/ReplicantSwift.git", from: "0.4.1"),
-        .package(url: "https://github.com/OperatorFoundation/Transport.git", from: "0.0.22"),
+        .package(url: "https://github.com/OperatorFoundation/ReplicantSwift.git", from: "0.4.2"),
+        .package(url: "https://github.com/OperatorFoundation/Transport.git", from: "0.2.1"),
         .package(url: "https://github.com/OperatorFoundation/swift-sodium", from: "0.8.4"),
-        .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", from: "1.0.0"),
+        .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", from: "1.3.0"),
         .package(url: "https://github.com/OperatorFoundation/HKDF.git", from: "3.0.2"),
         .package(url: "https://github.com/OperatorFoundation/Elligator.git", from: "0.1.0"),
         .package(url: "https://github.com/OperatorFoundation/SwiftQueue.git", from: "0.0.3"),
-        .package(url: "https://github.com/OperatorFoundation/Flower.git", from: "0.0.7"),
+        .package(url: "https://github.com/OperatorFoundation/Flower.git", from: "0.0.9"),
         .package(url: "https://github.com/OperatorFoundation/Datable.git", from: "1.1.1")
         ],
     targets: [
