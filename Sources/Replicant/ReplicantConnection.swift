@@ -138,7 +138,7 @@ open class ReplicantConnection: Connection
         let payloadData = self.sendBuffer[0 ..< unencryptedChunkSize]
         let payloadSize = UInt16(unencryptedChunkSize)
         let dataChunk = payloadSize.data + payloadData
-        guard let sealedBox = self.replicantClientModel.polish.controller.encrypt(payload: dataChunk, usingReceiverPublicKey: self.replicantClientModel.polish.serverPublicKey, senderPrivateKey: self.replicantClientModel.polish.privateKey , andSalt: self.replicantClientModel.polish.salt)
+        guard let sealedBox = self.replicantClientModel.polish.controller.encrypt(payload: dataChunk, usingReceiverPublicKey: self.replicantClientModel.polish.serverPublicKey, senderPrivateKey: self.replicantClientModel.polish.privateKey)
         else
         {
             print("sendBufferChunks: Failed to encrypt data. Giving up.")
@@ -282,7 +282,7 @@ open class ReplicantConnection: Connection
         do
         {
             let sealedBox = try ChaChaPoly.SealedBox(combined: encryptedData)
-            guard let decryptedData = self.replicantClientModel.polish.controller.decrypt(payload: sealedBox, usingReceiverPrivateKey: self.replicantClientModel.polish.privateKey, senderPublicKey: self.replicantClientModel.polish.serverPublicKey, andSalt: self.replicantClientModel.polish.salt)
+            guard let decryptedData = self.replicantClientModel.polish.controller.decrypt(payload: sealedBox, usingReceiverPrivateKey: self.replicantClientModel.polish.privateKey, senderPublicKey: self.replicantClientModel.polish.serverPublicKey)
             else
             {
                 logQueue.enqueue("Unable to decrypt encrypted receive buffer")
@@ -350,8 +350,7 @@ open class ReplicantConnection: Connection
             fromPublicKey: self.replicantClientModel.polish.publicKey,
             chunkSize: self.replicantClientModel.config.chunkSize,
             privateKey: self.replicantClientModel.polish.privateKey ,
-            serverPublicKey: self.replicantClientModel.polish.serverPublicKey,
-            salt: self.replicantClientModel.polish.salt)
+            serverPublicKey: self.replicantClientModel.polish.serverPublicKey)
             else
         {
             logQueue.enqueue("\n🤝  Unable to generate public key data.\n")
@@ -465,8 +464,7 @@ open class ReplicantConnection: Connection
         let maybeEncryptedData = self.replicantClientModel.polish.controller.encrypt(
             payload: dataChunk,
             usingReceiverPublicKey: self.replicantClientModel.polish.serverPublicKey,
-            senderPrivateKey: self.replicantClientModel.polish.privateKey,
-            andSalt: self.replicantClientModel.polish.salt)
+            senderPrivateKey: self.replicantClientModel.polish.privateKey)
         
         // Buffer should only contain unsent data
         self.sendBuffer = Data()

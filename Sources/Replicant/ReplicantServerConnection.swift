@@ -134,7 +134,7 @@ open class ReplicantServerConnection: Connection
         let payloadData = self.sendBuffer[0 ..< unencryptedChunkSize]
         let payloadSize = UInt16(unencryptedChunkSize)
         let dataChunk = payloadSize.data + payloadData
-        let maybeEncryptedData = self.replicantServerModel.polish.controller.encrypt(payload: dataChunk, usingReceiverPublicKey: clientPublicKey, senderPrivateKey: replicantServerModel.polish.privateKey, andSalt: replicantServerModel.polish.salt)
+        let maybeEncryptedData = self.replicantServerModel.polish.controller.encrypt(payload: dataChunk, usingReceiverPublicKey: clientPublicKey, senderPrivateKey: replicantServerModel.polish.privateKey)
         
         // Buffer should only contain unsent data
         self.sendBuffer = self.sendBuffer[unencryptedChunkSize...]
@@ -275,7 +275,7 @@ open class ReplicantServerConnection: Connection
         do
         {
             let data = try ChaChaPoly.SealedBox(combined: encryptedData)
-            guard let decryptedData = self.replicantServerModel.polish.controller.decrypt(payload: data, usingReceiverPrivateKey: self.replicantServerModel.polish.privateKey, senderPublicKey: clientPublicKey, andSalt: replicantServerModel.polish.salt)
+            guard let decryptedData = self.replicantServerModel.polish.controller.decrypt(payload: data, usingReceiverPrivateKey: self.replicantServerModel.polish.privateKey, senderPublicKey: clientPublicKey)
                 else
             {
                 print("Unable to decrypt encrypted receive buffer")
@@ -384,8 +384,7 @@ open class ReplicantServerConnection: Connection
             guard let clientPaddedKey = self.replicantServerModel.polish.controller.decrypt(
                 payload: sealedBox,
                 usingReceiverPrivateKey: self.replicantServerModel.polish.privateKey,
-                senderPublicKey: clientPublicKey,
-                andSalt: self.replicantServerModel.polish.salt)
+                senderPublicKey: clientPublicKey)
                 else
                 {
                     print("\nCould not decrypt client introduction.\n")
@@ -519,7 +518,7 @@ open class ReplicantServerConnection: Connection
         let paddingSize = Int(unencryptedChunkSize) - payloadSize
         let padding = Data(repeating: 0, count: paddingSize)
         let dataChunk = UInt16(payloadSize).data + payloadData + padding
-        let maybeEncryptedData = self.replicantServerModel.polish.controller.encrypt(payload: dataChunk, usingReceiverPublicKey: clientPublicKey, senderPrivateKey: self.replicantServerModel.polish.privateKey, andSalt: self.replicantServerModel.polish.salt)
+        let maybeEncryptedData = self.replicantServerModel.polish.controller.encrypt(payload: dataChunk, usingReceiverPublicKey: clientPublicKey, senderPrivateKey: self.replicantServerModel.polish.privateKey)
         
         // Buffer should only contain unsent data
         self.sendBuffer = Data()
