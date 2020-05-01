@@ -74,3 +74,6 @@ Sources/libsodium-ios.a
 
 .DS_Store
 Tests/OptimizerTests/OptimizerTests.swift
+Package.resolved
+*.xcscheme
+*.xcworkspacedata

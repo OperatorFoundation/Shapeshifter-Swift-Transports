@@ -21,7 +21,8 @@ open class ReplicantConnection: Connection
     public var config: ReplicantConfig
     public var replicantClientModel: ReplicantClientModel
     
-    let unencryptedChunkSize: UInt16
+    // FIXME: unencrypted chunk size for non-polish
+    var unencryptedChunkSize: UInt16 = 400
     
     var sendTimer: Timer?
     var networkQueue = DispatchQueue(label: "Replicant Queue")
@@ -44,6 +45,7 @@ open class ReplicantConnection: Connection
         guard let newConnection = connectionFactory.connect(using: parameters)
             else
         {
+            print("Failed to create replicant connection. NetworkConnectionFactory.connect returned nil.")
             return nil
         }
         
@@ -55,12 +57,15 @@ open class ReplicantConnection: Connection
                 config: ReplicantConfig,
                 logQueue: Queue<String>)
     {
-        guard let newReplicant = ReplicantClientModel(withConfig: config, logQueue: logQueue)
-        else
-        {
-            logQueue.enqueue("\nFailed to initialize ReplicantConnection because we failed to initialize Replicant.\n")
-            return nil
-        }
+        let newReplicant = ReplicantClientModel(withConfig: config, logQueue: logQueue)
+        
+//        guard
+//        else
+//        {
+//            print("\nFailed to initialize ReplicantConnection because we failed to initialize Replicant.\n")
+//            logQueue.enqueue("\nFailed to initialize ReplicantConnection because we failed to initialize Replicant.\n")
+//            return nil
+//        }
         
         self.logQueue = logQueue
         self.network = connection
@@ -68,7 +73,11 @@ open class ReplicantConnection: Connection
         self.replicantClientModel = newReplicant
         self.decryptedReceiveBuffer = Data()
         self.sendBuffer = Data()
-        self.unencryptedChunkSize = replicantClientModel.config.chunkSize - UInt16(aesOverheadSize + payloadLengthOverhead)
+        
+        if let polishConnection = replicantClientModel.polish as? SilverClientConnection
+        {
+            self.unencryptedChunkSize = polishConnection.chunkSize - UInt16(payloadLengthOverhead)
+        }
         
         introductions
         {
@@ -116,7 +125,7 @@ open class ReplicantConnection: Connection
         sendBufferChunks(contentContext: contentContext, isComplete: isComplete, completion: completion)
     }
     
-    func sendBufferChunks(contentContext: NWConnection.ContentContext, isComplete: Bool, completion: NWConnection.SendCompletion)
+    func sendPolishedBufferChunks(polishConnection: SilverClientConnection, contentContext: NWConnection.ContentContext, isComplete: Bool, completion: NWConnection.SendCompletion)
     {
         // Only encrypt and send over network when chunk size is available, leftovers to the buffer
         guard self.sendBuffer.count >= (unencryptedChunkSize)
@@ -138,10 +147,10 @@ open class ReplicantConnection: Connection
         let payloadData = self.sendBuffer[0 ..< unencryptedChunkSize]
         let payloadSize = UInt16(unencryptedChunkSize)
         let dataChunk = payloadSize.data + payloadData
-        guard let sealedBox = self.replicantClientModel.polish.controller.encrypt(payload: dataChunk, usingReceiverPublicKey: self.replicantClientModel.polish.serverPublicKey, senderPrivateKey: self.replicantClientModel.polish.privateKey)
+        guard let polishedData = polishConnection.polish(inputData: dataChunk)
         else
         {
-            print("sendBufferChunks: Failed to encrypt data. Giving up.")
+            print("sendBufferChunks: Failed to polish data. Giving up.")
             bufferLock.leave()
             return
         }
@@ -157,7 +166,7 @@ open class ReplicantConnection: Connection
         }
         
         // Keep calling network.send if the leftover data is at least chunk size
-        self.network.send(content: sealedBox.ciphertext , contentContext: contentContext, isComplete: isComplete, completion: NWConnection.SendCompletion.contentProcessed(
+        self.network.send(content: polishedData, contentContext: contentContext, isComplete: isComplete, completion: NWConnection.SendCompletion.contentProcessed(
         {
             (maybeError) in
             
@@ -192,7 +201,95 @@ open class ReplicantConnection: Connection
                 // Start the timer
                 if self.sendBuffer.count > 0
                 {
-                    self.sendTimer = Timer(timeInterval: TimeInterval(self.config.chunkTimeout), target: self, selector: #selector(self.chunkTimeout), userInfo: nil, repeats: true)
+                    self.sendTimer = Timer(timeInterval: TimeInterval(polishConnection.chunkTimeout), target: self, selector: #selector(self.chunkTimeout), userInfo: nil, repeats: true)
+                }
+                
+                switch completion
+                {
+                    // FIXME: There might be data in the buffer
+                    case .contentProcessed(let handler):
+                        handler(nil)
+                        self.bufferLock.leave()
+                        return
+                    default:
+                        self.bufferLock.leave()
+                        return
+                }
+            }
+        }))
+    }
+    func sendBufferChunks(contentContext: NWConnection.ContentContext, isComplete: Bool, completion: NWConnection.SendCompletion)
+    {
+        // Only encrypt and send over network when chunk size is available, leftovers to the buffer
+        guard self.sendBuffer.count >= (unencryptedChunkSize)
+            else
+        {
+            logQueue.enqueue("Received a send command with content less than chunk size.")
+            switch completion
+            {
+            case .contentProcessed(let handler):
+                handler(nil)
+                bufferLock.leave()
+                return
+            default:
+                bufferLock.leave()
+                return
+            }
+        }
+        
+        let payloadData = self.sendBuffer[0 ..< unencryptedChunkSize]
+        let payloadSize = UInt16(unencryptedChunkSize)
+        let dataChunk = payloadSize.data + payloadData
+        
+        // Buffer should only contain unsent data
+        self.sendBuffer = self.sendBuffer[unencryptedChunkSize...]
+        
+        // Turn off the timer
+        if self.sendTimer != nil
+        {
+            self.sendTimer!.invalidate()
+            self.sendTimer = nil
+        }
+        
+        // Keep calling network.send if the leftover data is at least chunk size
+        self.network.send(content: dataChunk, contentContext: contentContext, isComplete: isComplete, completion: NWConnection.SendCompletion.contentProcessed(
+        {
+            (maybeError) in
+            
+            if let error = maybeError
+            {
+                self.logQueue.enqueue("Received an error on Send:\(error)")
+                if self.sendTimer != nil
+                {
+                    self.sendTimer!.invalidate()
+                    self.sendTimer = nil
+                }
+                
+                switch completion
+                {
+                    case .contentProcessed(let handler):
+                        handler(error)
+                        self.bufferLock.leave()
+                        return
+                    default:
+                        self.bufferLock.leave()
+                        return
+                }
+            }
+            
+            if self.sendBuffer.count >= (self.unencryptedChunkSize)
+            {
+                // Play it again Sam
+                self.sendBufferChunks(contentContext: contentContext, isComplete: isComplete, completion: completion)
+            }
+            else
+            {
+                // Start the timer
+                if self.sendBuffer.count > 0
+                {
+                    // FIXME: chunk timeout is for polish replicants only
+                    let timeout = 10
+                    self.sendTimer = Timer(timeInterval: TimeInterval(timeout), target: self, selector: #selector(self.chunkTimeout), userInfo: nil, repeats: true)
                 }
                 
                 switch completion
@@ -215,6 +312,50 @@ open class ReplicantConnection: Connection
         self.receive(minimumIncompleteLength: 1, maximumLength: 1000000, completion: completion)
     }
     
+    public func receive(polishConnection: SilverClientConnection,minimumIncompleteLength: Int, maximumLength: Int, completion: @escaping (Data?, NWConnection.ContentContext?, Bool, NWError?) -> Void)
+    {
+        logQueue.enqueue("\n🙋‍♀️  Replicant connection receive called.\n")
+        bufferLock.enter()
+        
+        // Check to see if we have min length data in decrypted buffer before calling network receive. Skip the call if we do.
+        if decryptedReceiveBuffer.count >= minimumIncompleteLength
+        {
+            // Make sure that the slice we get isn't bigger than the available data count or the maximum requested.
+            let sliceLength = decryptedReceiveBuffer.count < maximumLength ? decryptedReceiveBuffer.count : maximumLength
+            
+            // Return the requested amount
+            let returnData = self.decryptedReceiveBuffer[0 ..< sliceLength]
+
+            // Remove what was delivered from the buffer
+            self.decryptedReceiveBuffer = self.decryptedReceiveBuffer[sliceLength...]
+            
+            completion(returnData, NWConnection.ContentContext.defaultMessage, false, nil)
+            bufferLock.leave()
+            return
+        }
+        else
+        {
+            network.receive(minimumIncompleteLength: Int(polishConnection.chunkSize), maximumLength: Int(polishConnection.chunkSize))
+            {
+                (maybeData, maybeContext, connectionComplete, maybeError) in
+                
+                // Check to see if we got data
+                guard let someData = maybeData, someData.count == polishConnection.chunkSize
+                    else
+                {
+                    self.logQueue.enqueue("\n🙋‍♀️  Receive called with no content.\n")
+                    completion(maybeData, maybeContext, connectionComplete, maybeError)
+                    return
+                }
+                
+                let maybeReturnData = self.handleReceivedData(polishConnection: polishConnection, minimumIncompleteLength: minimumIncompleteLength, maximumLength: maximumLength, encryptedData: someData)
+                
+                completion(maybeReturnData, maybeContext, connectionComplete, maybeError)
+                self.bufferLock.leave()
+                return
+            }
+        }
+    }
     public func receive(minimumIncompleteLength: Int, maximumLength: Int, completion: @escaping (Data?, NWConnection.ContentContext?, Bool, NWError?) -> Void)
     {
         logQueue.enqueue("\n🙋‍♀️  Replicant connection receive called.\n")
@@ -238,12 +379,12 @@ open class ReplicantConnection: Connection
         }
         else
         {
-            network.receive(minimumIncompleteLength: Int(replicantClientModel.config.chunkSize), maximumLength: Int(replicantClientModel.config.chunkSize))
+            network.receive(minimumIncompleteLength: minimumIncompleteLength, maximumLength: maximumLength)
             {
                 (maybeData, maybeContext, connectionComplete, maybeError) in
                 
                 // Check to see if we got data
-                guard let someData = maybeData, someData.count == self.replicantClientModel.config.chunkSize
+                guard let someData = maybeData
                     else
                 {
                     self.logQueue.enqueue("\n🙋‍♀️  Receive called with no content.\n")
@@ -251,7 +392,7 @@ open class ReplicantConnection: Connection
                     return
                 }
                 
-                let maybeReturnData = self.handleReceivedData(minimumIncompleteLength: minimumIncompleteLength, maximumLength: maximumLength, encryptedData: someData)
+                let maybeReturnData = self.handleReceivedData(minimumIncompleteLength: minimumIncompleteLength, maximumLength: maximumLength, payloadData: someData)
                 
                 completion(maybeReturnData, maybeContext, connectionComplete, maybeError)
                 self.bufferLock.leave()
@@ -276,52 +417,74 @@ open class ReplicantConnection: Connection
     }
     
     /// This takes an optional data and adds it to the buffer before acting on min/max lengths
-    func handleReceivedData(minimumIncompleteLength: Int, maximumLength: Int, encryptedData: Data) -> Data?
+    func handleReceivedData(polishConnection: SilverClientConnection, minimumIncompleteLength: Int, maximumLength: Int, encryptedData: Data) -> Data?
     {
         // Try to decrypt the entire contents of the encrypted buffer
-        do
+        guard let decryptedData = polishConnection.unpolish(polishedData: encryptedData)
+        else
         {
-            let sealedBox = try ChaChaPoly.SealedBox(combined: encryptedData)
-            guard let decryptedData = self.replicantClientModel.polish.controller.decrypt(payload: sealedBox, usingReceiverPrivateKey: self.replicantClientModel.polish.privateKey, senderPublicKey: self.replicantClientModel.polish.serverPublicKey)
-            else
-            {
-                logQueue.enqueue("Unable to decrypt encrypted receive buffer")
-                return nil
-            }
-            
-            // The first two bytes simply lets us know the actual size of the payload
-            // This helps account for cases when the payload must be smaller than chunk size
-            let payloadSize = Int(decryptedData[..<payloadLengthOverhead].uint16)
-            let payload = decryptedData[payloadLengthOverhead..<payloadSize]
-            
-            // Add decrypted data to the decrypted buffer
-            self.decryptedReceiveBuffer.append(payload)
-            
-            // Check to see if the decrypted buffer meets min/max parameters
-            guard decryptedReceiveBuffer.count >= minimumIncompleteLength
-                else
-            {
-                // Not enough data return nothing
-                return nil
-            }
-            
-            // Make sure that the slice we get isn't bigger than the available data count or the maximum requested.
-            let sliceLength = decryptedReceiveBuffer.count < maximumLength ? decryptedReceiveBuffer.count : maximumLength
-            
-            // Return the requested amount
-            let returnData = self.decryptedReceiveBuffer[0 ..< sliceLength]
-            
-            // Remove what was delivered from the buffer
-            self.decryptedReceiveBuffer = self.decryptedReceiveBuffer[sliceLength...]
-            
-            return returnData
-        }
-        catch let decodeBoxError
-        {
-            print("Received data is in an unexpected format: \(decodeBoxError)")
-            logQueue.enqueue(decodeBoxError.localizedDescription)
+            logQueue.enqueue("Unable to decrypt encrypted receive buffer")
             return nil
         }
+        
+        // The first two bytes simply lets us know the actual size of the payload
+        // This helps account for cases when the payload must be smaller than chunk size
+        let payloadSize = Int(decryptedData[..<payloadLengthOverhead].uint16)
+        let payload = decryptedData[payloadLengthOverhead..<payloadSize]
+        
+        // Add decrypted data to the decrypted buffer
+        self.decryptedReceiveBuffer.append(payload)
+        
+        // Check to see if the decrypted buffer meets min/max parameters
+        guard decryptedReceiveBuffer.count >= minimumIncompleteLength
+            else
+        {
+            // Not enough data return nothing
+            return nil
+        }
+        
+        // Make sure that the slice we get isn't bigger than the available data count or the maximum requested.
+        let sliceLength = decryptedReceiveBuffer.count < maximumLength ? decryptedReceiveBuffer.count : maximumLength
+        
+        // Return the requested amount
+        let returnData = self.decryptedReceiveBuffer[0 ..< sliceLength]
+        
+        // Remove what was delivered from the buffer
+        self.decryptedReceiveBuffer = self.decryptedReceiveBuffer[sliceLength...]
+        
+        return returnData
+    }
+    
+    /// This takes an optional data and adds it to the buffer before acting on min/max lengths
+    func handleReceivedData(minimumIncompleteLength: Int, maximumLength: Int, payloadData: Data) -> Data?
+    {
+        // FIXME: Handle payload size for non-polish replicants
+        // The first two bytes simply lets us know the actual size of the payload
+        // This helps account for cases when the payload must be smaller than chunk size
+        let payloadSize = Int(payloadData[..<payloadLengthOverhead].uint16)
+        let payload = payloadData[payloadLengthOverhead..<payloadSize]
+        
+        // Add decrypted data to the decrypted buffer
+        self.decryptedReceiveBuffer.append(payload)
+        
+        // Check to see if the decrypted buffer meets min/max parameters
+        guard decryptedReceiveBuffer.count >= minimumIncompleteLength
+            else
+        {
+            // Not enough data return nothing
+            return nil
+        }
+        
+        // Make sure that the slice we get isn't bigger than the available data count or the maximum requested.
+        let sliceLength = decryptedReceiveBuffer.count < maximumLength ? decryptedReceiveBuffer.count : maximumLength
+        
+        // Return the requested amount
+        let returnData = self.decryptedReceiveBuffer[0 ..< sliceLength]
+        
+        // Remove what was delivered from the buffer
+        self.decryptedReceiveBuffer = self.decryptedReceiveBuffer[sliceLength...]
+        
+        return returnData
     }
     
     func voightKampffTest(completion: @escaping (Error?) -> Void)
@@ -342,66 +505,66 @@ open class ReplicantConnection: Connection
         }
     }
     
-    func handshake(completion: @escaping (Error?) -> Void)
-    {
-        logQueue.enqueue("\n🤝  Client handshake initiation.")
-        // Send public key to server
-        guard let ourPublicKeyData = self.replicantClientModel.polish.controller.generateAndEncryptPaddedKeyData(
-            fromPublicKey: self.replicantClientModel.polish.publicKey,
-            chunkSize: self.replicantClientModel.config.chunkSize,
-            privateKey: self.replicantClientModel.polish.privateKey ,
-            serverPublicKey: self.replicantClientModel.polish.serverPublicKey)
-            else
-        {
-            logQueue.enqueue("\n🤝  Unable to generate public key data.\n")
-            completion(HandshakeError.publicKeyDataGenerationFailure)
-            return
-        }
-        
-        logQueue.enqueue("\n🤝  Sending Public Key Data")
-        logQueue.enqueue("\(ourPublicKeyData.ciphertext.count)")
-        logQueue.enqueue("\(ourPublicKeyData.ciphertext)")
-        self.network.send(content: ourPublicKeyData.ciphertext, contentContext: .defaultMessage, isComplete: false, completion: NWConnection.SendCompletion.contentProcessed(
-        {
-            (maybeError) in
-            
-            self.logQueue.enqueue("\n🤝  Handshake: Returned from sending our public key to the server.\n")
-            guard maybeError == nil
-                else
-            {
-                self.logQueue.enqueue("\n🤝  Received error from server when sending our key: \(maybeError!)")
-                completion(maybeError!)
-                return
-            }
-            
-            let replicantChunkSize = Int(self.replicantClientModel.config.chunkSize)
-            self.network.receive(minimumIncompleteLength: replicantChunkSize, maximumLength: replicantChunkSize, completion:
-            {
-                (maybeResponse1Data, maybeResponse1Context, _, maybeResponse1Error) in
-                
-                self.logQueue.enqueue("\n🤝  Callback from handshake network.receive called.")
-                guard maybeResponse1Error == nil
-                    else
-                {
-                    self.logQueue.enqueue("\n🤝  Received an error while waiting for response from server acfter sending key: \(maybeResponse1Error!)")
-                    completion(maybeResponse1Error!)
-                    return
-                }
-                
-                // This data is meaningless it can be discarded
-                guard let reponseData = maybeResponse1Data
-                    else
-                {
-                    self.logQueue.enqueue("\n🤝  Server key response did not contain data.")
-                    completion(nil)
-                    return
-                }
-                
-                self.logQueue.enqueue("\n🤝  Received response data from the server during handshake: \(reponseData)\n")
-                completion(nil)
-            })
-        }))
-    }
+//    func handshake(completion: @escaping (Error?) -> Void)
+//    {
+//        logQueue.enqueue("\n🤝  Client handshake initiation.")
+//        // Send public key to server
+//        guard let ourPublicKeyData = self.replicantClientModel.polish.controller.generateAndEncryptPaddedKeyData(
+//            fromPublicKey: self.replicantClientModel.polish.publicKey,
+//            chunkSize: self.replicantClientModel.config.chunkSize,
+//            privateKey: self.replicantClientModel.polish.privateKey ,
+//            serverPublicKey: self.replicantClientModel.polish.serverPublicKey)
+//            else
+//        {
+//            logQueue.enqueue("\n🤝  Unable to generate public key data.\n")
+//            completion(HandshakeError.publicKeyDataGenerationFailure)
+//            return
+//        }
+//
+//        logQueue.enqueue("\n🤝  Sending Public Key Data")
+//        logQueue.enqueue("\(ourPublicKeyData.ciphertext.count)")
+//        logQueue.enqueue("\(ourPublicKeyData.ciphertext)")
+//        self.network.send(content: ourPublicKeyData.ciphertext, contentContext: .defaultMessage, isComplete: false, completion: NWConnection.SendCompletion.contentProcessed(
+//        {
+//            (maybeError) in
+//
+//            self.logQueue.enqueue("\n🤝  Handshake: Returned from sending our public key to the server.\n")
+//            guard maybeError == nil
+//                else
+//            {
+//                self.logQueue.enqueue("\n🤝  Received error from server when sending our key: \(maybeError!)")
+//                completion(maybeError!)
+//                return
+//            }
+//
+//            let replicantChunkSize = Int(self.replicantClientModel.config.chunkSize)
+//            self.network.receive(minimumIncompleteLength: replicantChunkSize, maximumLength: replicantChunkSize, completion:
+//            {
+//                (maybeResponse1Data, maybeResponse1Context, _, maybeResponse1Error) in
+//
+//                self.logQueue.enqueue("\n🤝  Callback from handshake network.receive called.")
+//                guard maybeResponse1Error == nil
+//                    else
+//                {
+//                    self.logQueue.enqueue("\n🤝  Received an error while waiting for response from server acfter sending key: \(maybeResponse1Error!)")
+//                    completion(maybeResponse1Error!)
+//                    return
+//                }
+//
+//                // This data is meaningless it can be discarded
+//                guard let reponseData = maybeResponse1Data
+//                    else
+//                {
+//                    self.logQueue.enqueue("\n🤝  Server key response did not contain data.")
+//                    completion(nil)
+//                    return
+//                }
+//
+//                self.logQueue.enqueue("\n🤝  Received response data from the server during handshake: \(reponseData)\n")
+//                completion(nil)
+//            })
+//        }))
+//    }
     
     func introductions(completion: @escaping (Error?) -> Void)
     {
@@ -417,24 +580,31 @@ open class ReplicantConnection: Connection
                 return
             }
             
-            self.handshake(completion:
+            if var polishConnection = self.replicantClientModel.polish
             {
-                (maybeHandshakeError) in
-                
-                if let handshakeError = maybeHandshakeError
+                polishConnection.handshake(connection: self.network)
                 {
-                    self.logQueue.enqueue("Received a handshake error: \(handshakeError)")
-                    self.stateUpdateHandler?(NWConnection.State.cancelled)
-                    completion(handshakeError)
-                    return
+                    (maybeHandshakeError) in
+                    
+                    if let handshakeError = maybeHandshakeError
+                    {
+                        self.logQueue.enqueue("Received a handshake error: \(handshakeError)")
+                        self.stateUpdateHandler?(NWConnection.State.cancelled)
+                        completion(handshakeError)
+                        return
+                    }
+                    else
+                    {
+                        self.logQueue.enqueue("\n🤝  Client successfully completed handshake. 👏👏👏👏\n")
+                        self.stateUpdateHandler?(NWConnection.State.ready)
+                        completion(nil)
+                    }
                 }
-                else
-                {
-                    self.logQueue.enqueue("\n🤝  Client successfully completed handshake. 👏👏👏👏\n")
-                    self.stateUpdateHandler?(NWConnection.State.ready)
-                    completion(nil)
-                }
-            })
+            }
+            else
+            {
+                completion(nil)
+            }
         }
     }
     
@@ -450,43 +620,81 @@ open class ReplicantConnection: Connection
         
         let payloadSize = sendBuffer.count
         
-        guard payloadSize > 0, payloadSize < replicantClientModel.config.chunkSize
-        else
+        if let polishConnection = replicantClientModel.polish as? SilverClientConnection
         {
-            bufferLock.leave()
-            return
-        }
-        
-        let payloadData = self.sendBuffer
-        let paddingSize = Int(unencryptedChunkSize) - payloadSize
-        let padding = Data(repeating: 0, count: paddingSize)
-        let dataChunk = UInt16(payloadSize).data + payloadData + padding
-        let maybeEncryptedData = self.replicantClientModel.polish.controller.encrypt(
-            payload: dataChunk,
-            usingReceiverPublicKey: self.replicantClientModel.polish.serverPublicKey,
-            senderPrivateKey: self.replicantClientModel.polish.privateKey)
-        
-        // Buffer should only contain unsent data
-        self.sendBuffer = Data()
-        
-        // Keep calling network.send if the leftover data is at least chunk size
-        self.network.send(content: maybeEncryptedData?.ciphertext, contentContext: .defaultMessage, isComplete: false, completion: NWConnection.SendCompletion.contentProcessed(
-        {
-            (maybeError) in
-            
-            if let error = maybeError
-            {
-                self.logQueue.enqueue("Received an error on Send:\(error)")
-                
-                self.bufferLock.leave()
-                return
-            }
+            guard payloadSize > 0, payloadSize < polishConnection.chunkSize
             else
             {
-                self.bufferLock.leave()
+                bufferLock.leave()
                 return
             }
-        }))
+            
+            let payloadData = self.sendBuffer
+            let paddingSize = Int(unencryptedChunkSize) - payloadSize
+            let padding = Data(repeating: 0, count: paddingSize)
+            let dataChunk = UInt16(payloadSize).data + payloadData + padding
+            let maybeEncryptedData = polishConnection.polish(inputData: dataChunk)
+            
+            // Buffer should only contain unsent data
+            self.sendBuffer = Data()
+            
+            // Keep calling network.send if the leftover data is at least chunk size
+            self.network.send(content: maybeEncryptedData, contentContext: .defaultMessage, isComplete: false, completion: NWConnection.SendCompletion.contentProcessed(
+            {
+                (maybeError) in
+                
+                if let error = maybeError
+                {
+                    self.logQueue.enqueue("Received an error on Send:\(error)")
+                    
+                    self.bufferLock.leave()
+                    return
+                }
+                else
+                {
+                    self.bufferLock.leave()
+                    return
+                }
+            }))
+        }
+        else /// eplicant without polish
+        {
+            guard payloadSize > 0
+            else
+            {
+                bufferLock.leave()
+                return
+            }
+            
+            let payloadData = self.sendBuffer
+            let paddingSize = Int(unencryptedChunkSize) - payloadSize
+            let padding = Data(repeating: 0, count: paddingSize)
+            let dataChunk = UInt16(payloadSize).data + payloadData + padding
+            
+            // Buffer should only contain unsent data
+            self.sendBuffer = Data()
+            
+            // Keep calling network.send if the leftover data is at least chunk size
+            self.network.send(content: dataChunk, contentContext: .defaultMessage, isComplete: false, completion: NWConnection.SendCompletion.contentProcessed(
+            {
+                (maybeError) in
+                
+                if let error = maybeError
+                {
+                    self.logQueue.enqueue("Received an error on Send:\(error)")
+                    
+                    self.bufferLock.leave()
+                    return
+                }
+                else
+                {
+                    self.bufferLock.leave()
+                    return
+                }
+            }))
+        }
+        
+
     }
     
 }
@@ -495,17 +703,6 @@ enum ToneBurstError: Error
 {
     case generateFailure
     case removeFailure
-}
-
-enum HandshakeError: Error
-{
-    case publicKeyDataGenerationFailure
-    case noClientKeyData
-    case invalidClientKeyData
-    case missingClientKey
-    case clientKeyDataIncorrectSize
-    case unableToDecryptData
-    case dataCreationError
 }
 
 enum IntroductionsError: Error

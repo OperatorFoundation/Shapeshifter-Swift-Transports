@@ -60,6 +60,7 @@ open class ReplicantConnectionFactory: ConnectionFactory
             guard let currentHost = host, let currentPort = port
                 else
             {
+                print("Unable to connect, host or port is nil.\n\(host ?? "nil host")\n\(port?.debugDescription ?? "nil port")")
                 return nil
             }
             

@@ -20,7 +20,7 @@ let package = Package(
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         .package(url: "https://github.com/OperatorFoundation/ProteanSwift.git", from: "1.1.0"),
-        .package(url: "https://github.com/OperatorFoundation/ReplicantSwift.git", from: "0.4.2"),
+        .package(url: "https://github.com/OperatorFoundation/ReplicantSwift.git", from: "0.5.0"),
         .package(url: "https://github.com/OperatorFoundation/Transport.git", from: "0.2.1"),
         .package(url: "https://github.com/OperatorFoundation/swift-sodium", from: "0.8.4"),
         .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", from: "1.3.0"),
