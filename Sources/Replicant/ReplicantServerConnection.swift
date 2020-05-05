@@ -6,8 +6,10 @@
 //
 
 import Foundation
+import Dispatch
 import Network
 import CryptoKit
+import Flower
 import SwiftQueue
 import Transport
 import ReplicantSwift
@@ -40,12 +42,14 @@ open class ReplicantServerConnection: Connection
     public init?(connection: Connection,
                  parameters: NWParameters,
                  replicantConfig: ReplicantServerConfig,
-                 logQueue: Queue<String>)
+                 logQueue: Queue<String>,
+                 completion: @escaping (Error?) -> Void)
     {
         guard let newReplicant = ReplicantServerModel(withConfig: replicantConfig, logQueue: logQueue)
         else
         {
             print("\nFailed to initialize ReplicantConnection because we failed to initialize Replicant.\n")
+            completion(ReplicantError.initializationError)
             return nil
         }
         
@@ -67,10 +71,25 @@ open class ReplicantServerConnection: Connection
                 else
             {
                 print("\nError attempting to meet the server during Replicant Connection Init: \(maybeIntroError!)\n")
+                completion(maybeIntroError!)
                 return
             }
             
             print("\n New Replicant connection is ready. 🎉 \n")
+            
+            // Data Handling
+            
+            self.networkQueue.async
+            {
+                self.startReceivingPackets()
+            }
+            
+            self.sendBufferQueue.async
+            {
+                self.startSendingPackets()
+            }
+            
+            completion(nil)
         }
     }
     
@@ -78,6 +97,22 @@ open class ReplicantServerConnection: Connection
     {
         network.stateUpdateHandler = self.stateUpdateHandler
         network.start(queue: queue)
+    }
+    
+    func startReceivingPackets()
+    {
+        // This is actually kicking off a loop that will continue reading
+        self.readMessages
+        {
+            (message) in
+            
+            self.logQueue.enqueue("Received a message: \(message)")
+        }
+    }
+    
+    func startSendingPackets()
+    {
+        
     }
     
     public func send(content: Data?, contentContext: NWConnection.ContentContext, isComplete: Bool, completion: NWConnection.SendCompletion)

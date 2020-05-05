@@ -9,6 +9,7 @@ import Foundation
 
 enum ReplicantError: Error
 {
+    case initializationError
     case noClientPublicKey
     case invalidServerHandshake
     case invalidClientHandshake

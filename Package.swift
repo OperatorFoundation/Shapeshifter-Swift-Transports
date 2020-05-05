@@ -37,7 +37,7 @@ let package = Package(
         .target(name: "Wisp", dependencies: ["Sodium", "CryptoSwift", "HKDF", "Elligator", "Transport", "SwiftQueue"]),
         .target(name: "Flow", dependencies: ["Flower"]),
         .target(name: "Protean", dependencies: ["ProteanSwift", "Transport", "SwiftQueue"]),
-        .target(name: "Replicant", dependencies: ["ReplicantSwift", "Transport", "SwiftQueue", "Datable"]),
+        .target(name: "Replicant", dependencies: ["ReplicantSwift", "Transport", "SwiftQueue", "Datable", "Flower"]),
         .target(name: "Optimizer", dependencies: ["Transport", "SwiftQueue"]),
         .target(name: "ExampleTransports", dependencies: ["Transport"]),
         .testTarget(name: "WispTests", dependencies: ["Wisp"]),
