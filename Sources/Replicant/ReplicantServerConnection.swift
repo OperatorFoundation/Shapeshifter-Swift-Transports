@@ -16,12 +16,7 @@ import ReplicantSwift
 
 open class ReplicantServerConnection: Connection
 {
-    // FIXME: Constants called out twice, should be global
-    
-    // FIXME: No longer using AES Overhead?
-    //public let aesOverheadSize = 113
     public let payloadLengthOverhead = 2
-    
     public var stateUpdateHandler: ((NWConnection.State) -> Void)?
     public var viabilityUpdateHandler: ((Bool) -> Void)?
     public var replicantConfig: ReplicantServerConfig
@@ -117,41 +112,40 @@ open class ReplicantServerConnection: Connection
     
     public func send(content: Data?, contentContext: NWConnection.ContentContext, isComplete: Bool, completion: NWConnection.SendCompletion)
     {
-        // Lock so that the timer cannot fire and change the buffer.
-        bufferLock.enter()
-        
-        guard let someData = content else
+        if let polish = replicantServerModel.polish
         {
-            print("Received a send command with no content.")
-            switch completion
+            // Lock so that the timer cannot fire and change the buffer.
+            bufferLock.enter()
+            
+            guard let someData = content else
             {
-            case .contentProcessed(let handler):
-                handler(nil)
-                bufferLock.leave()
-                return
-            default:
-                bufferLock.leave()
-                return
+                print("Received a send command with no content.")
+                switch completion
+                {
+                case .contentProcessed(let handler):
+                    handler(nil)
+                    bufferLock.leave()
+                    return
+                default:
+                    bufferLock.leave()
+                    return
+                }
             }
-        }
-        
-        self.sendBuffer.append(someData)
-        
-        if let polish = replicantConfig.polish as? SilverServerConfig
-        {
-            sendPolishedBufferChunks(polishConfig: polish, contentContext: contentContext, isComplete: isComplete, completion: completion)
+            
+            self.sendBuffer.append(someData)
+            
+            sendBufferChunks(polishServer: polish, contentContext: contentContext, isComplete: isComplete, completion: completion)
         }
         else
         {
-            sendBufferChunks(contentContext: contentContext, isComplete: isComplete, completion: completion)
+            network.send(content: content, contentContext: contentContext, isComplete: isComplete, completion: completion)
         }
-        
     }
     
-    func sendPolishedBufferChunks(polishConfig: SilverServerConfig, contentContext: NWConnection.ContentContext, isComplete: Bool, completion: NWConnection.SendCompletion)
+    func sendBufferChunks(polishServer: PolishServer, contentContext: NWConnection.ContentContext, isComplete: Bool, completion: NWConnection.SendCompletion)
     {
         // Only encrypt and send over network when chunk size is available, leftovers to the buffer
-        guard self.sendBuffer.count >= (polishConfig.chunkSize)
+        guard self.sendBuffer.count >= (polishServer.chunkSize)
             else
         {
             print("Received a send command with content less than chunk size.")
@@ -167,25 +161,10 @@ open class ReplicantServerConnection: Connection
             }
         }
         
-        guard let silverServer = self.replicantServerModel.polish, let clientPublicKey = silverServer.clientPublicKey else
-        {
-            print("Received a send command when we do not yet have the client's public key.")
-            switch completion
-            {
-                case .contentProcessed(let handler):
-                    handler(NWError.posix(POSIXErrorCode.ENOATTR))
-                    bufferLock.leave()
-                    return
-                default:
-                    bufferLock.leave()
-                    return
-            }
-        }
-        
-        let payloadData = self.sendBuffer[0 ..< polishConfig.chunkSize]
-        let payloadSize = polishConfig.chunkSize
+        let payloadData = self.sendBuffer[0 ..< polishServer.chunkSize]
+        let payloadSize = polishServer.chunkSize
         let dataChunk = payloadSize.data + payloadData
-        guard let symmetricKey = silverServer.controller.deriveSymmetricKey(receiverPublicKey: clientPublicKey, senderPrivateKey: silverServer.privateKey)
+        guard let polishServerConnection = polishServer.newConnection(connection: self)
         else
         {
             print("Received a send command but we could not derive the symmetric key.")
@@ -201,10 +180,10 @@ open class ReplicantServerConnection: Connection
             }
         }
         
-        let maybeEncryptedData = silverServer.controller.encrypt(payload: dataChunk, symmetricKey: symmetricKey)
+        let maybeEncryptedData = polishServerConnection.polish(inputData: dataChunk)
         
         // Buffer should only contain unsent data
-        self.sendBuffer = self.sendBuffer[polishConfig.chunkSize...]
+        self.sendBuffer = self.sendBuffer[polishServer.chunkSize...]
         
         // Turn off the timer
         if sendTimer != nil
@@ -214,7 +193,7 @@ open class ReplicantServerConnection: Connection
         }
         
         // Keep calling network.send if the leftover data is at least chunk size
-        self.network.send(content: maybeEncryptedData?.ciphertext, contentContext: contentContext, isComplete: isComplete, completion: NWConnection.SendCompletion.contentProcessed(
+        self.network.send(content: maybeEncryptedData, contentContext: contentContext, isComplete: isComplete, completion: NWConnection.SendCompletion.contentProcessed(
         {
             (maybeError) in
             
@@ -236,10 +215,10 @@ open class ReplicantServerConnection: Connection
                 }
             }
             
-            if self.sendBuffer.count >= (polishConfig.chunkSize)
+            if self.sendBuffer.count >= (polishServer.chunkSize)
             {
                 // Play it again Sam
-                self.sendPolishedBufferChunks(polishConfig: polishConfig, contentContext: contentContext, isComplete: isComplete, completion: completion)
+                self.sendBufferChunks(polishServer: polishServer, contentContext: contentContext, isComplete: isComplete, completion: completion)
             }
             else
             {
@@ -247,7 +226,7 @@ open class ReplicantServerConnection: Connection
                 if self.sendBuffer.count > 0
                 {
                     
-                    self.sendTimer = Timer(timeInterval: TimeInterval(polishConfig.chunkTimeout),
+                    self.sendTimer = Timer(timeInterval: TimeInterval(polishServer.chunkTimeout),
                                            target: self,
                                            selector: #selector(self.chunkTimeout),
                                            userInfo: nil,
@@ -268,199 +247,63 @@ open class ReplicantServerConnection: Connection
             }
         }))
     }
-    
-    func sendBufferChunks(contentContext: NWConnection.ContentContext, isComplete: Bool, completion: NWConnection.SendCompletion)
-    {
-        // FIXME: Chunk size is meant for configs that have polish, we need to decide how we want to handle no-polish replicants
-        // Only encrypt and send over network when chunk size is available, leftovers to the buffer
-        let unencryptedChunkSize: UInt16 = 400
 
-        guard self.sendBuffer.count >= (unencryptedChunkSize)
-            else
-        {
-            print("Received a send command with content less than chunk size.")
-            switch completion
-            {
-                case .contentProcessed(let handler):
-                    handler(nil)
-                    bufferLock.leave()
-                    return
-                default:
-                    bufferLock.leave()
-                    return
-            }
-        }
-        
-        let payloadData = self.sendBuffer[0 ..< unencryptedChunkSize]
-        let payloadSize = UInt16(unencryptedChunkSize)
-        let dataChunk = payloadSize.data + payloadData
-        
-        // Buffer should only contain unsent data
-        self.sendBuffer = self.sendBuffer[unencryptedChunkSize...]
-        
-        // Turn off the timer
-        if sendTimer != nil
-        {
-            self.sendTimer!.invalidate()
-            self.sendTimer = nil
-        }
-        
-        // Keep calling network.send if the leftover data is at least chunk size
-        self.network.send(content: dataChunk, contentContext: contentContext, isComplete: isComplete, completion: NWConnection.SendCompletion.contentProcessed(
-        {
-            (maybeError) in
-            
-            if let error = maybeError
-            {
-                print("Received an error on Send:\(error)")
-                self.sendTimer!.invalidate()
-                self.sendTimer = nil
-                
-                switch completion
-                {
-                    case .contentProcessed(let handler):
-                        handler(error)
-                        self.bufferLock.leave()
-                        return
-                    default:
-                        self.bufferLock.leave()
-                        return
-                }
-            }
-            
-            if self.sendBuffer.count >= (unencryptedChunkSize)
-            {
-                // Play it again Sam
-                self.sendBufferChunks(contentContext: contentContext, isComplete: isComplete, completion: completion)
-            }
-            else
-            {
-                // Start the timer
-                if self.sendBuffer.count > 0
-                {
-                    // FIXME: chunkTimeout is a Polish property, here we are sending with no polish
-                    let timeout = 20
-                    self.sendTimer = Timer(timeInterval: TimeInterval(timeout),
-                                           target: self,
-                                           selector: #selector(self.chunkTimeout),
-                                           userInfo: nil,
-                                           repeats: true)
-                }
-                
-                switch completion
-                {
-                    // FIXME: There might be data in the buffer
-                    case .contentProcessed(let handler):
-                        handler(nil)
-                        self.bufferLock.leave()
-                        return
-                    default:
-                        self.bufferLock.leave()
-                        return
-                }
-            }
-        }))
-    }
-    
     public func receive(completion: @escaping (Data?, NWConnection.ContentContext?, Bool, NWError?) -> Void)
     {
-        if let polishServer = replicantServerModel.polish
-        {
-            receive(polish: polishServer, minimumIncompleteLength: 1, maximumLength: 1000000, completion: completion)
-        }
-        else
-        {
-            self.receive(minimumIncompleteLength: 1, maximumLength: 1000000, completion: completion)
-        }
+        self.receive(minimumIncompleteLength: 1, maximumLength: 1000000, completion: completion)
     }
     
     public func receive(minimumIncompleteLength: Int, maximumLength: Int, completion: @escaping (Data?, NWConnection.ContentContext?, Bool, NWError?) -> Void)
     {
-        bufferLock.enter()
-        
-        // Check to see if we have min length data in decrypted buffer before calling network receive. Skip the call if we do.
-        if decryptedReceiveBuffer.count >= minimumIncompleteLength
+        if let polishServerConnection = replicantServerModel.polish
         {
-            // Make sure that the slice we get isn't bigger than the available data count or the maximum requested.
-            let sliceLength = decryptedReceiveBuffer.count < maximumLength ? decryptedReceiveBuffer.count : maximumLength
+            bufferLock.enter()
             
-            // Return the requested amount
-            let returnData = self.decryptedReceiveBuffer[0 ..< sliceLength]
-            
-            // Remove what was delivered from the buffer
-            self.decryptedReceiveBuffer = self.decryptedReceiveBuffer[sliceLength...]
-            
-            completion(returnData, NWConnection.ContentContext.defaultMessage, false, nil)
-            bufferLock.leave()
-            return
+            // Check to see if we have min length data in decrypted buffer before calling network receive. Skip the call if we do.
+            if decryptedReceiveBuffer.count >= minimumIncompleteLength
+            {
+                // Make sure that the slice we get isn't bigger than the available data count or the maximum requested.
+                let sliceLength = decryptedReceiveBuffer.count < maximumLength ? decryptedReceiveBuffer.count : maximumLength
+                
+                // Return the requested amount
+                let returnData = self.decryptedReceiveBuffer[0 ..< sliceLength]
+                
+                // Remove what was delivered from the buffer
+                self.decryptedReceiveBuffer = self.decryptedReceiveBuffer[sliceLength...]
+                
+                completion(returnData, NWConnection.ContentContext.defaultMessage, false, nil)
+                bufferLock.leave()
+                return
+            }
+            else
+            {
+                network.receive(minimumIncompleteLength: Int(polishServerConnection.chunkSize), maximumLength: Int(polish.chunkSize))
+                {
+                    (maybeData, maybeContext, connectionComplete, maybeError) in
+                    
+                    // Check to see if we got data
+                    guard let someData = maybeData
+                        else
+                    {
+                        print("\nReceive called with no content.\n")
+                        completion(maybeData, maybeContext, connectionComplete, maybeError)
+                        return
+                    }
+                    
+                    let maybeReturnData = self.handleReceivedData(polish: polish, minimumIncompleteLength: minimumIncompleteLength, maximumLength: maximumLength, encryptedData: someData)
+                    
+                    completion(maybeReturnData, maybeContext, connectionComplete, maybeError)
+                    self.bufferLock.leave()
+                    return
+                }
+            }
         }
         else
         {
-            network.receive(minimumIncompleteLength: minimumIncompleteLength, maximumLength: maximumLength)
-            {
-                (maybeData, maybeContext, connectionComplete, maybeError) in
-                
-                // Check to see if we got data
-                guard let someData = maybeData
-                    else
-                {
-                    print("\nReceive called with no content.\n")
-                    completion(maybeData, maybeContext, connectionComplete, maybeError)
-                    return
-                }
-                
-                let maybeReturnData = self.handleReceivedData(minimumIncompleteLength: minimumIncompleteLength, maximumLength: maximumLength, receivedData: someData)
-                completion(maybeReturnData, maybeContext, connectionComplete, maybeError)
-                self.bufferLock.leave()
-                return
-            }
+            network.receive(minimumIncompleteLength: minimumIncompleteLength, maximumLength: maximumLength, completion: completion)
         }
     }
-    
-    public func receive(polish: SilverServer, minimumIncompleteLength: Int, maximumLength: Int, completion: @escaping (Data?, NWConnection.ContentContext?, Bool, NWError?) -> Void)
-    {
-        bufferLock.enter()
-        
-        // Check to see if we have min length data in decrypted buffer before calling network receive. Skip the call if we do.
-        if decryptedReceiveBuffer.count >= minimumIncompleteLength
-        {
-            // Make sure that the slice we get isn't bigger than the available data count or the maximum requested.
-            let sliceLength = decryptedReceiveBuffer.count < maximumLength ? decryptedReceiveBuffer.count : maximumLength
-            
-            // Return the requested amount
-            let returnData = self.decryptedReceiveBuffer[0 ..< sliceLength]
-            
-            // Remove what was delivered from the buffer
-            self.decryptedReceiveBuffer = self.decryptedReceiveBuffer[sliceLength...]
-            
-            completion(returnData, NWConnection.ContentContext.defaultMessage, false, nil)
-            bufferLock.leave()
-            return
-        }
-        else
-        {
-            network.receive(minimumIncompleteLength: Int(polish.chunkSize), maximumLength: Int(polish.chunkSize))
-            {
-                (maybeData, maybeContext, connectionComplete, maybeError) in
-                
-                // Check to see if we got data
-                guard let someData = maybeData
-                    else
-                {
-                    print("\nReceive called with no content.\n")
-                    completion(maybeData, maybeContext, connectionComplete, maybeError)
-                    return
-                }
-                
-                let maybeReturnData = self.handleReceivedData(polish: polish, minimumIncompleteLength: minimumIncompleteLength, maximumLength: maximumLength, encryptedData: someData)
-                
-                completion(maybeReturnData, maybeContext, connectionComplete, maybeError)
-                self.bufferLock.leave()
-                return
-            }
-        }
-    }
-    
+
     public func cancel()
     {
         network.cancel()
@@ -476,17 +319,17 @@ open class ReplicantServerConnection: Connection
         }
     }
     /// This takes an optional data and adds it to the buffer before acting on min/max lengths
-    func handleReceivedData(polish: SilverServer, minimumIncompleteLength: Int, maximumLength: Int, encryptedData: Data) -> Data?
+    func handleReceivedData(polish: PolishServer, minimumIncompleteLength: Int, maximumLength: Int, encryptedData: Data) -> Data?
     {
         // Try to decrypt the entire contents of the encrypted buffer
-        guard let silverServerConnection = polish.newConnection(connection: network)
+        guard let polishServerConnection = polish.newConnection(connection: self)
         else
         {
-            print("Unable to decrypt received data: Failed to create a Silver connection")
+            print("Unable to decrypt received data: Failed to create a polish connection")
              return nil
         }
         
-        guard let decryptedData = silverServerConnection.unpolish(polishedData: encryptedData)
+        guard let decryptedData = polishServerConnection.unpolish(polishedData: encryptedData)
             else
         {
             print("Unable to decrypt encrypted receive buffer")
@@ -495,33 +338,6 @@ open class ReplicantServerConnection: Connection
         
         // Add decrypted data to the decrypted buffer
         self.decryptedReceiveBuffer.append(decryptedData)
-        
-        // Check to see if the decrypted buffer meets min/max parameters
-        guard decryptedReceiveBuffer.count >= minimumIncompleteLength
-            else
-        {
-            // Not enough data return nothing
-            return nil
-        }
-        
-        // Make sure that the slice we get isn't bigger than the available data count or the maximum requested.
-        let sliceLength = decryptedReceiveBuffer.count < maximumLength ? decryptedReceiveBuffer.count : maximumLength
-        
-        // Return the requested amount
-        let returnData = self.decryptedReceiveBuffer[0 ..< sliceLength]
-        
-        // Remove what was delivered from the buffer
-        self.decryptedReceiveBuffer = self.decryptedReceiveBuffer[sliceLength...]
-        
-        return returnData
-    }
-    
-    /// This takes an optional data and adds it to the buffer before acting on min/max lengths
-    func handleReceivedData(minimumIncompleteLength: Int, maximumLength: Int, receivedData: Data) -> Data?
-    {
-        // ReceivedData was not encrypted to begin with
-        // Add data to the decrypted buffer
-        self.decryptedReceiveBuffer.append(receivedData)
         
         // Check to see if the decrypted buffer meets min/max parameters
         guard decryptedReceiveBuffer.count >= minimumIncompleteLength
@@ -632,7 +448,7 @@ open class ReplicantServerConnection: Connection
             guard let polishConnection = polish.newConnection(connection: network)
             else
             {
-                print("Attempted to polish but failed to create a SilverServer PolishConnection")
+                print("Attempted to polish but failed to create a PolishConnection")
                 bufferLock.leave()
                 return
             }
