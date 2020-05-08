@@ -277,7 +277,7 @@ open class ReplicantServerConnection: Connection
             }
             else
             {
-                network.receive(minimumIncompleteLength: Int(polishServerConnection.chunkSize), maximumLength: Int(polish.chunkSize))
+                network.receive(minimumIncompleteLength: Int(polishServerConnection.chunkSize), maximumLength: Int(polishServerConnection.chunkSize))
                 {
                     (maybeData, maybeContext, connectionComplete, maybeError) in
                     
@@ -290,7 +290,7 @@ open class ReplicantServerConnection: Connection
                         return
                     }
                     
-                    let maybeReturnData = self.handleReceivedData(polish: polish, minimumIncompleteLength: minimumIncompleteLength, maximumLength: maximumLength, encryptedData: someData)
+                    let maybeReturnData = self.handleReceivedData(polish: polishServerConnection, minimumIncompleteLength: minimumIncompleteLength, maximumLength: maximumLength, encryptedData: someData)
                     
                     completion(maybeReturnData, maybeContext, connectionComplete, maybeError)
                     self.bufferLock.leave()
