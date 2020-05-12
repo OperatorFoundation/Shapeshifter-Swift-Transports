@@ -33,6 +33,7 @@ open class ReplicantServerConnection: Connection
     var network: Connection
     var sendBuffer = Data()
     var decryptedReceiveBuffer = Data()
+    var wasReady = false
     
     public init?(connection: Connection,
                  parameters: NWParameters,
@@ -77,7 +78,15 @@ open class ReplicantServerConnection: Connection
                 print("Received a network state update of waiting. \nError: \(error)")
                 updateHandler(newState)
             case .ready:
+                guard self.wasReady == false
+                else
+                {
+                    //We've already done all of this let's move on.
+                    return
+                }
+                
                 print("@->- ReplicantServerConnection Network state is READY.")
+                self.wasReady = true
                 self.introductions
                 {
                     (maybeIntroError) in
