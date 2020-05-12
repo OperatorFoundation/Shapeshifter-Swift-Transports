@@ -37,14 +37,12 @@ open class ReplicantServerConnection: Connection
     public init?(connection: Connection,
                  parameters: NWParameters,
                  replicantConfig: ReplicantServerConfig,
-                 logQueue: Queue<String>,
-                 completion: @escaping (Error?) -> Void)
+                 logQueue: Queue<String>)
     {
         guard let newReplicant = ReplicantServerModel(withConfig: replicantConfig, logQueue: logQueue)
         else
         {
             print("\nFailed to initialize ReplicantConnection because we failed to initialize Replicant.\n")
-            completion(ReplicantError.initializationError)
             return nil
         }
         
@@ -57,40 +55,70 @@ open class ReplicantServerConnection: Connection
             self.unencryptedChunkSize =
             polish.chunkSize - UInt16(payloadLengthOverhead)
         }
-        
-        introductions
-        {
-            (maybeIntroError) in
-            
-            guard maybeIntroError == nil
-                else
-            {
-                print("\nError attempting to meet the server during Replicant Connection Init: \(maybeIntroError!)\n")
-                completion(maybeIntroError!)
-                return
-            }
-            
-            print("\n New Replicant connection is ready. 🎉 \n")
-            
-            // Data Handling
-            
-            self.networkQueue.async
-            {
-                self.startReceivingPackets()
-            }
-            
-            self.sendBufferQueue.async
-            {
-                self.startSendingPackets()
-            }
-            
-            completion(nil)
-        }
     }
     
     public func start(queue: DispatchQueue)
     {
-        network.stateUpdateHandler = self.stateUpdateHandler
+        network.stateUpdateHandler =
+        {
+            (newState) in
+            
+            print("The state update handler for the tcp connection was called: \(newState)")
+            
+            guard let updateHandler = self.stateUpdateHandler
+            else { return }
+            
+            switch newState
+            {
+            case .failed(let error):
+                print("Receied a network state update of failed. \nError: \(error)")
+                updateHandler(newState)
+            case .waiting(let error):
+                print("Received a network state update of waiting. \nError: \(error)")
+                updateHandler(newState)
+            case .ready:
+                print("@->- ReplicantServerConnection Network state is READY.")
+                self.introductions
+                {
+                    (maybeIntroError) in
+                    
+                    guard maybeIntroError == nil
+                        else
+                    {
+                        print("\nError attempting to meet the server during Replicant Connection Init: \(maybeIntroError!)\n")
+                        if let introError = maybeIntroError as? NWError
+                        {
+                            updateHandler(.failed(introError))
+                        }
+                        else
+                        {
+                            updateHandler(.cancelled)
+                        }
+                        
+                        return
+                    }
+                    
+                    print("\n New Replicant connection is ready. 🎉 \n")
+                    
+                    // Data Handling
+                    self.networkQueue.async
+                    {
+                        self.startReceivingPackets()
+                    }
+                    
+                    self.sendBufferQueue.async
+                    {
+                        self.startSendingPackets()
+                    }
+                    
+                    self.logQueue.enqueue("💪 Introductions are complete! Let's do some work. 💪")
+                    updateHandler(.ready)
+                }
+            default:
+                updateHandler(newState)
+            }
+        }
+        
         network.start(queue: queue)
     }
     

@@ -29,11 +29,6 @@ open class ReplicantServerConnectionFactory
         if let currentConnection = connection
         {
             return ReplicantServerConnection(connection: currentConnection, parameters: .tcp, replicantConfig: replicantConfig, logQueue: logQueue)
-            {
-                (maybeError) in
-                
-                self.logQueue.enqueue("💪 Introductions are complete! Let's do some work. 💪")
-            }
         }
         
         return nil
