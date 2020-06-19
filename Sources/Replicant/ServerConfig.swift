@@ -7,8 +7,10 @@
 
 import Foundation
 import Network
+import Datable
+import Song
 
-public struct ServerConfig: Codable
+public struct ServerConfig: Codable, Equatable
 {
     public let host: NWEndpoint.Host?
     public let port: NWEndpoint.Port
@@ -17,6 +19,41 @@ public struct ServerConfig: Codable
     {
         self.port = port
         self.host = host
+    }
+    
+    public init?(data: Data)
+    {
+        let decoder = SongDecoder()
+
+        do
+        {
+            let decoded = try decoder.decode(ServerConfig.self, from: data)
+            self = decoded
+        }
+        catch let decodeError
+        {
+            print("Failed to initialize Server Config. Error decoding data")
+            print("Error: \(decodeError)")
+            print("Data: \(data)")
+            return nil
+        }
+    }
+    
+    public func createSong() -> Data?
+    {
+        let encoder = SongEncoder()
+        
+        do
+        {
+            let result: Data = try encoder.encode(self)
+            return result
+        }
+        catch let encodeError
+        {
+            print("Failed to encode ServerConfig instance.")
+            print("Error: \(encodeError)")
+            return nil
+        }
     }
     
     /// Creates and returns a JSON representation of the ServerConfig struct.

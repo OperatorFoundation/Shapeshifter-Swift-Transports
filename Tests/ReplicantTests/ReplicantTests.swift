@@ -13,14 +13,60 @@ import Network
 import ReplicantSwift
 import SwiftQueue
 import CryptoKit
+import Song
 
 class ReplicantTests: XCTestCase
 {
-
-    override func setUp()
+    func testServerConfigEncode()
     {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+        let testIPString = "127.0.0.1"
+        let testPort: UInt16 = 1234
+        let host = NWEndpoint.Host(testIPString)
+        guard let port = NWEndpoint.Port(rawValue: testPort)
+            else
+        {
+            print("\nUnable to initialize port.\n")
+            XCTFail()
+            return
+        }
+        
+        let serverConfig = ServerConfig(withPort: port, andHost: host)
+                
+        XCTAssertNotNil(serverConfig.createSong())
     }
+    
+    func testServerConfigDecode()
+    {
+        let testIPString = "127.0.0.1"
+        let testPort: UInt16 = 1234
+        let host = NWEndpoint.Host(testIPString)
+        guard let port = NWEndpoint.Port(rawValue: testPort)
+            else
+        {
+            print("\nUnable to initialize port.\n")
+            XCTFail()
+            return
+        }
+        
+        let serverConfig = ServerConfig(withPort: port, andHost: host)
+        guard let configData: Data = serverConfig.createSong()
+        else
+        {
+            XCTFail()
+            return
+        }
+        
+        guard let decodedConfig = ServerConfig(data: configData)
+        else
+        {
+            XCTFail()
+            return
+        }
+        
+        XCTAssertEqual(serverConfig, decodedConfig)
+        
+    }
+    
     func testEmptyConfigConnection()
     {
         let testIPString = "127.0.0.1"
@@ -38,7 +84,7 @@ class ReplicantTests: XCTestCase
         }
         
         // Make a Client Connection
-        guard let replicantClientConfig = ReplicantConfig(serverPublicKey: serverPublicKey.x963Representation, chunkSize: chunkSize, chunkTimeout: chunkTimeout, toneBurst: nil)
+        guard let replicantClientConfig = ReplicantConfig(polish: nil, toneBurst: nil)
             else
         {
             print("\nUnable to create ReplicantClient config.\n")
@@ -97,7 +143,9 @@ class ReplicantTests: XCTestCase
         }
         
         // Make a Client Connection
-        guard let replicantClientConfig = ReplicantConfig(serverPublicKey: serverPublicKey.x963Representation, chunkSize: chunkSize, chunkTimeout: chunkTimeout, toneBurst: nil)
+        
+        // FIXME: PolishClientConfig
+        guard let replicantClientConfig = ReplicantConfig(polish: nil, toneBurst: nil)
             else
         {
             print("\nUnable to create ReplicantClient config.\n")

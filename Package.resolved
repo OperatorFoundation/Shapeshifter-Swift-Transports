@@ -24,8 +24,8 @@
         "repositoryURL": "https://github.com/krzyzanowskim/CryptoSwift.git",
         "state": {
           "branch": null,
-          "revision": "a44caef0550c346e0ab9172f7c9a3852c1833599",
-          "version": "1.3.0"
+          "revision": "39f08ac5269361a50c08ce1e2f41989bfc4b1ec8",
+          "version": "1.3.1"
         }
       },
       {
@@ -33,8 +33,8 @@
         "repositoryURL": "https://github.com/OperatorFoundation/Datable.git",
         "state": {
           "branch": null,
-          "revision": "eccbedd3c89007691034b951a1fc0780e54701ea",
-          "version": "1.1.1"
+          "revision": "b5341b3e05e392f766a7a072c213f95cd7e1957c",
+          "version": "2.0.1"
         }
       },
       {
@@ -51,8 +51,8 @@
         "repositoryURL": "https://github.com/OperatorFoundation/Flower.git",
         "state": {
           "branch": null,
-          "revision": "0cbe0b2f5e903cbf46907cc1267bf35b65fcba6a",
-          "version": "0.0.7"
+          "revision": "a8961de125f45e6f7399276992eb1c2f5c13ec60",
+          "version": "0.0.11"
         }
       },
       {
@@ -65,12 +65,21 @@
         }
       },
       {
+        "package": "Monolith",
+        "repositoryURL": "https://github.com/OperatorFoundation/Monolith.git",
+        "state": {
+          "branch": null,
+          "revision": "b2724b4814a9ce89935ac7d8aebd92c88c3c0f8c",
+          "version": "1.0.0"
+        }
+      },
+      {
         "package": "ProteanSwift",
         "repositoryURL": "https://github.com/OperatorFoundation/ProteanSwift.git",
         "state": {
           "branch": null,
-          "revision": "acd4fecbd594f1ab999a36479352e3ae26df1092",
-          "version": "1.1.1"
+          "revision": "61c32249b1fa53eb374d35195ab8182022f225c7",
+          "version": "1.1.12"
         }
       },
       {
@@ -78,8 +87,8 @@
         "repositoryURL": "https://github.com/OperatorFoundation/ReplicantSwift.git",
         "state": {
           "branch": null,
-          "revision": "3e65995810804ca6c9c90bea76faed3db49bf7f1",
-          "version": "0.3.6"
+          "revision": "c05ff08621af9fd8723bce4cb631d120cbae1b06",
+          "version": "0.5.6"
         }
       },
       {
@@ -105,8 +114,8 @@
         "repositoryURL": "https://github.com/OperatorFoundation/Transport.git",
         "state": {
           "branch": null,
-          "revision": "280eaf03622e1fa25e113f58479ae7187e03a14c",
-          "version": "0.1.2"
+          "revision": "9f94a6715efd9f4221618cb06d160d99c8e154ab",
+          "version": "0.2.2"
         }
       }
     ]

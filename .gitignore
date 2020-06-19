@@ -77,3 +77,4 @@ Tests/OptimizerTests/OptimizerTests.swift
 Package.resolved
 *.xcscheme
 *.xcworkspacedata
+Package.resolved
