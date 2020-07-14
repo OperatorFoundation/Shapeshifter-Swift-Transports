@@ -7,6 +7,7 @@
 
 import Foundation
 import Network
+import Logging
 import CryptoKit
 import SwiftQueue
 import Transport
@@ -20,6 +21,7 @@ open class ReplicantConnection: Connection
     public var viabilityUpdateHandler: ((Bool) -> Void)?
     public var config: ReplicantConfig<SilverClientConfig>
     public var replicantClientModel: ReplicantClientModel
+    public var log: Logger
     
     // FIXME: unencrypted chunk size for non-polish
     var unencryptedChunkSize: UInt16 = 400
@@ -33,13 +35,13 @@ open class ReplicantConnection: Connection
     var network: Connection
     var decryptedReceiveBuffer: Data
     var sendBuffer: Data
-    var logQueue: Queue<String>
+    //var logQueue: Queue<String>
     
     public convenience init?(host: NWEndpoint.Host,
                  port: NWEndpoint.Port,
                  parameters: NWParameters,
                  config: ReplicantConfig<SilverClientConfig>,
-                 logQueue: Queue<String>)
+                 logger: Logger)
     {
         let connectionFactory = NetworkConnectionFactory(host: host, port: port)
         guard let newConnection = connectionFactory.connect(using: parameters)
@@ -49,15 +51,16 @@ open class ReplicantConnection: Connection
             return nil
         }
         
-        self.init(connection: newConnection, parameters: parameters, config: config, logQueue: logQueue)
+        self.init(connection: newConnection, parameters: parameters, config: config, logger: logger)
     }
     
     public init?(connection: Connection,
                 parameters: NWParameters,
                 config: ReplicantConfig<SilverClientConfig>,
-                logQueue: Queue<String>)
+                logger: Logger)
     {
-        let newReplicant = ReplicantClientModel(withConfig: config, logQueue: logQueue)
+        //TODO: Replace logQueue with logger in Replicant library
+        let newReplicant = ReplicantClientModel(withConfig: config, logQueue: Queue<String>())
         
 //        guard
 //        else
@@ -67,12 +70,13 @@ open class ReplicantConnection: Connection
 //            return nil
 //        }
         
-        self.logQueue = logQueue
+        //self.logQueue = logQueue
         self.network = connection
         self.config = config
         self.replicantClientModel = newReplicant
         self.decryptedReceiveBuffer = Data()
         self.sendBuffer = Data()
+        self.log = logger
         
         if let polishConnection = replicantClientModel.polish
         {
@@ -86,11 +90,12 @@ open class ReplicantConnection: Connection
             guard maybeIntroError == nil
                 else
             {
-                logQueue.enqueue("\nError attempting to meet the server during Replicant Connection Init.\n")
+                logger.error("Error attempting to meet the server during Replicant Connection Init.")
                 return
             }
             
-            logQueue.enqueue("\nNew Replicant connection is ready. 🎉 \n")
+            logger.debug("\nNew Replicant connection is ready. 🎉 \n")
+            //logQueue.enqueue("\nNew Replicant connection is ready. 🎉 \n")
         }
     }
     
@@ -109,7 +114,7 @@ open class ReplicantConnection: Connection
             
             guard let someData = content else
             {
-                logQueue.enqueue("Received a send command with no content.")
+                log.error("Received a send command with no content.")
                 switch completion
                 {
                     case .contentProcessed(let handler):
@@ -137,7 +142,7 @@ open class ReplicantConnection: Connection
         guard self.sendBuffer.count >= (unencryptedChunkSize)
             else
         {
-            logQueue.enqueue("Received a send command with content less than chunk size.")
+            log.error("Received a send command with content less than chunk size.")
             switch completion
             {
             case .contentProcessed(let handler):
@@ -178,7 +183,7 @@ open class ReplicantConnection: Connection
             
             if let error = maybeError
             {
-                self.logQueue.enqueue("Received an error on Send:\(error)")
+                self.log.error("Received an error on Send:\(error)")
                 if self.sendTimer != nil
                 {
                     self.sendTimer!.invalidate()
@@ -232,7 +237,7 @@ open class ReplicantConnection: Connection
     
     public func receive(minimumIncompleteLength: Int, maximumLength: Int, completion: @escaping (Data?, NWConnection.ContentContext?, Bool, NWError?) -> Void)
     {
-        logQueue.enqueue("\n🙋‍♀️  Replicant connection receive called.\n")
+        log.debug("\n🙋‍♀️  Replicant connection receive called.\n")
         
         if let polishConnection = replicantClientModel.polish
         {
@@ -264,7 +269,7 @@ open class ReplicantConnection: Connection
                     guard let someData = maybeData, someData.count == polishConnection.chunkSize
                         else
                     {
-                        self.logQueue.enqueue("\n🙋‍♀️  Receive called with no content.\n")
+                        self.log.error("\n🙋‍♀️  Receive called with no content.\n")
                         completion(maybeData, maybeContext, connectionComplete, maybeError)
                         return
                     }
@@ -305,15 +310,15 @@ open class ReplicantConnection: Connection
         guard let decryptedData = polishConnection.unpolish(polishedData: encryptedData)
         else
         {
-            logQueue.enqueue("Unable to decrypt encrypted receive buffer")
+            log.error("Unable to decrypt encrypted receive buffer")
             return nil
         }
         
         // The first two bytes simply lets us know the actual size of the payload
         // This helps account for cases when the payload must be smaller than chunk size
-        guard let payloadSizeData = decryptedData[..<payloadLengthOverhead].uint16
+        guard let uintPayloadSize = decryptedData[..<payloadLengthOverhead].uint16
             else { return nil }
-        let payloadSize = Int(payloadSizeData)
+        let payloadSize = Int(uintPayloadSize)
         let payload = decryptedData[payloadLengthOverhead..<payloadSize]
         
         // Add decrypted data to the decrypted buffer
@@ -379,14 +384,14 @@ open class ReplicantConnection: Connection
                     
                     if let handshakeError = maybeHandshakeError
                     {
-                        self.logQueue.enqueue("Received a handshake error: \(handshakeError)")
+                        self.log.error("Received a handshake error: \(handshakeError)")
                         self.stateUpdateHandler?(NWConnection.State.cancelled)
                         completion(handshakeError)
                         return
                     }
                     else
                     {
-                        self.logQueue.enqueue("\n🤝  Client successfully completed handshake. 👏👏👏👏\n")
+                        self.log.debug("\n🤝  Client successfully completed handshake. 👏👏👏👏\n")
                         self.stateUpdateHandler?(NWConnection.State.ready)
                         completion(nil)
                     }
@@ -407,7 +412,7 @@ open class ReplicantConnection: Connection
         self.sendTimer = nil
         
         // Double check the buffer to be sure that there is still data in there.
-        logQueue.enqueue("\n⏰  Chunk Timeout Reached\n  ⏰")
+        self.log.debug("\n⏰  Chunk Timeout Reached\n  ⏰")
         
         let payloadSize = sendBuffer.count
         
@@ -436,8 +441,7 @@ open class ReplicantConnection: Connection
                 
                 if let error = maybeError
                 {
-                    self.logQueue.enqueue("Received an error on Send:\(error)")
-                    
+                    self.log.error("Received an error on Send:\(error)")
                     self.bufferLock.leave()
                     return
                 }
@@ -472,8 +476,7 @@ open class ReplicantConnection: Connection
                 
                 if let error = maybeError
                 {
-                    self.logQueue.enqueue("Received an error on Send:\(error)")
-                    
+                    self.log.error("Received an error on Send:\(error)")
                     self.bufferLock.leave()
                     return
                 }
@@ -484,8 +487,6 @@ open class ReplicantConnection: Connection
                 }
             }))
         }
-        
-
     }
     
 }

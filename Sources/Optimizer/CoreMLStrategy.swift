@@ -6,12 +6,14 @@
 //
 
 import Foundation
+import Logging
 import Transport
 import CoreML
 import CreateML
 
 class CoreMLStrategy: Strategy
 {
+    let log: Logger
     var transports: [ConnectionFactory]
     var index = 0
     var indices = [Int]()
@@ -20,9 +22,10 @@ class CoreMLStrategy: Strategy
     
     var classifier: MLClassifier?
     
-    init(transports: [ConnectionFactory])
+    init(transports: [ConnectionFactory], logger: Logger)
     {
         self.transports = transports
+        self.log = logger
     }
     
     func choose() -> ConnectionFactory?
@@ -63,24 +66,24 @@ class CoreMLStrategy: Strategy
                 let predictions = try classifier!.predictions(from: dataTable)
                 if let firstIndexPrediction = predictions.ints?.element(at: 0)
                 {
-                    print("\nChose a CoreML predicted transport: \(transports[firstIndexPrediction].name)")
+                    log.debug("\nChose a CoreML predicted transport: \(transports[firstIndexPrediction].name)")
                     return transports[firstIndexPrediction]
                 }
             }
             catch
             {
-                print("\nError using classifier: \(error)")
+                log.error("\nError using classifier: \(error)")
                 return nil
             }
         }
         
-        print("\nFailed to predict a transport, choosing transport at index \(index).")        
+        log.debug("\nFailed to predict a transport, choosing transport at index \(index).")
         return transports[index]
     }
     
     func report(transport: ConnectionFactory, successfulConnection: Bool, millisecondsToConnect: Int)
     {
-        print("\n📋  CoreMLStrategy received a report.  📋\nTransport: \(transport.name)\nSuccessfulConnection?: \(successfulConnection)\nMillisecondsToConnect: \(millisecondsToConnect)")
+        log.debug("\n📋  CoreMLStrategy received a report.  📋\nTransport: \(transport.name)\nSuccessfulConnection?: \(successfulConnection)\nMillisecondsToConnect: \(millisecondsToConnect)")
         
         trackDictionary[transport.name] = true
         
@@ -118,7 +121,8 @@ class CoreMLStrategy: Strategy
             }
             catch
             {
-                print("\nError creating a classifier: \(error)")
+                log.error("\nError creating a classifier: \(error)")
+                print()
             }
         }
     }

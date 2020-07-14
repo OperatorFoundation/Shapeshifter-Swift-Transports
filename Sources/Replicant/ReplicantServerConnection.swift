@@ -8,6 +8,7 @@
 import Foundation
 import Dispatch
 import Network
+import Logging
 import CryptoKit
 import Flower
 import SwiftQueue
@@ -17,6 +18,7 @@ import ReplicantSwift
 open class ReplicantServerConnection: Connection
 {
     public let payloadLengthOverhead = 2
+    public let log: Logger
     public var stateUpdateHandler: ((NWConnection.State) -> Void)?
     public var viabilityUpdateHandler: ((Bool) -> Void)?
     public var replicantConfig: ReplicantServerConfig
@@ -24,8 +26,6 @@ open class ReplicantServerConnection: Connection
     
     // FIXME: Unencrypted chunk size for non-polish instances
     var unencryptedChunkSize: UInt16 = 400
-    
-    var logQueue: Queue<String>
     var sendTimer: Timer?
     var bufferLock = DispatchGroup()
     var networkQueue = DispatchQueue(label: "Replicant Queue")
@@ -38,16 +38,17 @@ open class ReplicantServerConnection: Connection
     public init?(connection: Connection,
                  parameters: NWParameters,
                  replicantConfig: ReplicantServerConfig,
-                 logQueue: Queue<String>)
+                 logger: Logger)
     {
-        guard let newReplicant = ReplicantServerModel(withConfig: replicantConfig, logQueue: logQueue)
+        // FIXME: Update this init to use Logger instead of log queue
+        guard let newReplicant = ReplicantServerModel(withConfig: replicantConfig, logQueue: Queue<String>())
         else
         {
-            print("\nFailed to initialize ReplicantConnection because we failed to initialize Replicant.\n")
+            logger.error("\nFailed to initialize ReplicantConnection because we failed to initialize Replicant.\n")
             return nil
         }
         
-        self.logQueue = logQueue
+        self.log = logger
         self.network = connection
         self.replicantConfig = replicantConfig
         self.replicantServerModel = newReplicant
@@ -120,7 +121,7 @@ open class ReplicantServerConnection: Connection
                         self.startSendingPackets()
                     }
                     
-                    self.logQueue.enqueue("💪 Introductions are complete! Let's do some work. 💪")
+                    self.log.debug("💪 Introductions are complete! Let's do some work. 💪")
                     updateHandler(.ready)
                 }
             default:
@@ -138,7 +139,7 @@ open class ReplicantServerConnection: Connection
         {
             (message) in
             
-            self.logQueue.enqueue("Received a message: \(message)")
+            self.log.debug("Received a message: \(message)")
         }
     }
     

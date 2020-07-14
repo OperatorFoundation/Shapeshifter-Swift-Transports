@@ -6,11 +6,13 @@
 //
 
 import Foundation
-import Transport
+import Logging
 import Network
+import Transport
 
 open class OptimizerConnection: Connection
 {
+    public let log: Logger
     public var stateUpdateHandler: ((NWConnection.State) -> Void)?
     public var viabilityUpdateHandler: ((Bool) -> Void)?
     
@@ -18,11 +20,12 @@ open class OptimizerConnection: Connection
     var transport: ConnectionFactory
     let currentStrategy: Strategy
     
-    public init?(strategy: Strategy, connectionFactory: ConnectionFactory,
+    public init?(strategy: Strategy, connectionFactory: ConnectionFactory, logger: Logger,
                  using parameters: NWParameters)
     {
         self.transport = connectionFactory
         self.currentStrategy = strategy
+        self.log = logger
         
         guard let newConnection = connectionFactory.connect(using: parameters)
             else
@@ -33,11 +36,12 @@ open class OptimizerConnection: Connection
         self.transportConnection = newConnection
     }
     
-    public init(strategy: Strategy, transport: ConnectionFactory, transportConnection: Connection, using parameters: NWParameters)
+    public init(strategy: Strategy, transport: ConnectionFactory, transportConnection: Connection, logger: Logger, using parameters: NWParameters)
     {
         self.transport = transport
         self.transportConnection = transportConnection
         self.currentStrategy = strategy
+        self.log = logger
     }
     
     public func start(queue: DispatchQueue)

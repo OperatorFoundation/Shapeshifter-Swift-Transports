@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Logging
 import Network
 
 import Transport
@@ -16,15 +17,19 @@ open class ProteanConnection: Connection
     public var stateUpdateHandler: ((NWConnection.State) -> Void)?
     public var viabilityUpdateHandler: ((Bool) -> Void)?
     public var config: Protean.Config
+    public let log: Logger
     
     var network: Connection
     
     public init?(host: NWEndpoint.Host,
                  port: NWEndpoint.Port,
                  config: Protean.Config,
+                 logger: Logger,
                  using parameters: NWParameters)
     {
 
+        self.log = logger
+        
         guard let prot = parameters.defaultProtocolStack.transportProtocol
             else
         {
@@ -52,6 +57,7 @@ open class ProteanConnection: Connection
     
     public init?(connection: Connection,
                  config: Protean.Config,
+                 logger: Logger,
                  using parameters: NWParameters)
     {
         guard let prot = parameters.defaultProtocolStack.internetProtocol, let _ = prot as? NWProtocolUDP.Options
@@ -63,6 +69,7 @@ open class ProteanConnection: Connection
         
         self.config = config
         self.network = connection
+        self.log = logger
     }
     
     public func start(queue: DispatchQueue)
@@ -76,7 +83,7 @@ open class ProteanConnection: Connection
         guard let someData = content
         else
         {
-            print("Received a send command with no content.")
+            log.error("Received a send command with no content.")
             switch completion
             {
             case .contentProcessed(let handler):
@@ -90,10 +97,11 @@ open class ProteanConnection: Connection
         
         let proteanTransformer = Protean(config: config)
         let transformedDatas = proteanTransformer.transform(buffer: someData)
+        
         guard !transformedDatas.isEmpty, let transformedData = transformedDatas.first
         else
         {
-            print("Received empty response on call to Protean.Transform")
+            log.error("Received empty response on call to Protean.Transform")
             
             switch completion
             {
@@ -123,7 +131,7 @@ open class ProteanConnection: Connection
             guard let someData = maybeData
                 else
             {
-                print("Received no content.")
+                self.log.error("Received no content.")
                 completion(maybeData, maybeContext, connectionComplete, maybeError)
                 return
             }
