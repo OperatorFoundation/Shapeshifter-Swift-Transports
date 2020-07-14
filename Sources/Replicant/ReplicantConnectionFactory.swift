@@ -18,11 +18,11 @@ open class ReplicantConnectionFactory: ConnectionFactory
     public var connection: Connection?
     public var host: NWEndpoint.Host?
     public var port: NWEndpoint.Port?
-    public var config: ReplicantConfig
+    public var config: ReplicantConfig<SilverClientConfig>
     
     var logQueue = Queue<String>()
     
-    public init?(ipString: String, portInt: UInt16, config: ReplicantConfig)
+    public init?(ipString: String, portInt: UInt16, config: ReplicantConfig<SilverClientConfig>)
     {
         guard let port = NWEndpoint.Port(rawValue: portInt)
         else
@@ -36,14 +36,14 @@ open class ReplicantConnectionFactory: ConnectionFactory
         self.config = config
     }
     
-    public init(host: NWEndpoint.Host, port: NWEndpoint.Port, config: ReplicantConfig)
+    public init(host: NWEndpoint.Host, port: NWEndpoint.Port, config: ReplicantConfig<SilverClientConfig>)
     {
         self.host = host
         self.port = port
         self.config = config
     }
     
-    public init(connection: Connection, config: ReplicantConfig)
+    public init(connection: Connection, config: ReplicantConfig<SilverClientConfig>)
     {
         self.connection = connection
         self.config = config

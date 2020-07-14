@@ -18,7 +18,7 @@ open class ReplicantConnection: Connection
     public let payloadLengthOverhead = 2
     public var stateUpdateHandler: ((NWConnection.State) -> Void)?
     public var viabilityUpdateHandler: ((Bool) -> Void)?
-    public var config: ReplicantConfig
+    public var config: ReplicantConfig<SilverClientConfig>
     public var replicantClientModel: ReplicantClientModel
     
     // FIXME: unencrypted chunk size for non-polish
@@ -38,7 +38,7 @@ open class ReplicantConnection: Connection
     public convenience init?(host: NWEndpoint.Host,
                  port: NWEndpoint.Port,
                  parameters: NWParameters,
-                 config: ReplicantConfig,
+                 config: ReplicantConfig<SilverClientConfig>,
                  logQueue: Queue<String>)
     {
         let connectionFactory = NetworkConnectionFactory(host: host, port: port)
@@ -54,7 +54,7 @@ open class ReplicantConnection: Connection
     
     public init?(connection: Connection,
                 parameters: NWParameters,
-                config: ReplicantConfig,
+                config: ReplicantConfig<SilverClientConfig>,
                 logQueue: Queue<String>)
     {
         let newReplicant = ReplicantClientModel(withConfig: config, logQueue: logQueue)
@@ -311,7 +311,9 @@ open class ReplicantConnection: Connection
         
         // The first two bytes simply lets us know the actual size of the payload
         // This helps account for cases when the payload must be smaller than chunk size
-        let payloadSize = Int(decryptedData[..<payloadLengthOverhead].uint16)
+        guard let payloadSizeData = decryptedData[..<payloadLengthOverhead].uint16
+            else { return nil }
+        let payloadSize = Int(payloadSizeData)
         let payload = decryptedData[payloadLengthOverhead..<payloadSize]
         
         // Add decrypted data to the decrypted buffer
