@@ -12,24 +12,17 @@
 // implementation to other obfs4 implementations except when required for over-the-wire compatibility.
 
 import Foundation
-import Transport
+import Logging
 import Network
+import Transport
 
 let certKey = "cert"
 let iatKey = "iatMode"
 
 public class WispConnection: Connection
 {
-    
-    var networkConnection: Connection
-    
     public var stateUpdateHandler: ((NWConnection.State) -> Void)?
     public var viabilityUpdateHandler: ((Bool) -> Void)?
-    
-    var writeClosed = false
-    var wisp: WispProtocol
-    var handshakeDone = false
-    
     public var endpoint: NWEndpoint?
     public var remoteAddress: NWEndpoint?
     public var localAddress: NWEndpoint?
@@ -39,14 +32,23 @@ public class WispConnection: Connection
     public var txtRecord: Data?
     public var hasBetterPath = false
     
+    let log: Logger
+    
+    var networkConnection: Connection
+    var writeClosed = false
+    var wisp: WispProtocol
+    var handshakeDone = false
+
     public init?(host: NWEndpoint.Host,
                  port: NWEndpoint.Port,
                  using parameters: NWParameters,
                  cert: String,
-                 iatMode: Bool)
+                 iatMode: Bool,
+                 logger: Logger)
     {
         self.cert = cert
         self.iatMode = iatMode
+        self.log = logger
         
         let connectionFactory = NetworkConnectionFactory(host: host, port: port)
         guard let newConnection = connectionFactory.connect(using: parameters)
@@ -69,11 +71,13 @@ public class WispConnection: Connection
     public init?(connection: Connection,
                  using parameters: NWParameters,
                  cert: String,
-                 iatMode: Bool)
+                 iatMode: Bool,
+                 logger: Logger)
     {
         self.networkConnection = connection
         self.cert = cert
         self.iatMode = iatMode
+        self.log = logger
         
         guard let newWisp = WispProtocol(connection: connection, cert: cert, iatMode: iatMode)
             else
@@ -96,7 +100,7 @@ public class WispConnection: Connection
             
             if let error = maybeError
             {
-                print("Error connecting with handshake: \(error)")
+                self.log.error("Error connecting with handshake: \(error)")
                 self.handshakeDone = false
                 if let stateUpdate = self.stateUpdateHandler
                 {
@@ -141,12 +145,12 @@ public class WispConnection: Connection
 
     public func send(content: Data?, contentContext: NWConnection.ContentContext, isComplete: Bool, completion: NWConnection.SendCompletion)
     {
-        print("WISP Send Called")
+        log.debug("WISP Send Called")
         
         guard let data = content
         else
         {
-            print("Received a send command with no content.")
+            log.error("Received a send command with no content.")
             switch completion
             {
                 case .contentProcessed(let handler):
@@ -161,7 +165,7 @@ public class WispConnection: Connection
         guard let frame = wisp.encoder?.encode(payload: data)
             else
         {
-            print("Failed to encoded data while attempting to WispTCPConnection write.")
+            log.error("Failed to encoded data while attempting to WispTCPConnection write.")
             switch completion
             {
                 case .contentProcessed(let handler):
@@ -177,7 +181,7 @@ public class WispConnection: Connection
         {
             (error) in
             
-            print("\nWisp Received Completion on Network Connection Send.\n")
+            self.log.debug("\nWisp Received Completion on Network Connection Send.\n")
             switch completion
             {
             case .contentProcessed(let handler):

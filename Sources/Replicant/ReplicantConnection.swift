@@ -9,7 +9,6 @@ import Foundation
 import Network
 import Logging
 import CryptoKit
-import SwiftQueue
 import Transport
 import ReplicantSwift
 
@@ -35,7 +34,6 @@ open class ReplicantConnection: Connection
     var network: Connection
     var decryptedReceiveBuffer: Data
     var sendBuffer: Data
-    //var logQueue: Queue<String>
     
     public convenience init?(host: NWEndpoint.Host,
                  port: NWEndpoint.Port,
@@ -43,11 +41,13 @@ open class ReplicantConnection: Connection
                  config: ReplicantConfig<SilverClientConfig>,
                  logger: Logger)
     {
+        logger.debug("Initialized a Replicant Client Connection")
+        
         let connectionFactory = NetworkConnectionFactory(host: host, port: port)
         guard let newConnection = connectionFactory.connect(using: parameters)
             else
         {
-            print("Failed to create replicant connection. NetworkConnectionFactory.connect returned nil.")
+            logger.error("Failed to create replicant connection. NetworkConnectionFactory.connect returned nil.")
             return nil
         }
         
@@ -60,15 +60,7 @@ open class ReplicantConnection: Connection
                 logger: Logger)
     {
         //TODO: Replace logQueue with logger in Replicant library
-        let newReplicant = ReplicantClientModel(withConfig: config, logQueue: Queue<String>())
-        
-//        guard
-//        else
-//        {
-//            print("\nFailed to initialize ReplicantConnection because we failed to initialize Replicant.\n")
-//            logQueue.enqueue("\nFailed to initialize ReplicantConnection because we failed to initialize Replicant.\n")
-//            return nil
-//        }
+        let newReplicant = ReplicantClientModel(withConfig: config, logger: logger)
         
         //self.logQueue = logQueue
         self.network = connection

@@ -11,7 +11,6 @@ import Network
 import Logging
 import CryptoKit
 import Flower
-import SwiftQueue
 import Transport
 import ReplicantSwift
 
@@ -40,8 +39,7 @@ open class ReplicantServerConnection: Connection
                  replicantConfig: ReplicantServerConfig,
                  logger: Logger)
     {
-        // FIXME: Update this init to use Logger instead of log queue
-        guard let newReplicant = ReplicantServerModel(withConfig: replicantConfig, logQueue: Queue<String>())
+        guard let newReplicant = ReplicantServerModel(withConfig: replicantConfig, logger: logger)
         else
         {
             logger.error("\nFailed to initialize ReplicantConnection because we failed to initialize Replicant.\n")
