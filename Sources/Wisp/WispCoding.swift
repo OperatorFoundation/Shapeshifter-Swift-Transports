@@ -40,6 +40,7 @@
 //
 
 import Foundation
+import Logging
 import Sodium
 
 struct Nonce
@@ -97,17 +98,18 @@ struct HashDrbg
 
 struct WispEncoder
 {
+    let log: Logger
     let secretBoxKey: Data
     let sodium = Sodium()
     var nonce: Nonce
     var drbg: HashDrbg
     
-    init?(withKey key: Data)
+    init?(withKey key: Data, logger: Logger)
     {
         guard key.count == keyMaterialLength
         else
         {
-            print("Attempted to initialize WispEncoder with an incorrect full key length of \(key.count) when it should be \(keyMaterialLength)")
+            logger.error("Attempted to initialize WispEncoder with an incorrect full key length of \(key.count) when it should be \(keyMaterialLength)")
             return nil
         }
         
@@ -120,6 +122,7 @@ struct WispEncoder
         self.secretBoxKey = secretBoxKey
         self.nonce = nonce
         self.drbg = HashDrbg(sip: sipKey, ofb: ofb)
+        self.log = logger
     }
     
     /// Encode encodes a single frame worth of payload and returns the encoded frame.
@@ -129,26 +132,17 @@ struct WispEncoder
         
         if maximumFramePayloadLength < payloadLength
         {
-            print("WispCoding encode error: Invalid payload length.")
+            log.error("WispCoding encode error: Invalid payload length.")
             return nil
         }
-        
-        // Nonce counter increases by 1 every time we access the nonce.data property
-        // Encrypt and MAC payload.
-//
-//        print("encoder secret key: \(secretBoxKey.bytes)")
-//        print("encoder key length: \(secretBoxKey.count)")
-//        print("encoder nonce counter: \(self.nonce.counter)")
-//        print("encoder nonce key: \(nonce.prefix.count)")
-        
-//        guard let encodedBytes = sodium.secretBox.seal(message: payload, secretKey: secretBoxKey, nonce: self.nonce.data)
+
         guard let encodedBytes = sodium.secretBox.seal(message: payload.bytes, secretKey: secretBoxKey.bytes, nonce: self.nonce.data.bytes) else
         {
             return nil
         }
         
-//        print("encoded data: \(encodedBytes)")
-//        print("encoded data length: \(encodedBytes.count)")
+//        log.debug("encoded data: \(encodedBytes)")
+//        log.debug("encoded data length: \(encodedBytes.count)")
         
         
         // Obfuscate the length.
@@ -165,24 +159,14 @@ struct WispEncoder
     
     mutating func obfuscate(length: UInt16) -> Data
     {
-        //print("\nReceived a length to obfuscate: \(length)")
-        // Obfuscate the length.
         let lengthMask = self.drbg.nextBlock().bytes
-        //print("lengthMask: \(lengthMask)")
         var unobfuscatedLength = length.bigEndian
         let lengthData = Data(buffer:UnsafeBufferPointer(start: &unobfuscatedLength, count: 1))
-        
         var obfuscatedLength = Data(count: 2)
+        
         obfuscatedLength[0] = lengthData[0] ^ lengthMask[0]
         obfuscatedLength[1] = lengthData[1] ^ lengthMask[1]
-        
-//        var obfuscatedLength = Data()
-//        let first = lengthData[0] ^ lengthMask[0]
-//        let second = lengthData[1] ^ lengthMask[1]
-//        obfuscatedLength.append(first)
-//        obfuscatedLength.append(second)
-        
-        //print("Obfuscated a length: \(length)\n")
+
         return obfuscatedLength
     }
 }
@@ -191,6 +175,7 @@ struct WispEncoder
 struct WispDecoder
 {
     let sodium = Sodium()
+    let log: Logger
     let secretBoxKey: Data
     
     var nonce: Nonce
@@ -200,11 +185,11 @@ struct WispDecoder
     var drbg: HashDrbg
     
     /// Creates a new Decoder instance.  It must be supplied a slice containing exactly keyMaterialLength bytes of keying material.
-    init?(withKey key: Data)
+    init?(withKey key: Data, logger: Logger)
     {
         if key.count != keyMaterialLength
         {
-            print("BUG: Invalid decoder key length: \(key.count)")
+            logger.error("BUG: Invalid decoder key length: \(key.count)")
             return nil
         }
         let secretBoxKey = Data(key[0 ..< keyLength])
@@ -216,6 +201,7 @@ struct WispDecoder
         self.secretBoxKey = secretBoxKey
         self.nonce = nonce
         self.drbg = HashDrbg(sip: sipKey, ofb: ofb)
+        self.log = logger
     }
 
     /// Decode decodes a stream of data and returns it.
@@ -260,7 +246,7 @@ struct WispDecoder
         else
         {
             // ErrAgain
-            print("Decode error, next length: \(nextLength!) is greater than the buffer \(framesBuffer.count). We expected more data than we got!")
+            log.error("Decode error, next length: \(nextLength!) is greater than the buffer \(framesBuffer.count). We expected more data than we got!")
             return .retry
         }
         
@@ -274,12 +260,12 @@ struct WispDecoder
             leftovers = framesBuffer[lengthLength + Int(nextLength! + 2) ..< framesBuffer.count]
         }
         
-        print("box: \(box.bytes)")
-        print("box count: \(box.count)")
-        print("secret Key: \(secretBoxKey.bytes)")
-        print("secret key count: \(secretBoxKey.count)")
-        print("nonce counter: \(nonce.counter)")
-        print("nonce secret key: \(nonce.prefix.bytes)")
+        log.debug("box: \(box.bytes)")
+        log.debug("box count: \(box.count)")
+        log.debug("secret Key: \(secretBoxKey.bytes)")
+        log.debug("secret key count: \(secretBoxKey.count)")
+        log.debug("nonce counter: \(nonce.counter)")
+        log.debug("nonce secret key: \(nonce.prefix.bytes)")
         
         guard let decodedData = sodium.secretBox.open(authenticatedCipherText: box.bytes, secretKey: secretBoxKey.bytes, nonce: nonce.data.bytes)
             else
@@ -310,7 +296,7 @@ struct WispDecoder
         unobfuscatedLengthData[1] = obfuscatedLength[1] ^ lengthMask[1]
         let unobfuscatedLengthInt = toUInt16(data: unobfuscatedLengthData)
         
-        print("Unobfuscated a length! \(unobfuscatedLengthInt.bigEndian)")
+        log.debug("Unobfuscated a length! \(unobfuscatedLengthInt.bigEndian)")
         return unobfuscatedLengthInt.bigEndian //This is actually converting to little endian
     }
     

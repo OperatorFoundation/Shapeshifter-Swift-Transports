@@ -59,7 +59,7 @@ public class WispConnection: Connection
         
         networkConnection = newConnection
         
-        guard let newWisp = WispProtocol(connection: networkConnection, cert: cert, iatMode: iatMode)
+        guard let newWisp = WispProtocol(connection: networkConnection, cert: cert, iatMode: iatMode, logger: logger)
             else
         {
             return nil
@@ -79,7 +79,7 @@ public class WispConnection: Connection
         self.iatMode = iatMode
         self.log = logger
         
-        guard let newWisp = WispProtocol(connection: connection, cert: cert, iatMode: iatMode)
+        guard let newWisp = WispProtocol(connection: connection, cert: cert, iatMode: iatMode, logger: logger)
             else
         {
             return nil
@@ -179,7 +179,12 @@ public class WispConnection: Connection
         
         let sendCompletion = NWConnection.SendCompletion.contentProcessed
         {
-            (error) in
+            (maybeError) in
+            
+            if let error = maybeError
+            {
+                self.log.error("\(error)")
+            }
             
             self.log.debug("\nWisp Received Completion on Network Connection Send.\n")
             switch completion
@@ -187,7 +192,7 @@ public class WispConnection: Connection
             case .contentProcessed(let handler):
                 handler(nil)
             default:
-                print("\nWisp: an unexpected response was received on network connection send.\n")
+                self.log.error("\nWisp: an unexpected response was received on network connection send.\n")
                 return
             }
         }

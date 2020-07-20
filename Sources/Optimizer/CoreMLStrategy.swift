@@ -122,7 +122,6 @@ class CoreMLStrategy: Strategy
             catch
             {
                 log.error("\nError creating a classifier: \(error)")
-                print()
             }
         }
     }

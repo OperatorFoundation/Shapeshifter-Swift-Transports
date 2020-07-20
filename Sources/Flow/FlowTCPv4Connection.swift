@@ -6,9 +6,10 @@
 //
 
 import Foundation
-import Transport
+import Logging
 import Network
 import Flower
+import Transport
 
 open class FlowTCPv4Connection: Connection
 {
@@ -18,12 +19,14 @@ open class FlowTCPv4Connection: Connection
     let flower: FlowerController
     let endpoint: EndpointV4
     let streamid: StreamIdentifier
+    let log: Logger
     
-    public init(flower: FlowerController, endpoint: EndpointV4, streamid: StreamIdentifier)
+    public init(flower: FlowerController, endpoint: EndpointV4, streamid: StreamIdentifier, logger: Logger)
     {
-        self.flower=flower
-        self.endpoint=endpoint
-        self.streamid=flower.getNextStreamIdentifier()
+        self.flower = flower
+        self.endpoint = endpoint
+        self.streamid = flower.getNextStreamIdentifier()
+        self.log = logger
     }
     
     public func start(queue: DispatchQueue)
@@ -33,7 +36,12 @@ open class FlowTCPv4Connection: Connection
         {
             (maybeError) in
 
-            print("Opened stream \(self.streamid)")
+            if let error = maybeError
+            {
+                self.log.error("\(error)")
+            }
+            
+            self.log.debug("Opened stream \(self.streamid)")
         }
     }
     
@@ -42,7 +50,7 @@ open class FlowTCPv4Connection: Connection
         guard let data = content
             else
         {
-            print("Received a send command with no content.")
+            log.error("Received a send command with no content.")
             switch completion
             {
             case .contentProcessed(let handler):

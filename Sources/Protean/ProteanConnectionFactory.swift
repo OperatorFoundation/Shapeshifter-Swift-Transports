@@ -50,7 +50,7 @@ open class ProteanConnectionFactory: ConnectionFactory
     {
         if let currentConnection = connection
         {
-            return ProteanConnection(connection: currentConnection, config: config, logger: log, using: parameters)
+            return ProteanConnection(connection: currentConnection, config: config, using: parameters, logger: log)
         }
         else
         {

@@ -33,14 +33,14 @@ open class ProteanConnection: Connection
         guard let prot = parameters.defaultProtocolStack.transportProtocol
             else
         {
-            print("\nAttempted to initialize protean not as a UDP connection.")
+            log.error("\nAttempted to initialize protean not as a UDP connection.")
            return nil
         }
         
         guard let _ = prot as? NWProtocolUDP.Options
             else
         {
-            print("\nAttempted to initialize protean not as a UDP connection.")
+            log.error("\nAttempted to initialize protean not as a UDP connection.")
             return nil
         }
 
@@ -57,13 +57,13 @@ open class ProteanConnection: Connection
     
     public init?(connection: Connection,
                  config: Protean.Config,
-                 logger: Logger,
-                 using parameters: NWParameters)
+                 using parameters: NWParameters,
+                 logger: Logger)
     {
         guard let prot = parameters.defaultProtocolStack.internetProtocol, let _ = prot as? NWProtocolUDP.Options
         else
         {
-            print("Attempted to initialize protean not as a UDP connection.")
+            logger.error("Attempted to initialize protean not as a UDP connection.")
             return nil
         }
         

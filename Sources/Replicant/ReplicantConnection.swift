@@ -153,7 +153,7 @@ open class ReplicantConnection: Connection
         guard let polishedData = polishConnection.polish(inputData: dataChunk)
         else
         {
-            print("sendBufferChunks: Failed to polish data. Giving up.")
+            log.error("sendBufferChunks: Failed to polish data. Giving up.")
             bufferLock.leave()
             return
         }

@@ -17,11 +17,12 @@ import ReplicantSwift
 open class ReplicantServerConnection: Connection
 {
     public let payloadLengthOverhead = 2
-    public let log: Logger
     public var stateUpdateHandler: ((NWConnection.State) -> Void)?
     public var viabilityUpdateHandler: ((Bool) -> Void)?
     public var replicantConfig: ReplicantServerConfig
     public var replicantServerModel: ReplicantServerModel
+    
+    let log: Logger
     
     // FIXME: Unencrypted chunk size for non-polish instances
     var unencryptedChunkSize: UInt16 = 400
@@ -63,7 +64,7 @@ open class ReplicantServerConnection: Connection
         {
             (newState) in
             
-            print("The state update handler for the tcp connection was called: \(newState)")
+            self.log.debug("The state update handler for the tcp connection was called: \(newState)")
             
             guard let updateHandler = self.stateUpdateHandler
             else { return }
@@ -71,10 +72,10 @@ open class ReplicantServerConnection: Connection
             switch newState
             {
             case .failed(let error):
-                print("Receied a network state update of failed. \nError: \(error)")
+                self.log.error("Receied a network state update of failed. \nError: \(error)")
                 updateHandler(newState)
             case .waiting(let error):
-                print("Received a network state update of waiting. \nError: \(error)")
+                self.log.error("Received a network state update of waiting. \nError: \(error)")
                 updateHandler(newState)
             case .ready:
                 guard self.wasReady == false
@@ -84,7 +85,7 @@ open class ReplicantServerConnection: Connection
                     return
                 }
                 
-                print("@->- ReplicantServerConnection Network state is READY.")
+                self.log.debug("@->- ReplicantServerConnection Network state is READY.")
                 self.wasReady = true
                 self.introductions
                 {
@@ -93,7 +94,7 @@ open class ReplicantServerConnection: Connection
                     guard maybeIntroError == nil
                         else
                     {
-                        print("\nError attempting to meet the server during Replicant Connection Init: \(maybeIntroError!)\n")
+                        self.log.error("\nError attempting to meet the server during Replicant Connection Init: \(maybeIntroError!)\n")
                         if let introError = maybeIntroError as? NWError
                         {
                             updateHandler(.failed(introError))
@@ -106,7 +107,7 @@ open class ReplicantServerConnection: Connection
                         return
                     }
                     
-                    print("\n New Replicant connection is ready. 🎉 \n")
+                    self.log.debug("\n New Replicant connection is ready. 🎉 \n")
                     
                     // Data Handling
                     self.networkQueue.async
@@ -155,7 +156,7 @@ open class ReplicantServerConnection: Connection
             
             guard let someData = content else
             {
-                print("Received a send command with no content.")
+                log.error("Received a send command with no content.")
                 switch completion
                 {
                 case .contentProcessed(let handler):
@@ -184,7 +185,7 @@ open class ReplicantServerConnection: Connection
         guard self.sendBuffer.count >= (polishServer.chunkSize)
             else
         {
-            print("Received a send command with content less than chunk size.")
+            log.error("Received a send command with content less than chunk size.")
             switch completion
             {
                 case .contentProcessed(let handler):
@@ -203,7 +204,7 @@ open class ReplicantServerConnection: Connection
         guard let polishServerConnection = polishServer.newConnection(connection: self)
         else
         {
-            print("Received a send command but we could not derive the symmetric key.")
+            log.error("Received a send command but we could not derive the symmetric key.")
             switch completion
             {
                 case .contentProcessed(let handler):
@@ -235,7 +236,7 @@ open class ReplicantServerConnection: Connection
             
             if let error = maybeError
             {
-                print("Received an error on Send:\(error)")
+                self.log.error("Received an error on Send:\(error)")
                 self.sendTimer!.invalidate()
                 self.sendTimer = nil
                 
@@ -321,7 +322,7 @@ open class ReplicantServerConnection: Connection
                     guard let someData = maybeData
                         else
                     {
-                        print("\nReceive called with no content.\n")
+                        self.log.error("\nReceive called with no content.\n")
                         completion(maybeData, maybeContext, connectionComplete, maybeError)
                         return
                     }
@@ -361,14 +362,14 @@ open class ReplicantServerConnection: Connection
         guard let polishServerConnection = polish.newConnection(connection: self)
         else
         {
-            print("Unable to decrypt received data: Failed to create a polish connection")
+            self.log.error("Unable to decrypt received data: Failed to create a polish connection")
              return nil
         }
         
         guard let decryptedData = polishServerConnection.unpolish(polishedData: encryptedData)
             else
         {
-            print("Unable to decrypt encrypted receive buffer")
+            self.log.error("Unable to decrypt encrypted receive buffer")
             return nil
         }
         
@@ -406,7 +407,7 @@ open class ReplicantServerConnection: Connection
                 
                 guard maybeError == nil else
                 {
-                    print("ToneBurst failed: \(maybeError!)")
+                    self.log.error("ToneBurst failed: \(maybeError!)")
                     completion(nil)
                     return
                 }
@@ -471,11 +472,10 @@ open class ReplicantServerConnection: Connection
     {
         // Lock so that send isn't called while we're working
         bufferLock.enter()
-
-        self.sendTimer = nil
+        sendTimer = nil
         
         // Double check the buffer to be sure that there is still data in there.
-        print("\n⏰  Chunk Timeout Reached\n  ⏰")
+        log.debug("\n⏰  Chunk Timeout Reached\n  ⏰")
         
         let payloadSize = sendBuffer.count
 
@@ -484,7 +484,7 @@ open class ReplicantServerConnection: Connection
             guard let polishConnection = polish.newConnection(connection: network)
             else
             {
-                print("Attempted to polish but failed to create a PolishConnection")
+                log.error("Attempted to polish but failed to create a PolishConnection")
                 bufferLock.leave()
                 return
             }
@@ -511,7 +511,7 @@ open class ReplicantServerConnection: Connection
                 
                 if let error = maybeError
                 {
-                    print("Received an error on Send:\(error)")
+                    self.log.error("Received an error on Send:\(error)")
                     
                     self.bufferLock.leave()
                     return
@@ -548,7 +548,7 @@ open class ReplicantServerConnection: Connection
                 
                 if let error = maybeError
                 {
-                    print("Received an error on Send:\(error)")
+                    self.log.error("Received an error on Send:\(error)")
                     
                     self.bufferLock.leave()
                     return

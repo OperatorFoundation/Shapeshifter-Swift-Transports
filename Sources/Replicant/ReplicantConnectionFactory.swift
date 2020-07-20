@@ -22,19 +22,19 @@ open class ReplicantConnectionFactory: ConnectionFactory
     
     let log: Logger
         
-    public init?(ipString: String, portInt: UInt16, config: ReplicantConfig<SilverClientConfig>, log: Logger)
+    public init?(ipString: String, portInt: UInt16, config: ReplicantConfig<SilverClientConfig>, logger: Logger)
     {
         guard let port = NWEndpoint.Port(rawValue: portInt)
         else
         {
-            print("Unable to initialize ReplicantConnectionFactory, a port could not be resolved from the provided UInt16: \(portInt)")
+            logger.error("Unable to initialize ReplicantConnectionFactory, a port could not be resolved from the provided UInt16: \(portInt)")
             return nil
         }
         
         self.host = NWEndpoint.Host(ipString)
         self.port = port
         self.config = config
-        self.log = log
+        self.log = logger
     }
 
     public init(host: NWEndpoint.Host, port: NWEndpoint.Port, config: ReplicantConfig<SilverClientConfig>, log: Logger)

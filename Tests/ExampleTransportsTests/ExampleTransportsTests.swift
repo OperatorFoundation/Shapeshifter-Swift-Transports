@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Logging
 import XCTest
 import Transport
 import Network
@@ -34,7 +35,7 @@ class ExampleTransportsTests: XCTestCase
         }
         
         let host = NWEndpoint.Host.ipv4(ipv4Address)
-        let connectionFactory = Rot13ConnectionFactory(host: host, port: port)
+        let connectionFactory = Rot13ConnectionFactory(host: host, port: port, logger: Logger(label: "TestRot13"))
         let maybeConnection = connectionFactory.connect(using: .tcp)
         
         XCTAssertNotNil(maybeConnection)
@@ -60,7 +61,7 @@ class ExampleTransportsTests: XCTestCase
         let connected = expectation(description: "Connected to the server.")
         let wrote = expectation(description: "Wrote data to the server.")
         let host = NWEndpoint.Host.ipv4(ipv4Address)
-        let connectionFactory = Rot13ConnectionFactory(host: host, port: port)
+        let connectionFactory = Rot13ConnectionFactory(host: host, port: port, logger: Logger(label: "TestRot13") )
         let maybeConnection = connectionFactory.connect(using: .tcp)
         XCTAssertNotNil(maybeConnection)
         
@@ -146,7 +147,7 @@ class ExampleTransportsTests: XCTestCase
         let wrote = expectation(description: "Wrote data to the server.")
         let read = expectation(description: "Read data from the server.")
         let host = NWEndpoint.Host.ipv4(ipv4Address)
-        let connectionFactory = Rot13ConnectionFactory(host: host, port: port)
+        let connectionFactory = Rot13ConnectionFactory(host: host, port: port, logger: Logger(label: "TestRot13"))
         let maybeConnection = connectionFactory.connect(using: .tcp)
         
         XCTAssertNotNil(maybeConnection)

@@ -57,15 +57,15 @@ open class OptimizerConnection: Connection
             switch state
             {
             case .ready:
-                print("\n✅  Received ready state for connection.")
+                self.log.debug("\n✅  Received ready state for connection.")
                 self.currentStrategy.report(transport: self.transport, successfulConnection: true, millisecondsToConnect: Int(connectTime * 1000))
                 self.transportConnection.stateUpdateHandler = self.stateUpdateHandler
             case .failed(let error):
-                print("\n🚫  Connection failed: \(error)")
+                self.log.error("\n🚫  Connection failed: \(error)")
                 self.currentStrategy.report(transport: self.transport, successfulConnection: false, millisecondsToConnect: Int(connectTime * 1000))
                 self.transportConnection.stateUpdateHandler = self.stateUpdateHandler
             default:
-                print("\nReceived a state other than ready or failed: \(state)\n")
+                self.log.debug("\nReceived a state other than ready or failed: \(state)\n")
                 self.transportConnection.stateUpdateHandler = self.stateUpdateHandler
             }
 

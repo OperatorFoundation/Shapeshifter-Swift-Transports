@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Logging
 import Transport
 import Network
 
@@ -15,11 +16,13 @@ open class PassthroughConnection: Connection
     public var stateUpdateHandler: ((NWConnection.State) -> Void)?
     public var viabilityUpdateHandler: ((Bool) -> Void)?
     
+    let log: Logger
     var network: Connection
 
     public init?(host: NWEndpoint.Host,
                  port: NWEndpoint.Port,
-                 using parameters: NWParameters)
+                 using parameters: NWParameters,
+                 logger: Logger)
     {
         let connectionFactory = NetworkConnectionFactory(host: host, port: port)
         guard let newConnection = connectionFactory.connect(using: parameters)
@@ -29,11 +32,13 @@ open class PassthroughConnection: Connection
         }
         
         network = newConnection
+        log = logger
     }
     
-    public init(connection: Connection, using parameters: NWParameters)
+    public init(connection: Connection, using parameters: NWParameters, logger: Logger)
     {
         network = connection
+        log = logger
     }
     
     public func start(queue: DispatchQueue)

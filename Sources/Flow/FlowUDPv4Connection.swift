@@ -6,9 +6,10 @@
 //
 
 import Foundation
-import Transport
+import Logging
 import Network
 import Flower
+import Transport
 
 open class FlowUDPv4Connection: Connection
 {
@@ -18,12 +19,14 @@ open class FlowUDPv4Connection: Connection
     let flower: FlowerController
     let endpoint: EndpointV4
     let streamid: StreamIdentifier
+    let log: Logger
     
-    public init(flower: FlowerController, endpoint: EndpointV4, streamid: StreamIdentifier)
+    public init(flower: FlowerController, endpoint: EndpointV4, streamid: StreamIdentifier, logger: Logger)
     {
         self.flower=flower
         self.endpoint=endpoint
         self.streamid=flower.getNextStreamIdentifier()
+        self.log = logger
     }
     
     public func start(queue: DispatchQueue)
@@ -35,7 +38,8 @@ open class FlowUDPv4Connection: Connection
         guard let data = content
             else
         {
-            print("Received a send command with no content.")
+            log.error("Received a send command with no content.")
+            
             switch completion
             {
                 case .contentProcessed(let handler):
@@ -51,6 +55,11 @@ open class FlowUDPv4Connection: Connection
         flower.sendMessage(message: message)
         {
             (maybeError) in
+            
+            if let error = maybeError
+            {
+                self.log.error("\(error)")
+            }
             
             switch completion
             {

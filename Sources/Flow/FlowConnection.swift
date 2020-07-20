@@ -4,21 +4,24 @@
 //
 
 import Foundation
-import Transport
+import Logging
 import Network
 import Flower
+import Transport
 
 open class FlowConnection: Connection
 {
     public var stateUpdateHandler: ((NWConnection.State) -> Void)?
     public var viabilityUpdateHandler: ((Bool) -> Void)?
     
+    let log: Logger
     var network: Connection
     
     public init?(flower: FlowerController,
                  host: NWEndpoint.Host,
                  port: NWEndpoint.Port,
-                 using parameters: NWParameters)
+                 using parameters: NWParameters,
+                 logger: Logger)
     {
         let connectionFactory = NetworkConnectionFactory(host: host, port: port)
         guard let newConnection = connectionFactory.connect(using: .udp)
@@ -28,19 +31,22 @@ open class FlowConnection: Connection
         }
         
         self.network = newConnection
+        self.log = logger
     }
     
     public init?(connection: Connection,
-                 using parameters: NWParameters)
+                 using parameters: NWParameters,
+                 logger: Logger)
     {
         guard let prot = parameters.defaultProtocolStack.internetProtocol, let _ = prot as? NWProtocolUDP.Options
             else
         {
-            print("Attempted to initialize protean not as a UDP connection.")
+            logger.error("Attempted to initialize protean not as a UDP connection.")
             return nil
         }
         
         self.network = connection
+        self.log = logger
     }
     
     public func start(queue: DispatchQueue)
@@ -54,7 +60,7 @@ open class FlowConnection: Connection
         guard let someData = content
             else
         {
-            print("Received a send command with no content.")
+            log.error("Received a send command with no content.")
             switch completion
             {
             case .contentProcessed(let handler):
@@ -71,7 +77,7 @@ open class FlowConnection: Connection
 //        guard !transformedDatas.isEmpty, let transformedData = transformedDatas.first
 //            else
 //        {
-//            print("Received empty response on call to Protean.Transform")
+//            log.error("Received empty response on call to Protean.Transform")
 //
 //            switch completion
 //            {
@@ -100,10 +106,10 @@ open class FlowConnection: Connection
         { (maybeData, maybeContext, connectionComplete, maybeError) in
             
             //FIXME: Finish protean implementation of read
-            guard let someData = maybeData
+            guard let _ = maybeData
                 else
             {
-                print("Received no content.")
+                self.log.error("Received no content.")
                 completion(maybeData, maybeContext, connectionComplete, maybeError)
                 return
             }

@@ -6,9 +6,10 @@
 //
 
 import Foundation
-import Transport
+import Logging
 import Network
 import Flower
+import Transport
 
 enum StreamType
 {
@@ -26,17 +27,20 @@ enum AddressType
 public class FlowerController
 {
     let connection: Connection
+    let log: Logger
     var nextStreamIdentifier: StreamIdentifier = 0
     var streams: [StreamIdentifier:Connection] = [:]
     
-    public init(host: NWEndpoint.Host, port: NWEndpoint.Port, parameters: NWParameters)
+    public init(host: NWEndpoint.Host, port: NWEndpoint.Port, parameters: NWParameters, logger: Logger)
     {
         self.connection = NWConnection(host: host, port: port, using: parameters)
+        self.log = logger
     }
     
-    public init(connection: Connection)
+    public init(connection: Connection, logger: Logger)
     {
         self.connection = connection
+        self.log = logger
     }
     
     public func connect(host: NWEndpoint.Host, port: NWEndpoint.Port, using parameters: NWParameters) -> Connection?
@@ -53,7 +57,7 @@ public class FlowerController
                 }
                 
                 let dst = EndpointV4(host: address, port: port)
-                let conn = FlowUDPv4Connection(flower: self, endpoint: dst, streamid: streamid)
+                let conn = FlowUDPv4Connection(flower: self, endpoint: dst, streamid: streamid, logger: log)
                 streams[streamid] = conn
                 return conn
             case (.UDP, .v6):
@@ -63,7 +67,7 @@ public class FlowerController
                 }
                 
                 let dst = EndpointV6(host: address, port: port)
-                let conn = FlowUDPv6Connection(flower: self, endpoint: dst, streamid: streamid)
+                let conn = FlowUDPv6Connection(flower: self, endpoint: dst, streamid: streamid, logger: log)
                 streams[streamid] = conn
                 return conn
             case (.TCP, .v4):
@@ -73,7 +77,7 @@ public class FlowerController
                 }
 
                 let dst = EndpointV4(host: address, port: port)
-                let conn = FlowTCPv4Connection(flower: self, endpoint: dst, streamid: streamid)
+                let conn = FlowTCPv4Connection(flower: self, endpoint: dst, streamid: streamid, logger: log)
                 streams[streamid] = conn
                 return conn
             case (.TCP, .v6):
@@ -83,7 +87,7 @@ public class FlowerController
                 }
                 
                 let dst = EndpointV6(host: address, port: port)
-                let conn = FlowTCPv6Connection(flower: self, endpoint: dst, streamid: streamid)
+                let conn = FlowTCPv6Connection(flower: self, endpoint: dst, streamid: streamid, logger: log)
                 streams[streamid] = conn
                 return conn
             default:
@@ -130,7 +134,12 @@ public class FlowerController
                 {
                     (maybeError) in
                     
-                    print("Closed stream \(streamid)")
+                    if let error = maybeError
+                    {
+                        self.log.error("\(error)")
+                    }
+                    
+                    self.log.debug("Closed stream \(streamid)")
                 }
             default:
                 return

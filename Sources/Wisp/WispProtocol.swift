@@ -12,6 +12,7 @@
 // implementation to other obfs4 implementations except when required for over-the-wire compatibility.
 
 import Foundation
+import Logging
 import Sodium
 import CryptoSwift
 import Elligator
@@ -83,6 +84,7 @@ struct Keypair
 
 struct ClientHandshake
 {
+    let log: Logger
     let keypair: Keypair
     let nodeID: Data
     let serverIdentityPublicKey: Data
@@ -104,7 +106,7 @@ struct ClientHandshake
             guard let padding = randomBytes(number: self.padLength)
                 else
             {
-                print("Unable to generate padding for client handshake")
+                log.error("Unable to generate padding for client handshake")
                 return nil
             }
             
@@ -112,7 +114,7 @@ struct ClientHandshake
             guard  let mark = try? self.mac.authenticate(self.keypair.representative.bytes)
                 else
             {
-                print("Unable to create hmac for mark.")
+                log.error("Unable to create hmac for mark.")
                 return nil
             }
             
@@ -126,7 +128,7 @@ struct ClientHandshake
             guard let macOfBuffer: Bytes = try? self.mac.authenticate(handshakeBuffer.bytes + self.epochHour.utf8)
                 else
             {
-                print("Unable to create hmac for handshake buffer.")
+                log.error("Unable to create hmac for handshake buffer.")
                 return nil
             }
             
@@ -136,20 +138,21 @@ struct ClientHandshake
         }
     }
     
-    init?(certString: String, sessionKey: Keypair)
+    init?(certString: String, sessionKey: Keypair, logger: Logger)
     {
-        self.init(certString: certString, sessionKey: sessionKey, epochHourString: nil)
+        self.init(certString: certString, sessionKey: sessionKey, logger: logger, epochHourString: nil)
     }
     
-    init?(certString: String, sessionKey: Keypair, epochHourString: String?)
+    init?(certString: String, sessionKey: Keypair, logger: Logger, epochHourString: String?)
     {
         guard let (unpackedNodeID, unpackedPublicKey) = unpack(certString: certString)
             else
         {
-            print("Attempted to init ClientHandshake with invalid cert string.")
+            logger.error("Attempted to init ClientHandshake with invalid cert string.")
             return nil
         }
         
+        self.log = logger
         self.keypair = sessionKey
         self.nodeID = unpackedNodeID
         self.serverIdentityPublicKey = unpackedPublicKey
@@ -163,9 +166,8 @@ struct ClientHandshake
         let hmac = HMAC(key: unpackedPublicKey.bytes + nodeID.bytes, variant: .sha256)
         self.mac = hmac
         
-        print("\nGenerating mac object for client handshake.")
-        print("unpacked public key: \(unpackedPublicKey.bytes)")
-        print("nodeID: \(nodeID.bytes)")
+        logger.debug("\nGenerating mac object for client handshake.")
+        logger.debug("unpacked public key: \(unpackedPublicKey.bytes)")
         
         // E
         if epochHourString == nil
@@ -198,6 +200,7 @@ struct ServerHandshake
 
 class WispProtocol
 {
+    let log: Logger
     let nodeID: Data
     let clientPublicKey: Data
     let sessionKey: Keypair
@@ -209,8 +212,9 @@ class WispProtocol
     var receivedBuffer = Data()
     var receivedDecodedBuffer = Data()
     
-    init?(connection: Connection, cert: String, iatMode enableIAT: Bool)
+    init?(connection: Connection, cert: String, iatMode enableIAT: Bool, logger: Logger)
     {
+        log = logger
         network = connection
         iatMode = enableIAT
         
@@ -234,10 +238,10 @@ class WispProtocol
     func connectWithHandshake(certString: String, sessionKey: Keypair, completion: @escaping (Error?) -> Void)
     {
         // Generate and send the client handshake.
-        guard let newHandshake = ClientHandshake(certString: certString, sessionKey: sessionKey)
+        guard let newHandshake = ClientHandshake(certString: certString, sessionKey: sessionKey, logger: log)
         else
         {
-            print("Unable to init client handshake.")
+            log.error("Unable to init client handshake.")
             completion(WispError.invalidCertString)
             return
         }
@@ -245,7 +249,7 @@ class WispProtocol
         guard let clientHandshakeBytes = newHandshake.data
         else
         {
-            print("Unable to generate handshake.")
+            log.error("Unable to generate handshake.")
             completion(WispError.invalidClientHandshake)
             return
         }
@@ -257,8 +261,8 @@ class WispProtocol
             
             if let writeError = maybeWriteError
             {
-                print("Received an error when writing client handshake to the network:")
-                print(writeError.localizedDescription)
+                self.log.error("Received an error when writing client handshake to the network:")
+                self.log.error("\(writeError.debugDescription)")
                 completion(writeError)
                 return
             }
@@ -270,8 +274,8 @@ class WispProtocol
                     
                     if let readError = maybeReadError
                     {
-                        print("Error reading from network:")
-                        print(readError.localizedDescription)
+                        self.log.error("Error reading from network:")
+                        self.log.error("\(readError.localizedDescription)")
                         
                         completion(readError)
                         return
@@ -281,7 +285,7 @@ class WispProtocol
                         else
                     {
                         completion(WispError.invalidResponse)
-                        print("No data received when attempting to read server handshake 🤔")
+                        self.log.error("No data received when attempting to read server handshake 🤔")
                         return
                     }
                     
@@ -308,8 +312,8 @@ class WispProtocol
                 
                 if let readError = maybeReadError
                 {
-                    print("Error reading from network:")
-                    print(readError.localizedDescription)
+                    self.log.error("Error reading from network:")
+                    self.log.error("\(readError.localizedDescription)")
                     
                     completion(readError)
                     return
@@ -337,11 +341,8 @@ class WispProtocol
                                         count: keyMaterialLength * 2)
             let encoderKey = Data(keyMaterial[0 ..< keyMaterialLength])
             let decoderKey = Data(keyMaterial[keyMaterialLength ..< keyMaterialLength * 2])
-            
-            //print("Key for new encoder: \(encoderKey.bytes)")
-            let newEncoder = WispEncoder(withKey: encoderKey)
-            
-            let newDecoder = WispDecoder(withKey: decoderKey)
+            let newEncoder = WispEncoder(withKey: encoderKey, logger: log)
+            let newDecoder = WispDecoder(withKey: decoderKey, logger: log)
             
             self.encoder = newEncoder
             self.decoder = newDecoder
@@ -356,7 +357,7 @@ class WispProtocol
         guard response.count > representativeLength * 2
         else
         {
-            print("Server handshake length is too short. 🤭")
+            log.error("Server handshake length is too short. 🤭")
             return .failed
         }
         
@@ -368,11 +369,11 @@ class WispProtocol
         guard let macOfRepresentativeBytes = try? clientHandshake.mac.authenticate(serverRepresentative.bytes)
             else
         {
-            print("Unable to derive mark from sever handshake.")
+            log.error("Unable to derive mark from sever handshake.")
             return .failed
         }
         
-        print("\nParsing Server handshake.")
+        log.debug("\nParsing Server handshake.")
         
         let serverMark = Data(macOfRepresentativeBytes[0 ..< markLength])
         let serverHandshake = ServerHandshake(serverAuth: serverAuth, serverRepresentative: serverRepresentative, serverMark: serverMark)
@@ -385,12 +386,12 @@ class WispProtocol
         {
             if response.count >= maxHandshakeLength
             {
-                print("Parse server handshake error: Invalid Handshake")
+                log.error("Parse server handshake error: Invalid Handshake")
                 return .failed
             }
             else
             {
-                print("Parse server handshake error: Mark not found yet.")
+                log.error("Parse server handshake error: Mark not found yet.")
                 return .retry
             }
         }
@@ -399,11 +400,11 @@ class WispProtocol
         guard !serverMarkRange.clamped(to: startPosition ..< maxHandshakeLength).isEmpty
         else
         {
-            print("Mark was found but not where we expected it to be.")
+            log.error("Mark was found but not where we expected it to be.")
             return .failed
         }
         
-        print("Found the mark in the correct range!")
+        log.debug("Found the mark in the correct range!")
         
         // Validate the MAC.
         let prefixIncludingMark = response[0 ..< serverMarkRange.upperBound]
@@ -416,7 +417,7 @@ class WispProtocol
         guard let calculatedMacBytes = try? clientHandshake.mac.authenticate(thingToMac)
         else
         {
-            print("Error with calculating client mac")
+            log.error("Error with calculating client mac")
             return .failed
         }
         
@@ -425,19 +426,17 @@ class WispProtocol
         guard providedMac == calculatedMac
         else
         {
-            print("\nServer provided mac does not match what we believe the mac should be!")
-            print("Calculated Mac:\(calculatedMac.bytes)")
-            print("Server Provided Mac: \(providedMac.bytes)")
+            log.error("\nServer provided mac does not match what we believe the mac should be!")
+            log.error("Calculated Mac:\(calculatedMac.bytes)")
+            log.error("Server Provided Mac: \(providedMac.bytes)")
             
-            print("\nThing to mac is \(thingToMac.count) long.")
-            print("prefix length is \(prefixIncludingMark.count)")
-            print("\nprefix including mark: \(prefixIncludingMark.bytes)")
-            print("epoch hour: \(epochHour.utf8)")
+            log.error("\nThing to mac is \(thingToMac.count) long.")
+            log.error("prefix length is \(prefixIncludingMark.count)")
+            log.error("\nprefix including mark: \(prefixIncludingMark.bytes)")
+            log.error("epoch hour: \(epochHour.utf8)")
             return .failed
         }
         
-        print("Provided server mac matches calculated mac!")
-
         guard let seed = getSeedFromHandshake(clientHandshake: clientHandshake, serverHandshake: serverHandshake)
         else
         {
@@ -449,23 +448,23 @@ class WispProtocol
     
     func getSeedFromHandshake(clientHandshake: ClientHandshake, serverHandshake: ServerHandshake) -> Data?
     {
-        print("\ngetSeedFromHandshake serverRepresentative: \(serverHandshake.serverRepresentative.bytes)")
+        log.debug("\ngetSeedFromHandshake serverRepresentative: \(serverHandshake.serverRepresentative.bytes)")
         let serverPublicKey = publicKey(representative: serverHandshake.serverRepresentative)
-        print("Just used elligator to get serverPublicKey: \(serverPublicKey.bytes)")
+        log.debug("Just used elligator to get serverPublicKey: \(serverPublicKey.bytes)")
         
         guard let (seed, auth) = ntorClientHandshake(clientKeypair: clientHandshake.keypair, serverPublicKey: serverPublicKey, idPublicKey: clientHandshake.serverIdentityPublicKey, nodeID: clientHandshake.nodeID)
             else
         {
-            print("ntorClientHandshake failed")
+            log.error("ntorClientHandshake failed")
             return nil
         }
         
         guard auth == serverHandshake.serverAuth
             else
         {
-            print("Parse server handshake failed: invalid auth.")
-            print("Server provided auth: \(serverHandshake.serverAuth.bytes)")
-            print("Ntor client handshake auth: \(auth.bytes)")
+            log.error("Parse server handshake failed: invalid auth.")
+            log.error("Server provided auth: \(serverHandshake.serverAuth.bytes)")
+            log.error("Ntor client handshake auth: \(auth.bytes)")
             return nil
         }
         
@@ -620,7 +619,7 @@ class WispProtocol
         guard let newPacket = WispPacket(data: data)
         else
         {
-            print("Unable to create a new packet from data.")
+            log.error("Unable to create a new packet from data.")
             return
         }
         
@@ -632,7 +631,7 @@ class WispProtocol
         case .seed:
             if newPacket.payload.count == seedPacketPayloadLength
             {
-                print("Received a seed packet. This is for iatMode which is not currently supported. 🤗")
+                log.error("Received a seed packet. This is for iatMode which is not currently supported. 🤗")
             }
         }
     }
@@ -640,10 +639,10 @@ class WispProtocol
     /// ntorClientHandshake does the client side of a ntor handshake and returns status, KEY_SEED, and AUTH.
     func ntorClientHandshake(clientKeypair: Keypair, serverPublicKey: Data, idPublicKey: Data, nodeID: Data) -> (keySeed: Data, auth: Data)?
     {
-//        print("\n ☞ ☞ Client public key: \(clientKeypair.publicKey.bytes)")
-//        print(" ☞ ☞ Server public key: \(serverPublicKey.bytes)")
-//        print(" ☞ ☞ ID public key: \(idPublicKey.bytes)")
-//        print(" ☞ ☞ Node ID: \(nodeID.bytes)\n")
+//        log.debug("\n ☞ ☞ Client public key: \(clientKeypair.publicKey.bytes)")
+//        log.debug(" ☞ ☞ Server public key: \(serverPublicKey.bytes)")
+//        log.debug(" ☞ ☞ ID public key: \(idPublicKey.bytes)")
+//        log.debug(" ☞ ☞ Node ID: \(nodeID.bytes)\n")
         
         var secretInput = Data()
         
@@ -661,23 +660,20 @@ class WispProtocol
         guard !sodium.utils.equals(staticSharedSecret, zeroData.bytes)
         else
         {
-            print("ntorClientHandshake: static shared secret is zero.")
+            log.error("ntorClientHandshake: static shared secret is zero.")
             return nil
         }
         
         guard !sodium.utils.equals(ephemeralSharedSecret, zeroData.bytes)
         else
         {
-            print("ntorClientHandshake: ephemeral shared secret is zero.")
+            log.error("ntorClientHandshake: ephemeral shared secret is zero.")
             return nil
         }
         
         secretInput.append(Data(ephemeralSharedSecret))
         secretInput.append(Data(staticSharedSecret))
-        
-//        print("\n🤫 🤫 Secret input appending ephemeral shared secret: \(ephemeralSharedSecret)")
-//        print("\n🤫 🤫 Secret input appending static shared secret: \(staticSharedSecret)")
-        
+                
         guard let (keySeed, auth) = ntorCommon(secretInput: secretInput, nodeID: nodeID, bPublicKey: idPublicKey, xPublicKey: clientKeypair.publicKey, yPublicKey: serverPublicKey)
         else
         {
@@ -709,53 +705,44 @@ class WispProtocol
         var sInput = secretInput
         sInput.append(suffix)
         
-        print("\n 🤫 🤫 Secret input appending suffix: \(suffix.bytes)")
+        log.debug("\n 🤫 🤫 Secret input appending suffix: \(suffix.bytes)")
         
         // KEY_SEED = H(secret_input, t_key)
         do
         {
-//            print("\n ☞ ☞  tVerify: \(tVerify.bytes)")
-//            print("\n ☞ ☞  Secret Input: \(sInput.bytes)")
-            
             let keySeedHmac = HMAC(key: tKey.bytes, variant: .sha256)
             let keySeed = try keySeedHmac.authenticate(sInput.bytes)
             // verify = H(secret_input, t_verify)
             do
             {
                 let tVerifyHmac = try HMAC(key: tVerify.bytes, variant: .sha256).authenticate(sInput.bytes)
-//                print("\n ☞ ☞  tVerifyHMAC: \(tVerifyHmac)")
-//                print("\n ☞ ☞  serverStringAsData: \(serverStringAsData.bytes)")
                 
                 // auth_input = verify | ID | B | Y | X | PROTOID | "Server"
                 var authInput = Data(tVerifyHmac)
                 authInput.append(suffix)
                 authInput.append(serverStringAsData)
                 
-//                print("\n ☞ ☞ tMac: \(tMac.bytes)")
-//                print("\n ☞ ☞  authInput: \(authInput.bytes)\n")
-                
                 do
                 {
                     let authHmac = HMAC(key: tMac.bytes, variant: .sha256)
                     let auth = try authHmac.authenticate(authInput.bytes)
-                    
                     return (Data(keySeed), Data(auth))
                 }
                 catch
                 {
-                    print("Unable to generate auth HMAC.")
+                    log.error("Unable to generate auth HMAC.")
                     return nil
                 }
             }
             catch
             {
-                print("Unable to generate tVerify HMAC.")
+                log.error("Unable to generate tVerify HMAC.")
                 return nil
             }
         }
         catch
         {
-            print("Unable to generate tKey HMAC.")
+            log.error("Unable to generate tKey HMAC.")
             return nil
         }
     }
@@ -768,17 +755,10 @@ func unpack(certString: String) -> (nodeID: Data, publicKey: Data)?
     let maybeCert = serverCert(fromString: certString)
     
     guard let cert = maybeCert
-    else
-    {
-        return nil
-    }
+    else { return nil }
     
     guard let (nodeID, publicKey) = unpack(certData: cert)
-    else
-    {
-        print("Unable to unpack cert.")
-        return nil
-    }
+    else { return nil }
     
     return (nodeID, publicKey)
 }
@@ -787,11 +767,8 @@ func unpack(certString: String) -> (nodeID: Data, publicKey: Data)?
 // Should be 20 bytes and 32 bytes
 func unpack(certData cert: Data) -> (nodeID: Data, publicKey: Data)?
 {
-    guard cert.count == certLength else
-    {
-        print("Cert length \(cert.count) is invalid.")
-        return nil
-    }
+    guard cert.count == certLength
+        else { return nil }
 
     // Get bytes from cert starting with 0 and ending with NodeIDLength
     let nodeIDArray = cert.prefix(upTo: nodeIDLength)
@@ -802,10 +779,7 @@ func unpack(certData cert: Data) -> (nodeID: Data, publicKey: Data)?
     let pubKey = Data(pubKeyArray)
     
     guard nodeID.count == nodeIDLength, pubKey.count == publicKeyLength
-    else
-    {
-        return nil
-    }
+    else { return nil }
     
     return (nodeID, pubKey)
 }

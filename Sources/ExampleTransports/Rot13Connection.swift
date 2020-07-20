@@ -7,8 +7,9 @@
 //
 
 import Foundation
-import Transport
+import Logging
 import Network
+import Transport
 
 open class Rot13Connection: Connection
 {
@@ -22,11 +23,14 @@ open class Rot13Connection: Connection
     
     public var viabilityUpdateHandler: ((Bool) -> Void)?
     public var rotkey: Int = 13
+    
+    let log: Logger
     var network: Connection
     
     public init?(host: NWEndpoint.Host,
          port: NWEndpoint.Port,
-         using parameters: NWParameters)
+         using parameters: NWParameters,
+         logger: Logger)
     {
         let connectionFactory = NetworkConnectionFactory(host: host, port: port)
         guard let newConnection = connectionFactory.connect(using: parameters)
@@ -36,11 +40,13 @@ open class Rot13Connection: Connection
         }
         
         network = newConnection
+        log = logger
     }
 
-    public init(connection: Connection, using parameters: NWParameters)
+    public init(connection: Connection, using parameters: NWParameters, logger: Logger)
     {
         network = connection
+        log = logger
     }
     
     public func start(queue: DispatchQueue)
@@ -53,7 +59,7 @@ open class Rot13Connection: Connection
         guard let data = content
         else
         {
-            print("Received a send command with no content.")
+            log.debug("Received a send command with no content.")
             switch completion
             {
             case .contentProcessed(let handler):
@@ -68,7 +74,7 @@ open class Rot13Connection: Connection
         guard let encodedContent = encode(data)
         else
         {
-            print("Failed to encoded data while attempting Rot13Connection write.")
+            log.error("Failed to encoded data while attempting Rot13Connection write.")
             switch completion
             {
             case .contentProcessed(let handler):

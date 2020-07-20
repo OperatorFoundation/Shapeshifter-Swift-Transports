@@ -31,7 +31,7 @@ open class OptimizerConnectionFactory: ConnectionFactory
         while connection == nil && attemptCount < 10
         {
             attemptCount += 1
-            print("\nOptimizer is attempting to connect.\nRound \(attemptCount)")
+            log.debug("\nOptimizer is attempting to connect.\nRound \(attemptCount)")
             
             guard let connectionFactory = currentStrategy.choose()
                 else
