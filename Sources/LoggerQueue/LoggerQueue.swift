@@ -2,13 +2,13 @@
 import Logging
 import SwiftQueue
 
-public class LoggerQueue
+public struct LoggerQueue
 {
     public var logLevel: Logger.Level
     public var metadata: Logger.Metadata
     public let queue: Queue<LoggerQueueMessage>
     
-    public init()
+    public init(label: String)
     {
         // For our purposes, critical logLevel is the same as turning logging off.
         logLevel = .critical
