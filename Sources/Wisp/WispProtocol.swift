@@ -226,7 +226,7 @@ class WispProtocol
         
         (nodeID, clientPublicKey) = (certNodeID, certPublicKey)
         
-        guard let keypair = newKeypair()
+        guard let keypair = newKeypair(logger: log)
         else
         {
             return nil
@@ -805,7 +805,7 @@ func serverCert(fromString encodedString: String) -> Data?
 
 // NewKeypair generates a new Curve25519 keypair, and optionally also generates
 // an Elligator representative of the public key.
-func newKeypair() -> Keypair?
+func newKeypair(logger: Logger) -> Keypair?
 {
     let sodium = Sodium()
 
@@ -834,7 +834,7 @@ func newKeypair() -> Keypair?
     
     if elligatorRepresentative == nil
     {
-        print("Failed to create elligator representative after \(count) attempts.")
+        logger.debug("Failed to create elligator representative after \(count) attempts.")
         return nil
     }
     
@@ -845,6 +845,7 @@ func newKeypair() -> Keypair?
     }
     else
     {
+        logger.debug("Failed to create elligator representative.")
         return nil
     }
 }

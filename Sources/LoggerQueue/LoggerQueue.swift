@@ -46,6 +46,14 @@ extension LoggerQueue: LogHandler
                                               line: line)
         queue.enqueue(queueMessage)
     }
+    
+    func dequeue() -> String?
+    {
+        guard let message = queue.dequeue()
+            else { return nil }
+        
+        return message.message
+    }
 }
 
 struct LoggerQueueMessage
