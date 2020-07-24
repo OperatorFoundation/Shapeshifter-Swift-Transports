@@ -52,7 +52,7 @@ extension LoggerQueue: LogHandler
         guard let message = queue.dequeue()
             else { return nil }
         
-        return message.message
+        return "\(message.message)"
     }
 }
 
