@@ -2,13 +2,13 @@
 import Logging
 import SwiftQueue
 
-class LoggerQueue
+public class LoggerQueue
 {
-    var logLevel: Logger.Level
-    var metadata: Logger.Metadata
-    let queue: Queue<LoggerQueueMessage>
+    public var logLevel: Logger.Level
+    public var metadata: Logger.Metadata
+    public let queue: Queue<LoggerQueueMessage>
     
-    init()
+    public init()
     {
         // For our purposes, critical logLevel is the same as turning logging off.
         logLevel = .critical
@@ -19,17 +19,13 @@ class LoggerQueue
 
 extension LoggerQueue: LogHandler
 {
-    subscript(metadataKey key: String) -> Logger.Metadata.Value? {
-        get {
-            return metadata[key]
-        }
-        set(newValue)
-        {
-            metadata[key] = newValue
-        }
+    public subscript(metadataKey key: String) -> Logger.Metadata.Value?
+    {
+        get { return metadata[key] }
+        set(newValue) { metadata[key] = newValue }
     }
     
-    func log(level: Logger.Level,
+    public func log(level: Logger.Level,
             message: Logger.Message,
             metadata: Logger.Metadata?,
             source: String,
@@ -47,7 +43,7 @@ extension LoggerQueue: LogHandler
         queue.enqueue(queueMessage)
     }
     
-    func dequeue() -> String?
+    public func dequeue() -> String?
     {
         guard let message = queue.dequeue()
             else { return nil }
@@ -56,7 +52,7 @@ extension LoggerQueue: LogHandler
     }
 }
 
-struct LoggerQueueMessage
+public struct LoggerQueueMessage
 {
     let level: Logger.Level
     let message: Logger.Message
