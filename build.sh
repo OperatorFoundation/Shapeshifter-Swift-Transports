@@ -1,2 +1,2 @@
 swift package update
-swift build -Xswiftc "-target" -Xswiftc "x86_64-apple-macosx10.14"
+swift build -Xswiftc "-target" -Xswiftc "x86_64-apple-macosx10.15"
