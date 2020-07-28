@@ -82,4 +82,32 @@ public struct LoggerQueueMessage
     let file: String
     let function: String
     let line: UInt
+    
+    public init(level: Logger.Level,
+    message: Logger.Message,
+    metadata: Logger.Metadata?,
+    source: String,
+    file: String,
+    function: String,
+    line: UInt)
+    {
+        self.level = level
+        self.message = message
+        self.metadata = metadata
+        self.source = source
+        self.file = file
+        self.function = function
+        self.line = line
+    }
+    
+    public init(message: String)
+    {
+        self.message = Logger.Message(stringLiteral: message)
+        self.level = .debug
+        self.metadata = nil
+        self.source = ""
+        self.file = ""
+        self.function = ""
+        self.line = 0
+    }
 }
