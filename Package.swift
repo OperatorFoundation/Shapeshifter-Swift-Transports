@@ -11,6 +11,7 @@ let package = Package(
     products: [
         // Products define the executables and libraries produced by a package, and make them visible to other packages.
         .library(name: "Wisp", targets: ["Wisp"]),
+        .library(name: "Shadow", targets: ["Shadow"]),
         .library(name: "Protean", targets: ["Protean"]),
         .library(name: "Replicant", targets: ["Replicant"]),
         .library(name: "Optimizer", targets: ["Optimizer"]),
@@ -36,14 +37,16 @@ let package = Package(
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
         // Targets can depend on other targets in this package, and on products in packages which this package depends on.
 
-        .target(name: "Wisp", dependencies: ["Sodium", "CryptoSwift", "HKDF", "Elligator", "Transport", "SwiftQueue", .product(name: "Logging", package: "swift-log")]),
+        .target(name: "Wisp", dependencies: ["Transport", "Sodium", "CryptoSwift", "HKDF", "Elligator", "SwiftQueue", .product(name: "Logging", package: "swift-log")]),
+        .target(name: "Shadow", dependencies: ["Transport", "Datable", .product(name: "Logging", package: "swift-log")]),
         .target(name: "Flow", dependencies: ["Flower", .product(name: "Logging", package: "swift-log")]),
-        .target(name: "Protean", dependencies: ["ProteanSwift", "Transport", "SwiftQueue", .product(name: "Logging", package: "swift-log")]),
-        .target(name: "Replicant", dependencies: ["ReplicantSwift", "Transport", "SwiftQueue", "Datable", "Flower", .product(name: "Logging", package: "swift-log")]),
+        .target(name: "Protean", dependencies: ["Transport", "ProteanSwift", "SwiftQueue", .product(name: "Logging", package: "swift-log")]),
+        .target(name: "Replicant", dependencies: ["Transport", "ReplicantSwift", "SwiftQueue", "Datable", "Flower", .product(name: "Logging", package: "swift-log")]),
         .target(name: "Optimizer", dependencies: ["Transport", "SwiftQueue", .product(name: "Logging", package: "swift-log")]),
         .target(name: "LoggerQueue", dependencies: [.product(name: "Logging", package: "swift-log")]),
         .target(name: "ExampleTransports", dependencies: ["Transport"]),
         .testTarget(name: "WispTests", dependencies: ["Wisp"]),
+        .testTarget(name: "ShadowTests", dependencies: ["Shadow"]),
         .testTarget(name: "ProteanTests", dependencies: ["Protean"]),
         .testTarget(name: "ReplicantTests", dependencies: ["Replicant"]),
         .testTarget(name: "OptimizerTests", dependencies: ["Optimizer", "Wisp", "Protean"]),
