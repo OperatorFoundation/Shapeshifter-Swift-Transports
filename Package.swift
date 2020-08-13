@@ -31,7 +31,8 @@ let package = Package(
         .package(url: "https://github.com/OperatorFoundation/Elligator.git", from: "0.1.0"),
         .package(url: "https://github.com/OperatorFoundation/SwiftQueue.git", from: "0.0.3"),
         .package(url: "https://github.com/OperatorFoundation/Flower.git", from: "0.0.15"),
-        .package(url: "https://github.com/OperatorFoundation/Datable.git", from: "3.0.2")
+        .package(url: "https://github.com/OperatorFoundation/Datable.git", from: "3.0.2"),
+        .package(url: "https://github.com/OperatorFoundation/SwiftHexTools.git", from: "1.1.3")
         ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -46,7 +47,7 @@ let package = Package(
         .target(name: "LoggerQueue", dependencies: [.product(name: "Logging", package: "swift-log")]),
         .target(name: "ExampleTransports", dependencies: ["Transport"]),
         .testTarget(name: "WispTests", dependencies: ["Wisp"]),
-        .testTarget(name: "ShadowTests", dependencies: ["Shadow"]),
+        .testTarget(name: "ShadowTests", dependencies: ["Shadow", "SwiftHexTools"]),
         .testTarget(name: "ProteanTests", dependencies: ["Protean"]),
         .testTarget(name: "ReplicantTests", dependencies: ["Replicant"]),
         .testTarget(name: "OptimizerTests", dependencies: ["Optimizer", "Wisp", "Protean"]),

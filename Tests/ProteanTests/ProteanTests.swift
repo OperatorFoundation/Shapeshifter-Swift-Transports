@@ -90,7 +90,7 @@ class ProteanTests: XCTestCase
                 print("\n🙅‍♀️  Connection Canceled  🙅‍♀️\n")
                 
             case .failed(let error):
-                print("\n🐒💨  Connection Failed  🐒💨")
+                print("\n Connection Failed")
                 print("Failure Error: \(error.localizedDescription)\n")
                 
             default:
