@@ -37,6 +37,30 @@ open class ShadowConnection: Connection
     var network: Connection
     
     public var log: Logger
+    public var config: ShadowConfig
+    
+    public convenience init?(host: NWEndpoint.Host,
+                             port: NWEndpoint.Port,
+                             parameters: NWParameters,
+                             config: ShadowConfig,
+                             logger: Logger)
+    {
+        let connectionFactory = NetworkConnectionFactory(host: host, port: port)
+        guard let newConnection = connectionFactory.connect(using: parameters)
+        else
+        {
+            return nil
+        }
+        
+        self.init(connection: newConnection, parameters: parameters, config: config, logger: logger)
+    }
+
+    public init(connection: Connection, parameters: NWParameters, config: ShadowConfig, logger: Logger)
+    {
+        self.network = connection
+        self.log = logger
+        self.config = config
+    }
     
     // MARK: Connection Protocol
     public var stateUpdateHandler: ((NWConnection.State) -> Void)?
@@ -45,7 +69,6 @@ open class ShadowConnection: Connection
     public func start(queue: DispatchQueue)
     {
         network.start(queue: queue)
-        
     }
     
     public func cancel()
@@ -84,60 +107,4 @@ open class ShadowConnection: Connection
     }
     
     // End of Connection Protocol
-    
-    public init?(host: NWEndpoint.Host,
-         port: NWEndpoint.Port,
-         using parameters: NWParameters,
-         logger: Logger)
-    {
-        let connectionFactory = NetworkConnectionFactory(host: host, port: port)
-        guard let newConnection = connectionFactory.connect(using: parameters)
-        else
-        {
-            return nil
-        }
-        
-        network = newConnection
-        log = logger
-    }
-
-    public init(connection: Connection, using parameters: NWParameters, logger: Logger)
-    {
-        network = connection
-        log = logger
-    }
-    
-    // MARK: Cipher notes from https://github.com/shadowsocks/go-shadowsocks2/blob/master/shadowaead/cipher.go
-    
-    // AESGCM creates a new Cipher with a pre-shared key. len(psk) must be
-    // one of 16, 24, or 32 to select AES-128/196/256-GCM.
-    
-    // Chacha20Poly1305 creates a new Cipher with a pre-shared key. len(psk)
-    // must be 32.
-    
-    func hkdfSHA1(secret: Data, salt: Data, info: Data) -> Data?
-    {
-        let outputSize = 32
-        
-        let iterations = UInt8(ceil(Double(outputSize) / Double(Insecure.SHA1.byteCount)))
-        guard iterations <= 255 else {return nil}
-        
-        let prk = HMAC<Insecure.SHA1>.authenticationCode(for: secret, using: SymmetricKey(data: salt))
-        let key = SymmetricKey(data: prk)
-        var hkdf = Data()
-        var value = Data()
-        
-        for i in 1...iterations
-        {
-            value.append(info)
-            value.append(i)
-            
-            let code = HMAC<Insecure.SHA1>.authenticationCode(for: value, using: key)
-            hkdf.append(contentsOf: code)
-            
-            value = Data(code)
-        }
-
-        return hkdf.prefix(outputSize)
-    }
 }

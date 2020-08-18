@@ -33,20 +33,34 @@ import Transport
 
 open class ShadowConnectionFactory: ConnectionFactory
 {
+    let log: Logger
+    
+    public var name = "Shadow"
+    public var config: ShadowConfig
     public var connection: Connection?
     public var host: NWEndpoint.Host?
     public var port: NWEndpoint.Port?
 
-    let log: Logger
-    
-    // MARK: ConnectionFactory Protocol
-    public var name = "Shadow"
+    public init(host: NWEndpoint.Host, port: NWEndpoint.Port, config: ShadowConfig, logger: Logger)
+    {
+        self.host = host
+        self.port = port
+        self.config = config
+        self.log = logger
+    }
+
+    public init(connection: Connection, config: ShadowConfig, logger: Logger)
+    {
+        self.connection = connection
+        self.config = config
+        self.log = logger
+    }
     
     public func connect(using parameters: NWParameters) -> Connection?
     {
         if let currentConnection = connection
         {
-            return ShadowConnection(connection: currentConnection, using: parameters, logger: log)
+            return ShadowConnection(connection: currentConnection, parameters: parameters, config: config, logger: log)
         }
         else
         {
@@ -56,23 +70,7 @@ open class ShadowConnectionFactory: ConnectionFactory
                 return nil
             }
 
-            return ShadowConnection(host: currentHost, port: currentPort, using: parameters, logger: log)
+            return ShadowConnection(host: currentHost, port: currentPort, parameters: parameters, config: config, logger: log)
         }
     }
-    
-    // End of ConnectionFactory Protocol
-
-    public init(host: NWEndpoint.Host, port: NWEndpoint.Port, logger: Logger)
-    {
-        self.host = host
-        self.port = port
-        self.log = logger
-    }
-
-    public init(connection: Connection, logger: Logger)
-    {
-        self.connection = connection
-        self.log = logger
-    }
-
 }

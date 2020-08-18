@@ -177,4 +177,23 @@ class ShadowTests: XCTestCase
             XCTFail()
         }
     }
+    
+    func shadowHKDF(secret: Data, salt: Data, info: Data) -> Data
+    {
+        return Data()
+    }
+    
+    func testHKDF()
+    {
+        let correct = Data()
+        let secret = Data()
+        let salt = Data()
+        let info = Data()
+        
+        let result = shadowHKDF(secret: secret, salt: salt, info: info)
+        
+        
+        
+        XCTAssertEqual(result, correct)
+    }
 }
