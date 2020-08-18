@@ -114,4 +114,30 @@ open class ShadowConnection: Connection
     
     // Chacha20Poly1305 creates a new Cipher with a pre-shared key. len(psk)
     // must be 32.
+    
+    func hkdfSHA1(secret: Data, salt: Data, info: Data) -> Data?
+    {
+        let outputSize = 32
+        
+        let iterations = UInt8(ceil(Double(outputSize) / Double(Insecure.SHA1.byteCount)))
+        guard iterations <= 255 else {return nil}
+        
+        let prk = HMAC<Insecure.SHA1>.authenticationCode(for: secret, using: SymmetricKey(data: salt))
+        let key = SymmetricKey(data: prk)
+        var hkdf = Data()
+        var value = Data()
+        
+        for i in 1...iterations
+        {
+            value.append(info)
+            value.append(i)
+            
+            let code = HMAC<Insecure.SHA1>.authenticationCode(for: value, using: key)
+            hkdf.append(contentsOf: code)
+            
+            value = Data(code)
+        }
+
+        return hkdf.prefix(outputSize)
+    }
 }
