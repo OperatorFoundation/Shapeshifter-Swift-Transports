@@ -33,7 +33,7 @@ import Transport
 
 open class ShadowConnectionFactory: ConnectionFactory
 {
-    let log: Logger
+    var log: Logger
     
     public var name = "Shadow"
     public var config: ShadowConfig

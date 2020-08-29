@@ -30,14 +30,21 @@ import Foundation
 import Logging
 import Network
 
+import Datable
 import Transport
 
 open class ShadowConnection: Connection
 {
-    var network: Connection
-    
+    public var stateUpdateHandler: ((NWConnection.State) -> Void)?
+    public var viabilityUpdateHandler: ((Bool) -> Void)?
     public var log: Logger
     public var config: ShadowConfig
+    
+    let salt: Data
+    let encryptingCipher: Cipher
+    let decryptingCipher: Cipher
+    var network: Connection
+    var handshakeNeeded = true
     
     public convenience init?(host: NWEndpoint.Host,
                              port: NWEndpoint.Port,
@@ -55,19 +62,35 @@ open class ShadowConnection: Connection
         self.init(connection: newConnection, parameters: parameters, config: config, logger: logger)
     }
 
-    public init(connection: Connection, parameters: NWParameters, config: ShadowConfig, logger: Logger)
+    public init?(connection: Connection, parameters: NWParameters, config: ShadowConfig, logger: Logger)
     {
+        guard let actualSalt = Cipher.createSalt()
+            else
+        {
+            return nil
+        }
+        
+        guard let eCipher = Cipher(config: config, salt: actualSalt, logger: logger)
+            else { return nil }
+        
+        guard let dCipher = Cipher(config: config, salt: actualSalt, logger: logger)
+            else { return nil }
+        
+        self.salt = actualSalt
+        self.encryptingCipher = eCipher
+        self.decryptingCipher = dCipher
         self.network = connection
         self.log = logger
         self.config = config
+        
+        network.stateUpdateHandler = networkStateUpdate
     }
     
     // MARK: Connection Protocol
-    public var stateUpdateHandler: ((NWConnection.State) -> Void)?
-    public var viabilityUpdateHandler: ((Bool) -> Void)?
     
     public func start(queue: DispatchQueue)
     {
+        
         network.start(queue: queue)
     }
     
@@ -86,25 +109,274 @@ open class ShadowConnection: Connection
         }
     }
     
+    // Fixme: Handling of guard failures mirror what Replicant does, questions about completion handling
+    
+    /// Gets content and encrypts it before passing it along to the network
     public func send(content: Data?, contentContext: NWConnection.ContentContext, isComplete: Bool, completion: NWConnection.SendCompletion)
     {
-        network.send(content: content,
+        guard let someData = content
+            else
+        {
+            log.debug("Shadow connection received a send command with no content.")
+            switch completion
+            {
+            case .contentProcessed(let handler):
+                handler(nil)
+                return
+            default:
+                return
+            }
+        }
+        
+        guard let encrypted = encryptingCipher.pack(plaintext: someData)
+            else
+        {
+            log.error("Failed to encrypt shadow send content.")
+            return
+        }
+        
+        network.send(content: encrypted,
                      contentContext: contentContext,
                      isComplete: isComplete,
                      completion: completion)
     }
     
+    // Decrypts the received content before passing it along
     public func receive(completion: @escaping (Data?, NWConnection.ContentContext?, Bool, NWError?) -> Void)
     {
-        network.receive(completion: completion)
+        self.receive(minimumIncompleteLength: 1, maximumLength: Cipher.maxPayloadSize, completion: completion)
     }
     
-    public func receive(minimumIncompleteLength: Int, maximumLength: Int, completion: @escaping (Data?, NWConnection.ContentContext?, Bool, NWError?) -> Void)
+    
+    // TODO: Introduce buffer to honor the requested read size from the application
+    // Decrypts the received content before passing it along
+    public func receive(minimumIncompleteLength: Int,
+                        maximumLength: Int,
+                        completion: @escaping (Data?, NWConnection.ContentContext?, Bool, NWError?) -> Void)
     {
-        network.receive(minimumIncompleteLength: minimumIncompleteLength,
-                        maximumLength: maximumLength,
-                        completion: completion)
+        // Get our encrypted length first
+        let encryptedLengthSize = Cipher.lengthSize + Cipher.tagSize
+        network.receive(minimumIncompleteLength: encryptedLengthSize, maximumLength: encryptedLengthSize)
+        {
+            (maybeData, maybeContext, connectionComplete, maybeError) in
+            
+            // Something went wrong
+            if let error = maybeError
+            {
+                self.log.error("Shadow receive called, but we got an error: \(error)")
+                completion(maybeData, maybeContext, connectionComplete, error)
+                return
+            }
+            
+            // Nothing to decrypt
+            guard let someData = maybeData
+                else
+            {
+                self.log.debug("Shadow receive called, but there was no data.")
+                completion(nil, maybeContext, connectionComplete, maybeError)
+                return
+            }
+            
+            guard let lengthData = self.decryptingCipher.unpack(encrypted: someData, expectedCiphertextLength: Cipher.lengthSize)
+            else
+            {
+                completion(maybeData, maybeContext, connectionComplete, NWError.posix(POSIXErrorCode.EINVAL))
+                return
+            }
+            
+            DatableConfig.endianess = .big
+            
+            guard let lengthUInt16 = lengthData.uint16
+            else
+            {
+                self.log.error("Failed to get encrypted data's expected length. Length data could not be converted to UInt16")
+                completion(maybeData, maybeContext, connectionComplete, NWError.posix(POSIXErrorCode.EINVAL))
+                return
+            }
+            
+            // Read data of payloadLength + tagSize
+            let payloadLength = Int(lengthUInt16)
+            let expectedLength = payloadLength + Cipher.tagSize
+            
+            self.network.receive(minimumIncompleteLength: expectedLength, maximumLength: expectedLength)
+            {
+                (maybeData, maybeContext, connectionComplete, maybeError) in
+                
+                self.shadowReceive(payloadLength: payloadLength, maybeData: maybeData, maybeContext: maybeContext, connectionComplete: connectionComplete, maybeError: maybeError, completion: completion)
+            }
+        }
+    }
+    
+    func shadowReceive(payloadLength: Int,
+                       maybeData: Data?,
+                       maybeContext: NWConnection.ContentContext?,
+                       connectionComplete: Bool,
+                       maybeError: NWError?,
+                       completion: @escaping (Data?, NWConnection.ContentContext?, Bool, NWError?) -> Void)
+    {
+        // Something went wrong
+        if let error = maybeError
+        {
+            self.log.error("Shadow receive called, but we got an error: \(error)")
+            completion(maybeData, maybeContext, connectionComplete, error)
+            return
+        }
+        
+        // Nothing to decrypt
+        guard let someData = maybeData
+            else
+        {
+            self.log.debug("Shadow receive called, but there was no data.")
+            completion(nil, maybeContext, connectionComplete, maybeError)
+            return
+        }
+        
+        // Attempt tp decrypt the data we received before passing it along
+        guard let decrypted = decryptingCipher.unpack(encrypted: someData, expectedCiphertextLength: payloadLength)
+            else
+        {
+            self.log.error("Shadow failed to decrypt received data.")
+            completion(someData, maybeContext, connectionComplete, NWError.posix(POSIXErrorCode.EBADMSG))
+            return
+        }
+        
+        completion(decrypted, maybeContext, connectionComplete, maybeError)
     }
     
     // End of Connection Protocol
+    
+    func networkStateUpdate(networkState: NWConnection.State)
+    {
+        switch networkState
+        {
+        case .ready:
+            guard handshakeNeeded
+                else { return }
+            handshakeNeeded = false
+            handshake()
+        case .cancelled:
+            if let actualStateupdateHandler = stateUpdateHandler
+            {
+                actualStateupdateHandler(.cancelled)
+            }
+            
+            if let actualViabilityHandler = viabilityUpdateHandler
+            {
+                actualViabilityHandler(false)
+            }
+        case .failed(let networkError):
+            if let actualStateupdateHandler = stateUpdateHandler
+            {
+                actualStateupdateHandler(.failed(networkError))
+            }
+            
+            if let actualViabilityHandler = viabilityUpdateHandler
+            {
+                actualViabilityHandler(false)
+            }
+        default:
+            guard let actualStateUpdateHandler = self.stateUpdateHandler
+                else { return }
+            actualStateUpdateHandler(networkState)
+        }
+    }
+    
+    func handshake()
+    {
+        sendSalt()
+    }
+    
+    func sendSalt()
+    {
+        print("Sending Salt : \(salt[0]), \(salt[31])")
+        network.send(content: salt, contentContext: .defaultMessage, isComplete: false, completion: NWConnection.SendCompletion.contentProcessed(
+        {
+            (maybeError) in
+            
+            if let sendError = maybeError
+            {
+                self.log.error("Received an error when sending shadow handshake: \(sendError)")
+                self.network.cancel()
+                
+                if let actualStateUpdateHandler = self.stateUpdateHandler
+                {
+                    actualStateUpdateHandler(.cancelled)
+                }
+                
+                if let actualViabilityUpdateHandler = self.viabilityUpdateHandler
+                {
+                    actualViabilityUpdateHandler(false)
+                }
+            }
+            else
+            {
+                if let actualStateUpdateHandler = self.stateUpdateHandler
+                {
+                    actualStateUpdateHandler(.ready)
+                }
+                
+                if let actualViabilityUpdateHandler = self.viabilityUpdateHandler
+                {
+                    actualViabilityUpdateHandler(true)
+                }
+            }
+        }))
+    }
+    
+    func sendAddress()
+    {
+        let address = AddressReader().createAddr()
+        guard let encryptedAddress = encryptingCipher.pack(plaintext: address)
+        else
+        {
+            self.log.error("Failed to encrypt our address. Cancelling connection.")
+            self.network.cancel()
+            
+            if let actualStateUpdateHandler = self.stateUpdateHandler
+            {
+                actualStateUpdateHandler(.cancelled)
+            }
+            
+            if let actualViabilityUpdateHandler = self.viabilityUpdateHandler
+            {
+                actualViabilityUpdateHandler(false)
+            }
+            
+            return
+        }
+        
+        print("Sending address: \(encryptedAddress.count)")
+        network.send(content: encryptedAddress, contentContext: .defaultMessage, isComplete: false, completion: NWConnection.SendCompletion.contentProcessed(
+        {
+            (maybeError) in
+            
+            if let sendError = maybeError
+            {
+                self.log.error("Received an error when sending shadow handshake: \(sendError)")
+                self.network.cancel()
+                
+                if let actualStateUpdateHandler = self.stateUpdateHandler
+                {
+                    actualStateUpdateHandler(.cancelled)
+                }
+                
+                if let actualViabilityUpdateHandler = self.viabilityUpdateHandler
+                {
+                    actualViabilityUpdateHandler(false)
+                }
+            }
+            else
+            {
+                if let actualStateUpdateHandler = self.stateUpdateHandler
+                {
+                    actualStateUpdateHandler(.ready)
+                }
+                
+                if let actualViabilityUpdateHandler = self.viabilityUpdateHandler
+                {
+                    actualViabilityUpdateHandler(true)
+                }
+            }
+        }))
+    }
 }

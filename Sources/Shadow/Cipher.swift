@@ -27,6 +27,9 @@
 
 import Foundation
 import CryptoKit
+import Logging
+
+import Datable
 
 class Cipher
 {
@@ -38,9 +41,114 @@ class Cipher
     // Chacha20Poly1305 creates a new Cipher with a pre-shared key. len(psk)
     // must be 32.
     
-    func hkdfSHA1(secret: Data, salt: Data, info: Data) -> Data?
+    /**
+     The first AEAD encrypt/decrypt operation uses a counting nonce starting from 0. After each encrypt/decrypt operation, the nonce is incremented by one as if it were an unsigned little-endian integer. Note that each TCP chunk involves two AEAD encrypt/decrypt operation: one for the payload length, and one for the payload. Therefore each chunk increases the nonce twice.
+     */
+    let log: Logger
+    static let lengthSize = 2
+    static let tagSize = 16
+    static let maxPayloadSize = 16417
+    static let overhead = Cipher.lengthSize + Cipher.tagSize + Cipher.tagSize
+    static let maxRead = Cipher.maxPayloadSize + Cipher.overhead
+    static let minRead = 1 + Cipher.overhead
+    
+    var counter: UInt64 = 0
+    var mode: CipherMode
+    var key: SymmetricKey
+    
+    init?(config: ShadowConfig, salt: Data, logger: Logger)
     {
-        let outputSize = 32
+        let presharedKey = Cipher.kdf(shadowConfig: config)
+        
+        guard let actualKey = Cipher.hkdfSHA1(secret: presharedKey, salt: salt, cipherMode: config.mode)
+        else
+        {
+            logger.error("Failed to gernerate a symmetric key with the provided config.")
+            return nil
+        }
+             
+        print("Created key data: \(actualKey[0]), \(actualKey[31])")
+        self.log = logger
+        self.key = SymmetricKey(data: actualKey)
+        self.mode = config.mode
+    }
+    
+    static func createSalt() -> Data?
+    {
+        var bytes = [Int8](repeating: 0, count: 32)
+        let status = SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes)
+
+        guard status == errSecSuccess
+        else { return nil }
+        
+        return Data(array: bytes.map({
+            (element) in
+            
+            UInt8(bitPattern: element)
+        }))
+    }
+    
+    /*
+     var b, prev []byte
+     h := md5.New()
+     for len(b) < keyLen {
+         h.Write(prev)
+         h.Write([]byte(password))
+         b = h.Sum(b)
+         prev = b[len(b)-h.Size():]
+         h.Reset()
+     }
+     return b[:keyLen]
+     */
+    static func kdf(shadowConfig: ShadowConfig) -> Data
+    {
+        var keyLength: Int
+        var md5Hash = Insecure.MD5()
+        var keyBuffer = Data()
+        var previous = Data()
+        
+        switch shadowConfig.mode
+        {
+        case .AES_128_GCM:
+            keyLength = 16
+        case .AES_256_GCM:
+            keyLength = 32
+        case .CHACHA20_IETF_POLY1305:
+            keyLength = 32
+        }
+        
+        while keyBuffer.count < keyLength
+        {
+            md5Hash.update(data: previous)
+            md5Hash.update(data: shadowConfig.password.data)
+            keyBuffer += Data(md5Hash.finalize())
+            previous = keyBuffer[(keyBuffer.count - Insecure.MD5.byteCount)...]
+            
+            md5Hash = Insecure.MD5()
+        }
+        
+        return keyBuffer[..<keyLength]
+    }
+    
+    static func hkdfSHA1(secret: Data, salt: Data, cipherMode: CipherMode) -> Data?
+    {
+        print("HKDFSHA1")
+        print("\nsecret")
+        print(secret.array)
+        print("\nsalt")
+        print(salt.array)
+        let info = Data(string: "ss-subkey")
+        var outputSize = 0
+        
+        switch cipherMode
+        {
+            case .AES_128_GCM:
+                outputSize = 32
+            case .AES_256_GCM:
+                outputSize = 16
+            case .CHACHA20_IETF_POLY1305:
+                outputSize = 32
+        }
         
         let iterations = UInt8(ceil(Double(outputSize) / Double(Insecure.SHA1.byteCount)))
         guard iterations <= 255 else {return nil}
@@ -63,11 +171,158 @@ class Cipher
 
         return hkdf.prefix(outputSize)
     }
+    
+    /// [encrypted payload length][length tag][encrypted payload][payload tag]
+    func pack(plaintext: Data) -> Data?
+    {
+        let payloadLength = UInt16(plaintext.count)
+        DatableConfig.endianess = .big
+        
+        guard payloadLength <= Cipher.maxPayloadSize
+            else
+        {
+            log.error("Requested payload size \(plaintext.count) is greater than the maximum allowed \(Cipher.maxPayloadSize). Unable to send payload.")
+            return nil
+        }
+
+        guard let (encryptedPayloadLength, lengthTag) = encrypt(plaintext: payloadLength.data)
+            else { return nil }
+        guard let (encryptedPayload, payloadTag) = encrypt(plaintext: plaintext)
+            else { return nil }
+
+        return encryptedPayloadLength + lengthTag + encryptedPayload + payloadTag
+    }
+    
+    /// Returns [encrypted][payload]
+    private func encrypt(plaintext: Data) -> (cipherText: Data, tag: Data)?
+    {
+        var cipherText = Data()
+        var tag = Data()
+        
+        switch mode
+        {
+        case .AES_128_GCM:
+            do
+            {
+                let aesGCMNonce = try AES.GCM.Nonce(data: nonce())
+                let sealedBox = try AES.GCM.seal(plaintext, using: key, nonce: aesGCMNonce)
+                cipherText = sealedBox.ciphertext
+                tag = sealedBox.tag
+            }
+            catch let encryptError
+            {
+                print("Error running AESGCM encryption: \(encryptError)")
+            }
+            
+        case .AES_256_GCM:
+            do
+            {
+                let aesGCMNonce = try AES.GCM.Nonce(data: nonce())
+                let sealedBox = try AES.GCM.seal(plaintext, using: key, nonce: aesGCMNonce)
+                cipherText = sealedBox.ciphertext
+                tag = sealedBox.tag
+            }
+            catch let encryptError
+            {
+                print("Error running AESGCM encryption: \(encryptError)")
+            }
+            
+        case .CHACHA20_IETF_POLY1305:
+            do
+            {
+                let chachaPolyNonce = try ChaChaPoly.Nonce(data: nonce())
+                let sealedBox = try ChaChaPoly.seal(plaintext, using: key, nonce: chachaPolyNonce)
+                cipherText = sealedBox.ciphertext
+                tag = sealedBox.tag
+            }
+            catch let encryptError
+            {
+                print("Error running ChaChaPoly encryption: \(encryptError)")
+            }
+        }
+        
+        return (cipherText, tag)
+    }
+    
+    func unpack(encrypted: Data, expectedCiphertextLength: Int) -> Data?
+    {
+        let ciphertext = encrypted[0..<expectedCiphertextLength]
+        let tag = encrypted[expectedCiphertextLength...]
+        
+        // Sanity Check
+        guard tag.count == Cipher.tagSize
+            else
+        {
+            log.error("Attempted to decrypt a message with an incorrect tag size. \nGot:  \(tag.count)\nExpected: \(Cipher.tagSize)")
+            return nil
+        }
+        
+        return decrypt(encrypted: ciphertext, tag: tag)
+    }
+    
+    func decrypt(encrypted: Data, tag: Data) -> Data?
+    {
+        switch mode
+        {
+        case .AES_128_GCM:
+            do
+            {
+                let sealedBox = try AES.GCM.SealedBox(nonce: AES.GCM.Nonce(data: nonce()), ciphertext: encrypted, tag: tag)
+                return try AES.GCM.open(sealedBox, using: key)
+            }
+            catch let decryptError
+            {
+                print("Error running AESGCM decryption: \(decryptError)")
+                return nil
+            }
+        case .AES_256_GCM:
+            do
+            {
+                let sealedBox = try AES.GCM.SealedBox(nonce: AES.GCM.Nonce(data: nonce()), ciphertext: encrypted, tag: tag)
+                return try AES.GCM.open(sealedBox, using: key)
+            }
+            catch let decryptError
+            {
+                print("Error running AESGCM decryption: \(decryptError)")
+                return nil
+            }
+        case .CHACHA20_IETF_POLY1305:
+            do
+            {
+                let sealedBox = try ChaChaPoly.SealedBox(nonce: ChaChaPoly.Nonce(data: nonce()), ciphertext: encrypted, tag: tag)
+                return try ChaChaPoly.open(sealedBox, using: key)
+            }
+            catch let decryptError
+            {
+                print("Error running ChaChaPoly decryption: \(decryptError)")
+                return nil
+            }
+        }
+    }
+    
+    func nonce() -> Data
+    {
+        DatableConfig.endianess = .little
+        var counterData = counter.data
+        
+        // We have 8 bytes, nonce should be 12
+        counterData.append(contentsOf: [0, 0, 0, 0])
+        print("Nonce counter data size: \(counterData.count)")
+        print("Nonce counter data: \(counterData[0]), \(counterData[11])")
+        
+        // We increment our counter every time nonce is used (encrypt/decrypt)
+        counter += 1
+
+        return counterData
+    }
 }
 
-enum CipherMode: Any
+enum CipherMode: String
 {
-    case aesGCM
-    case chachaPoly
+    // AES 196 is not currently supported by go-shadowsocks2.
+    // We are not supporting it at this time either.
+    case AES_128_GCM = "AES-128-GCM"
+    case AES_256_GCM = "AES-256-GCM"
+    case CHACHA20_IETF_POLY1305 = "CHACHA20-IETF-POLY1305"
 }
 

@@ -84,7 +84,6 @@ class ReplicantTests: XCTestCase
         }
         
         XCTAssertEqual(serverConfig, decodedConfig)
-        
     }
     
     func testEmptyConfigConnection()

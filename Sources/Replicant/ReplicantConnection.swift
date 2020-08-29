@@ -124,7 +124,8 @@ open class ReplicantConnection: Connection
             // Lock so that the timer cannot fire and change the buffer. Unlock in the network send() callback.
             bufferLock.enter()
             
-            guard let someData = content else
+            guard let someData = content
+                else
             {
                 log.error("Received a send command with no content.")
                 switch completion

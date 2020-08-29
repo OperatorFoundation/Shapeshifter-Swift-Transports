@@ -11,5 +11,5 @@ import Foundation
 public struct ShadowConfig
 {
     let mode: CipherMode
-    let key: SymmetricKey
+    let password: String
 }
