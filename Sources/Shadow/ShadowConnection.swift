@@ -30,6 +30,7 @@ import Foundation
 import Logging
 import Network
 
+import Chord
 import Datable
 import Transport
 
@@ -42,7 +43,7 @@ open class ShadowConnection: Connection
     
     let salt: Data
     let encryptingCipher: Cipher
-    let decryptingCipher: Cipher
+    var decryptingCipher: Cipher?
     var network: Connection
     var handshakeNeeded = true
     
@@ -73,12 +74,9 @@ open class ShadowConnection: Connection
         guard let eCipher = Cipher(config: config, salt: actualSalt, logger: logger)
             else { return nil }
         
-        guard let dCipher = Cipher(config: config, salt: actualSalt, logger: logger)
-            else { return nil }
         
         self.salt = actualSalt
         self.encryptingCipher = eCipher
-        self.decryptingCipher = dCipher
         self.network = connection
         self.log = logger
         self.config = config
@@ -177,7 +175,15 @@ open class ShadowConnection: Connection
                 return
             }
             
-            guard let lengthData = self.decryptingCipher.unpack(encrypted: someData, expectedCiphertextLength: Cipher.lengthSize)
+            guard let dCipher = self.decryptingCipher
+            else
+            {
+                self.log.error("Unable to decrypt received data. Decrypting cipher is nil.")
+                completion(nil, maybeContext, connectionComplete, NWError.posix(POSIXErrorCode.EFAULT))
+                return
+            }
+            
+            guard let lengthData = dCipher.unpack(encrypted: someData, expectedCiphertextLength: Cipher.lengthSize)
             else
             {
                 completion(maybeData, maybeContext, connectionComplete, NWError.posix(POSIXErrorCode.EINVAL))
@@ -231,8 +237,16 @@ open class ShadowConnection: Connection
             return
         }
         
+        guard let dCipher = self.decryptingCipher
+        else
+        {
+            self.log.error("Unable to decrypt received data. Decrypting cipher is nil.")
+            completion(nil, maybeContext, connectionComplete, NWError.posix(POSIXErrorCode.EFAULT))
+            return
+        }
+        
         // Attempt tp decrypt the data we received before passing it along
-        guard let decrypted = decryptingCipher.unpack(encrypted: someData, expectedCiphertextLength: payloadLength)
+        guard let decrypted = dCipher.unpack(encrypted: someData, expectedCiphertextLength: payloadLength)
             else
         {
             self.log.error("Shadow failed to decrypt received data.")
@@ -283,10 +297,38 @@ open class ShadowConnection: Connection
     
     func handshake()
     {
-        sendSalt()
+        let saltSent = Synchronizer.sync(sendSalt)
+        let saltReceived = Synchronizer.sync(receiveSalt)
+        
+        if saltSent, saltReceived
+        {
+            if let actualStateUpdateHandler = self.stateUpdateHandler
+            {
+                actualStateUpdateHandler(.ready)
+            }
+            
+            if let actualViabilityUpdateHandler = self.viabilityUpdateHandler
+            {
+                actualViabilityUpdateHandler(true)
+            }
+        }
+        else
+        {
+            self.network.cancel()
+            
+            if let actualStateUpdateHandler = self.stateUpdateHandler
+            {
+                actualStateUpdateHandler(.cancelled)
+            }
+            
+            if let actualViabilityUpdateHandler = self.viabilityUpdateHandler
+            {
+                actualViabilityUpdateHandler(false)
+            }
+        }
     }
     
-    func sendSalt()
+    func sendSalt(completion: @escaping (Bool) -> Void)
     {
         print("Sending Salt : \(salt[0]), \(salt[31])")
         network.send(content: salt, contentContext: .defaultMessage, isComplete: false, completion: NWConnection.SendCompletion.contentProcessed(
@@ -296,31 +338,56 @@ open class ShadowConnection: Connection
             if let sendError = maybeError
             {
                 self.log.error("Received an error when sending shadow handshake: \(sendError)")
-                self.network.cancel()
                 
-                if let actualStateUpdateHandler = self.stateUpdateHandler
-                {
-                    actualStateUpdateHandler(.cancelled)
-                }
-                
-                if let actualViabilityUpdateHandler = self.viabilityUpdateHandler
-                {
-                    actualViabilityUpdateHandler(false)
-                }
+                completion(false)
+                return
             }
             else
             {
-                if let actualStateUpdateHandler = self.stateUpdateHandler
-                {
-                    actualStateUpdateHandler(.ready)
-                }
-                
-                if let actualViabilityUpdateHandler = self.viabilityUpdateHandler
-                {
-                    actualViabilityUpdateHandler(true)
-                }
+                completion(true)
+                return
             }
         }))
+    }
+    
+    func receiveSalt(completion: @escaping (Bool) -> Void)
+    {
+        network.receive(minimumIncompleteLength: salt.count, maximumLength: salt.count)
+        {
+            (maybeSalt, _, _, maybeError) in
+            
+            if let saltError = maybeError
+            {
+                self.log.error("Error receiving salt from the server: \(saltError)")
+                completion(false)
+                return
+            }
+            
+            if let serverSalt = maybeSalt
+            {
+                self.log.debug("Received salt from the server: \(serverSalt.array)")
+                
+                guard serverSalt.count == self.salt.count
+                    else
+                {
+                    self.log.error("Received a salt with the wrong size. \nGot \(serverSalt.count), expected \(self.salt.count)")
+                    completion(false)
+                    return
+                }
+                
+                guard let dCipher = Cipher(config: self.config, salt: serverSalt, logger: self.log)
+                else
+                {
+                    completion(false)
+                    return
+                }
+                
+                self.decryptingCipher = dCipher
+                
+                completion(true)
+                return
+            }
+        }
     }
     
     func sendAddress()

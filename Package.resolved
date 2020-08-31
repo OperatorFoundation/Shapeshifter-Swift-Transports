@@ -11,6 +11,15 @@
         }
       },
       {
+        "package": "Chord",
+        "repositoryURL": "https://github.com/OperatorFoundation/Chord.git",
+        "state": {
+          "branch": null,
+          "revision": "4b190f447aa6db746a0e1643aaf8ea9f56a834c1",
+          "version": "0.0.3"
+        }
+      },
+      {
         "package": "Clibsodium",
         "repositoryURL": "https://github.com/tiwoc/Clibsodium.git",
         "state": {
