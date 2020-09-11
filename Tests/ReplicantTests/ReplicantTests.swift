@@ -29,11 +29,16 @@ import XCTest
 
 @testable import Replicant
 
-import Network
 import ReplicantSwift
 import SwiftQueue
 import CryptoKit
 import Song
+#if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
+import Network
+#elseif os(Linux)
+import NetworkLinux
+#endif
+
 
 class ReplicantTests: XCTestCase
 {

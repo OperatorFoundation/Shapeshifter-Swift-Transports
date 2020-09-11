@@ -28,11 +28,15 @@
 import CryptoKit
 import Foundation
 import Logging
-import Network
-
 import Chord
 import Datable
 import Transport
+#if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
+import Network
+#elseif os(Linux)
+import NetworkLinux
+#endif
+
 
 open class ShadowConnection: Connection
 {

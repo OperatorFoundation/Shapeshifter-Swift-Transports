@@ -11,6 +11,15 @@
         }
       },
       {
+        "package": "Socket",
+        "repositoryURL": "https://github.com/OperatorFoundation/BlueSocket",
+        "state": {
+          "branch": null,
+          "revision": "90212ea8b66787c2d51d03527a04748ba6ee7679",
+          "version": "1.1.0"
+        }
+      },
+      {
         "package": "Chord",
         "repositoryURL": "https://github.com/OperatorFoundation/Chord.git",
         "state": {
@@ -47,21 +56,12 @@
         }
       },
       {
-        "package": "Elligator",
-        "repositoryURL": "https://github.com/OperatorFoundation/Elligator.git",
-        "state": {
-          "branch": null,
-          "revision": "ac7ae7f3d5b0296f0628691914a66f3652bd3c70",
-          "version": "0.1.0"
-        }
-      },
-      {
         "package": "Flower",
         "repositoryURL": "https://github.com/OperatorFoundation/Flower.git",
         "state": {
           "branch": null,
-          "revision": "4f3b25dc19fe9741e20e3350fc165cdbba650872",
-          "version": "0.0.15"
+          "revision": "64f7bd175be1a2daec748408f3b5f9058e1e2fb5",
+          "version": "0.0.17"
         }
       },
       {
@@ -80,6 +80,24 @@
           "branch": null,
           "revision": "b2724b4814a9ce89935ac7d8aebd92c88c3c0f8c",
           "version": "1.0.0"
+        }
+      },
+      {
+        "package": "NetworkLinux",
+        "repositoryURL": "https://github.com/OperatorFoundation/NetworkLinux.git",
+        "state": {
+          "branch": null,
+          "revision": "87d38c98e53639e90e42d7fe5e39e69902cf94d0",
+          "version": "0.0.7"
+        }
+      },
+      {
+        "package": "OpenSSL",
+        "repositoryURL": "https://github.com/IBM-Swift/OpenSSL.git",
+        "state": {
+          "branch": null,
+          "revision": "6c7e2e3610037fbc05c0d846cec981518961d8bf",
+          "version": "2.2.2"
         }
       },
       {
@@ -159,8 +177,8 @@
         "repositoryURL": "https://github.com/OperatorFoundation/Transport.git",
         "state": {
           "branch": null,
-          "revision": "80ae032ec38d3869c54aa6a5aef112ac6d088ee8",
-          "version": "2.1.0"
+          "revision": "9013238d5e673330d4be46c7baa6a9ee25d770d6",
+          "version": "2.1.5"
         }
       }
     ]

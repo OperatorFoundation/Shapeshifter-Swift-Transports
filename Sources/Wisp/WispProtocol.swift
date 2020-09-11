@@ -35,10 +35,15 @@ import Foundation
 import Logging
 import Sodium
 import CryptoSwift
-import Elligator
+//import Elligator
 import HKDF
 import Transport
+#if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
 import Network
+#elseif os(Linux)
+import NetworkLinux
+#endif
+
 
 enum WispPacketType: UInt8
 {

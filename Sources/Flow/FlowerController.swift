@@ -27,9 +27,14 @@
 
 import Foundation
 import Logging
-import Network
 import Flower
 import Transport
+#if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
+import Network
+#elseif os(Linux)
+import NetworkLinux
+#endif
+
 
 enum StreamType
 {
@@ -51,9 +56,10 @@ public class FlowerController
     var nextStreamIdentifier: StreamIdentifier = 0
     var streams: [StreamIdentifier:Connection] = [:]
     
-    public init(host: NWEndpoint.Host, port: NWEndpoint.Port, parameters: NWParameters, logger: Logger)
+    public init?(host: NWEndpoint.Host, port: NWEndpoint.Port, parameters: NWParameters, logger: Logger)
     {
-        self.connection = NWConnection(host: host, port: port, using: parameters)
+        guard let connection = NWConnection(host: host, port: port, using: parameters) else { return nil}
+        self.connection = connection
         self.log = logger
     }
     
@@ -80,16 +86,16 @@ public class FlowerController
                 let conn = FlowUDPv4Connection(flower: self, endpoint: dst, streamid: streamid, logger: log)
                 streams[streamid] = conn
                 return conn
-            case (.UDP, .v6):
-                guard case let .ipv6(address) = host else
-                {
-                    return nil
-                }
-                
-                let dst = EndpointV6(host: address, port: port)
-                let conn = FlowUDPv6Connection(flower: self, endpoint: dst, streamid: streamid, logger: log)
-                streams[streamid] = conn
-                return conn
+//            case (.UDP, .v6):
+//                guard case let .ipv6(address) = host else
+//                {
+//                    return nil
+//                }
+//
+//                let dst = EndpointV6(host: address, port: port)
+//                let conn = FlowUDPv6Connection(flower: self, endpoint: dst, streamid: streamid, logger: log)
+//                streams[streamid] = conn
+//                return conn
             case (.TCP, .v4):
                 guard case let .ipv4(address) = host else
                 {
@@ -100,16 +106,16 @@ public class FlowerController
                 let conn = FlowTCPv4Connection(flower: self, endpoint: dst, streamid: streamid, logger: log)
                 streams[streamid] = conn
                 return conn
-            case (.TCP, .v6):
-                guard case let .ipv6(address) = host else
-                {
-                    return nil
-                }
-                
-                let dst = EndpointV6(host: address, port: port)
-                let conn = FlowTCPv6Connection(flower: self, endpoint: dst, streamid: streamid, logger: log)
-                streams[streamid] = conn
-                return conn
+//            case (.TCP, .v6):
+//                guard case let .ipv6(address) = host else
+//                {
+//                    return nil
+//                }
+//
+//                let dst = EndpointV6(host: address, port: port)
+//                let conn = FlowTCPv6Connection(flower: self, endpoint: dst, streamid: streamid, logger: log)
+//                streams[streamid] = conn
+//                return conn
             default:
                 return nil
         }
@@ -148,7 +154,7 @@ public class FlowerController
         
         switch conn
         {
-            case is FlowTCPv4Connection, is FlowTCPv6Connection:
+        case is FlowTCPv4Connection: //, is FlowTCPv6Connection:
                 let close = Message.TCPClose(streamid)
                 sendMessage(message: close)
                 {
@@ -190,9 +196,9 @@ func determineAddressType(host: NWEndpoint.Host) -> AddressType
     {
         case .ipv4(_):
             return .v4
-        case .ipv6(_):
-            return .v6
-        case .name(_, _):
-            return .named
+//        case .ipv6(_):
+//            return .v6
+//        case .name(_, _):
+//            return .named
     }
 }

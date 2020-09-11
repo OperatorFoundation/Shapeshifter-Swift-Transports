@@ -27,10 +27,14 @@
 
 import Foundation
 import Logging
-import Network
-
 import Transport
 import ProteanSwift
+#if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
+import Network
+#elseif os(Linux)
+import NetworkLinux
+#endif
+
 
 open class ProteanConnection: Connection
 {

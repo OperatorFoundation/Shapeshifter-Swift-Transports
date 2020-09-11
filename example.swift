@@ -6,12 +6,16 @@
 //
 
 import Foundation
-import Network
-
 import Datable
 import Protean
 import ProteanSwift
 import Optimizer
+#if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
+import Network
+#elseif os(Linux)
+import NetworkLinux
+#endif
+
 
 /// This is example code to help illustrate how to use the transports provided in this library.
 /// This is an ongoing work in progress :)

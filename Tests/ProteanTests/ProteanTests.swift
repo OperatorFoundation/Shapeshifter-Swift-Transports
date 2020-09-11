@@ -28,9 +28,14 @@
 import XCTest
 import Foundation
 import Transport
-import Network
 import Protean
 import ProteanSwift
+#if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
+import Network
+#elseif os(Linux)
+import NetworkLinux
+#endif
+
 
 @testable import Protean
 

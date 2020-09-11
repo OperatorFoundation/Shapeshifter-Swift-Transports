@@ -26,7 +26,6 @@
 // SOFTWARE.
 
 import XCTest
-import Network
 import Transport
 import Protean
 import ProteanSwift
@@ -35,6 +34,12 @@ import ReplicantSwift
 import Replicant
 import SwiftQueue
 import ExampleTransports
+#if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
+import Network
+#elseif os(Linux)
+import NetworkLinux
+#endif
+
 
 @testable import Optimizer
 

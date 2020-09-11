@@ -28,9 +28,14 @@
 import Foundation
 import Logging
 import Transport
-import Network
 import ReplicantSwift
 import SwiftQueue
+#if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
+import Network
+#elseif os(Linux)
+import NetworkLinux
+#endif
+
 
 open class ReplicantServerConnectionFactory
 {

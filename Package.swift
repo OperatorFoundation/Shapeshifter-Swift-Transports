@@ -24,13 +24,13 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-log.git", from: "1.3.0"),
         .package(url: "https://github.com/OperatorFoundation/ProteanSwift.git", from: "1.2.0"),
         .package(url: "https://github.com/OperatorFoundation/ReplicantSwift.git", from: "0.6.0"),
-        .package(url: "https://github.com/OperatorFoundation/Transport.git", from: "2.1.0"),
+        .package(url: "https://github.com/OperatorFoundation/Transport.git", from: "2.1.2"),
         .package(name: "Sodium", url: "https://github.com/OperatorFoundation/swift-sodium", from: "0.8.4"),
         .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", from: "1.3.0"),
         .package(url: "https://github.com/OperatorFoundation/HKDF.git", from: "3.0.2"),
-        .package(url: "https://github.com/OperatorFoundation/Elligator.git", from: "0.1.0"),
+        //.package(url: "https://github.com/OperatorFoundation/Elligator.git", from: "0.1.0"),
         .package(url: "https://github.com/OperatorFoundation/SwiftQueue.git", from: "0.0.3"),
-        .package(url: "https://github.com/OperatorFoundation/Flower.git", from: "0.0.15"),
+        .package(url: "https://github.com/OperatorFoundation/Flower.git", from: "0.0.17"),
         .package(url: "https://github.com/OperatorFoundation/Datable.git", from: "3.0.2"),
         .package(url: "https://github.com/OperatorFoundation/Chord.git", from: "0.0.3"),
         .package(url: "https://github.com/OperatorFoundation/SwiftHexTools.git", from: "1.1.3")
@@ -39,7 +39,7 @@ let package = Package(
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
         // Targets can depend on other targets in this package, and on products in packages which this package depends on.
 
-        .target(name: "Wisp", dependencies: ["Transport", "Sodium", "CryptoSwift", "HKDF", "Elligator", "SwiftQueue", .product(name: "Logging", package: "swift-log")]),
+        .target(name: "Wisp", dependencies: ["Transport", "Sodium", "CryptoSwift", "HKDF", "SwiftQueue", .product(name: "Logging", package: "swift-log")]),
         .target(name: "Shadow", dependencies: ["Transport", "Datable", "Chord", .product(name: "Logging", package: "swift-log")]),
         .target(name: "Flow", dependencies: ["Flower", .product(name: "Logging", package: "swift-log")]),
         .target(name: "Protean", dependencies: ["Transport", "ProteanSwift", "SwiftQueue", .product(name: "Logging", package: "swift-log")]),

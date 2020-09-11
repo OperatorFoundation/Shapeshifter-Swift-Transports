@@ -27,12 +27,17 @@
 
 import Foundation
 import Dispatch
-import Network
 import Logging
 import CryptoKit
 import Flower
 import Transport
 import ReplicantSwift
+#if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
+import Network
+#elseif os(Linux)
+import NetworkLinux
+#endif
+
 
 open class ReplicantServerConnection: Connection
 {

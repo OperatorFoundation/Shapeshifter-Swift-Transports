@@ -26,9 +26,14 @@
 
 import Foundation
 import Logging
-import Network
 import Flower
 import Transport
+#if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
+import Network
+#elseif os(Linux)
+import NetworkLinux
+#endif
+
 
 open class FlowConnection: Connection
 {

@@ -27,8 +27,13 @@
 
 import Foundation
 import Logging
-import Network
 import Transport
+#if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
+import Network
+#elseif os(Linux)
+import NetworkLinux
+#endif
+
 
 open class Rot13Connection: Connection
 {

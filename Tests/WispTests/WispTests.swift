@@ -31,7 +31,12 @@ import Sodium
 import Elligator
 import NetworkExtension
 import Transport
+#if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
 import Network
+#elseif os(Linux)
+import NetworkLinux
+#endif
+
 
 
 @testable import Wisp

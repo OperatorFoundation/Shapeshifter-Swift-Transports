@@ -27,9 +27,14 @@
 
 import Foundation
 import Logging
-import Network
 import Datable
 import Song
+#if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
+import Network
+#elseif os(Linux)
+import NetworkLinux
+#endif
+
 
 public struct ServerConfig: Codable, Equatable
 {

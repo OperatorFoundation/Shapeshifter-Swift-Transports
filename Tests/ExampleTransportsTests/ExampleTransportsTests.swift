@@ -29,14 +29,24 @@ import Foundation
 import Logging
 import XCTest
 import Transport
+#if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
 import Network
+#elseif os(Linux)
+import NetworkLinux
+#endif
+
 
 
 @testable import ExampleTransports
 
 class ExampleTransportsTests: XCTestCase
 {
-    
+    static var allTests = [
+        ("testRot13Connection", testRot13Connection),
+        ("testRot13Send", testRot13Send),
+        ("testRot13SendReceive", testRot13SendReceive)
+    ]
+
     func testRot13Connection()
     {
         guard let portUInt = UInt16("80"), let port = NWEndpoint.Port(rawValue: portUInt)
@@ -231,10 +241,10 @@ class ExampleTransportsTests: XCTestCase
                             {
                             case .posix(let posixError):
                                 print("Received a posix error: \(posixError)")
-                            case .tls(let tlsError):
-                                print("Received a tls error: \(tlsError)")
-                            case .dns(let dnsError):
-                                print("Received a dns error: \(dnsError)")
+//                            case .tls(let tlsError):
+//                                print("Received a tls error: \(tlsError)")
+//                            case .dns(let dnsError):
+//                                print("Received a dns error: \(dnsError)")
                             }
                         }
                         
