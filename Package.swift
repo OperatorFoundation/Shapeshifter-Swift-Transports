@@ -21,19 +21,19 @@ let package = Package(
         ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
-        .package(url: "https://github.com/apple/swift-log.git", from: "1.3.0"),
+        .package(url: "https://github.com/apple/swift-log.git", from: "1.4.0"),
         .package(url: "https://github.com/OperatorFoundation/ProteanSwift.git", from: "1.2.0"),
         .package(url: "https://github.com/OperatorFoundation/ReplicantSwift.git", from: "0.6.0"),
-        .package(url: "https://github.com/OperatorFoundation/Transport.git", from: "2.1.0"),
+        .package(url: "https://github.com/OperatorFoundation/Transport.git", from: "2.1.5"),
         .package(name: "Sodium", url: "https://github.com/OperatorFoundation/swift-sodium", from: "0.8.4"),
         .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", from: "1.3.0"),
         .package(url: "https://github.com/OperatorFoundation/HKDF.git", from: "3.0.2"),
         .package(url: "https://github.com/OperatorFoundation/Elligator.git", from: "0.1.0"),
         .package(url: "https://github.com/OperatorFoundation/SwiftQueue.git", from: "0.0.3"),
-        .package(url: "https://github.com/OperatorFoundation/Flower.git", from: "0.0.15"),
+        .package(url: "https://github.com/OperatorFoundation/Flower.git", from: "0.1.0"),
         .package(url: "https://github.com/OperatorFoundation/Datable.git", from: "3.0.2"),
-        .package(url: "https://github.com/OperatorFoundation/Chord.git", from: "0.0.3"),
-        .package(url: "https://github.com/OperatorFoundation/SwiftHexTools.git", from: "1.1.3")
+        .package(url: "https://github.com/OperatorFoundation/Chord.git", from: "0.0.5"),
+        .package(url: "https://github.com/OperatorFoundation/SwiftHexTools.git", from: "1.2.2")
         ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
