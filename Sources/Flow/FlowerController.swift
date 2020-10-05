@@ -197,5 +197,7 @@ func determineAddressType(host: NWEndpoint.Host) -> AddressType
             return .v4
         case .ipv6:
             return .v6
+	default:
+	    return .named
     }
 }
