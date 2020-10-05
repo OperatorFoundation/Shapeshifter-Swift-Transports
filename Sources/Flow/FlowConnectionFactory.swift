@@ -27,9 +27,14 @@
 
 import Foundation
 import Logging
-import Network
 import Flower
 import Transport
+
+#if os(Linux)
+import NetworkLinux
+#else
+import Network
+#endif
 
 open class FlowConnectionFactory: ConnectionFactory
 {

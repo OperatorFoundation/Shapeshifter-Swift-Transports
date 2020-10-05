@@ -28,7 +28,12 @@
 import Foundation
 import Logging
 import Transport
+
+#if os(Linux)
+import NetworkLinux
+#else
 import Network
+#endif
 
 open class PassthroughConnection: Connection
 {

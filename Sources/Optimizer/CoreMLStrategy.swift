@@ -28,6 +28,8 @@
 import Foundation
 import Logging
 import Transport
+
+#if os(macOS)
 import CoreML
 import CreateML
 
@@ -171,3 +173,4 @@ class CoreMLStrategy: Strategy
     
     
 }
+#endif

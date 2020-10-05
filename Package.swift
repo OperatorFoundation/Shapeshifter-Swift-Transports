@@ -33,7 +33,8 @@ let package = Package(
         .package(url: "https://github.com/OperatorFoundation/Flower.git", from: "0.1.0"),
         .package(url: "https://github.com/OperatorFoundation/Datable.git", from: "3.0.2"),
         .package(url: "https://github.com/OperatorFoundation/Chord.git", from: "0.0.5"),
-        .package(url: "https://github.com/OperatorFoundation/SwiftHexTools.git", from: "1.2.2")
+        .package(url: "https://github.com/OperatorFoundation/SwiftHexTools.git", from: "1.2.2"),
+        .package(url: "https://github.com/OperatorFoundation/NetworkLinux.git", from: "0.1.0"),
         ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -44,7 +45,11 @@ let package = Package(
         .target(name: "Flow", dependencies: ["Flower", .product(name: "Logging", package: "swift-log"), "Datable"]),
         .target(name: "Protean", dependencies: ["Transport", "ProteanSwift", "SwiftQueue", .product(name: "Logging", package: "swift-log"), "Datable"]),
         .target(name: "Replicant", dependencies: ["Transport", "ReplicantSwift", "SwiftQueue", "Datable", "Flower", .product(name: "Logging", package: "swift-log")]),
-        .target(name: "Optimizer", dependencies: ["Transport", "SwiftQueue", .product(name: "Logging", package: "swift-log"), "Datable"]),
+        .target(name: "Optimizer", dependencies: [
+		"Transport", "SwiftQueue",
+		.product(name: "Logging", package: "swift-log"),
+		.product(name: "NetworkLinux", package: "NetworkLinux", condition: .when(platforms: [.linux])),
+	]),
         .target(name: "LoggerQueue", dependencies: [.product(name: "Logging", package: "swift-log"), "Datable"]),
         .target(name: "ExampleTransports", dependencies: ["Transport", .product(name: "Logging", package: "swift-log"), "Datable"]),
         .testTarget(name: "WispTests", dependencies: ["Wisp", .product(name: "Logging", package: "swift-log"), "Datable"]),

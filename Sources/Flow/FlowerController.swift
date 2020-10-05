@@ -27,9 +27,14 @@
 
 import Foundation
 import Logging
-import Network
 import Flower
 import Transport
+
+#if os(Linux)
+import NetworkLinux
+#else
+import Network
+#endif
 
 enum StreamType
 {
@@ -188,11 +193,9 @@ func determineAddressType(host: NWEndpoint.Host) -> AddressType
 {
     switch host
     {
-        case .ipv4(_):
+        case .ipv4:
             return .v4
-        case .ipv6(_):
+        case .ipv6:
             return .v6
-        case .name(_, _):
-            return .named
     }
 }
