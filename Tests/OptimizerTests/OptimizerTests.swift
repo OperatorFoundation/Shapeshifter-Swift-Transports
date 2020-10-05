@@ -35,6 +35,7 @@ import ReplicantSwift
 import Replicant
 import SwiftQueue
 import ExampleTransports
+import Logging
 
 @testable import Optimizer
 
@@ -68,11 +69,11 @@ class OptimizerTests: XCTestCase
         
         //let connected = expectation(description: "Connected to server.")
         let host = NWEndpoint.Host.ipv4(ipv4Address)
-        let wispTransport = WispConnectionFactory(host: host, port: port, cert: certString, iatMode: false)
-        let proteanTransport = ProteanConnectionFactory(host: host, port: port, config: proteanConfig)
+        let wispTransport = WispConnectionFactory(host: host, port: port, cert: certString, iatMode: false, logger: Logger(label: "test"))
+        let proteanTransport = ProteanConnectionFactory(host: host, port: port, config: proteanConfig, logger: Logger(label: "test"))
         let possibleTransports:[ConnectionFactory] = [wispTransport, proteanTransport]
         let strategy = ChooseFirst(transports: possibleTransports)
-        let connectionFactory = OptimizerConnectionFactory(strategy: strategy)
+        let connectionFactory = OptimizerConnectionFactory(strategy: strategy, logger: Logger(label: "test"))
         XCTAssert(connectionFactory != nil)
         
         let possibleConnection = connectionFactory!.connect(using: .tcp)
@@ -105,11 +106,11 @@ class OptimizerTests: XCTestCase
         
         //let connected = expectation(description: "Connected to server.")
         let host = NWEndpoint.Host.ipv4(ipv4Address)
-        let wispTransport = WispConnectionFactory(host: host, port: port, cert: certString, iatMode: false)
-        let proteanTransport = ProteanConnectionFactory(host: host, port: port, config: proteanConfig)
+        let wispTransport = WispConnectionFactory(host: host, port: port, cert: certString, iatMode: false, logger: Logger(label: "test"))
+        let proteanTransport = ProteanConnectionFactory(host: host, port: port, config: proteanConfig, logger: Logger(label: "test"))
         let possibleTransports:[ConnectionFactory] = [wispTransport, proteanTransport]
         let strategy = ChooseRandom(transports: possibleTransports)
-        let connectionFactory = OptimizerConnectionFactory(strategy: strategy)
+        let connectionFactory = OptimizerConnectionFactory(strategy: strategy, logger: Logger(label: "test"))
         XCTAssert(connectionFactory != nil)
         
         let possibleConnection = connectionFactory!.connect(using: .tcp)
@@ -134,8 +135,7 @@ class OptimizerTests: XCTestCase
         let proteanConfig = Protean.Config(byteSequenceConfig: sampleSequenceConfig(),
                                            encryptionConfig: sampleEncryptionConfig(),
                                            headerConfig: sampleHeaderConfig())
-        guard let replicantClientConfig = ReplicantConfig(salt: salt, serverPublicKey: serverPublicKey, chunkSize: 2000, chunkTimeout: 1000, toneBurst: nil)
-            else
+        guard let replicantClientConfig = ReplicantConfig<SilverClientConfig>(polish: nil, toneBurst: nil) else
         {
             print("\nUnable to create ReplicantClient config.\n")
             XCTFail()
@@ -159,17 +159,17 @@ class OptimizerTests: XCTestCase
         }
         
         let host = NWEndpoint.Host.ipv4(ipv4Address)
-        let wispTransport = WispConnectionFactory(host: host, port: port, cert: certString, iatMode: false)
-        let replicantTransport = ReplicantConnectionFactory(host: host, port: port, config: replicantClientConfig)
-        let proteanTransport = ProteanConnectionFactory(host: host, port: port, config: proteanConfig)
-        let passthroughTransport = PassthroughConnectionFactory(host: host, port: port)
-        let rot13Transport = Rot13ConnectionFactory(host: host, port: port)
+        let wispTransport = WispConnectionFactory(host: host, port: port, cert: certString, iatMode: false, logger: Logger(label: "test"))
+        let replicantTransport = ReplicantConnectionFactory(host: host, port: port, config: replicantClientConfig, log: Logger(label: "test"))
+        let proteanTransport = ProteanConnectionFactory(host: host, port: port, config: proteanConfig, logger: Logger(label: "test"))
+        let passthroughTransport = PassthroughConnectionFactory(host: host, port: port, logger: Logger(label: "test"))
+        let rot13Transport = Rot13ConnectionFactory(host: host, port: port, logger: Logger(label: "test"))
         
         let possibleTransports:[ConnectionFactory] = [passthroughTransport, rot13Transport, wispTransport, replicantTransport, proteanTransport]
-        let strategy = CoreMLStrategy(transports: possibleTransports)
+        let strategy = CoreMLStrategy(transports: possibleTransports, logger: Logger(label: "test"))
         
         let connected1 = expectation(description: "Connected 1.")
-        let connectionFactory1 = OptimizerConnectionFactory(strategy: strategy)
+        let connectionFactory1 = OptimizerConnectionFactory(strategy: strategy, logger: Logger(label: "test"))
         guard var connection1 = connectionFactory1!.connect(using: .tcp)
             else
         {
@@ -200,7 +200,7 @@ class OptimizerTests: XCTestCase
         connection1.start(queue: DispatchQueue(label: "TestQueue"))
         
         let connected2 = expectation(description: "Connected 2.")
-        let connectionFactory2 = OptimizerConnectionFactory(strategy: strategy)
+        let connectionFactory2 = OptimizerConnectionFactory(strategy: strategy, logger: Logger(label: "test"))
         guard var connection2 = connectionFactory2!.connect(using: .tcp)
         else
         {
@@ -231,7 +231,7 @@ class OptimizerTests: XCTestCase
         connection2.start(queue: DispatchQueue(label: "TestQueue"))
         
         let connected3 = expectation(description: "Connected 3.")
-        let connectionFactory3 = OptimizerConnectionFactory(strategy: strategy)
+        let connectionFactory3 = OptimizerConnectionFactory(strategy: strategy, logger: Logger(label: "test"))
         guard var connection3 = connectionFactory3!.connect(using: .tcp)
         else
         {
@@ -262,7 +262,7 @@ class OptimizerTests: XCTestCase
         connection3.start(queue: DispatchQueue(label: "TestQueue"))
         
         let connected4 = expectation(description: "Connected 4.")
-        let connectionFactory4 = OptimizerConnectionFactory(strategy: strategy)
+        let connectionFactory4 = OptimizerConnectionFactory(strategy: strategy, logger: Logger(label: "test"))
         guard var connection4 = connectionFactory4!.connect(using: .tcp)
             else
         {
@@ -293,7 +293,7 @@ class OptimizerTests: XCTestCase
         connection4.start(queue: DispatchQueue(label: "TestQueue"))
         
         let connected5 = expectation(description: "Connected 5.")
-        let connectionFactory5 = OptimizerConnectionFactory(strategy: strategy)
+        let connectionFactory5 = OptimizerConnectionFactory(strategy: strategy, logger: Logger(label: "test"))
         guard var connection5 = connectionFactory5!.connect(using: .tcp)
             else
         {
@@ -324,7 +324,7 @@ class OptimizerTests: XCTestCase
         connection5.start(queue: DispatchQueue(label: "TestQueue"))
         
         let connected6 = expectation(description: "Connected 6.")
-        let connectionFactory6 = OptimizerConnectionFactory(strategy: strategy)
+        let connectionFactory6 = OptimizerConnectionFactory(strategy: strategy, logger: Logger(label: "test"))
         guard var connection6 = connectionFactory6!.connect(using: .tcp)
             else
         {

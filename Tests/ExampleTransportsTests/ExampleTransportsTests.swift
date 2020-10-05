@@ -210,7 +210,7 @@ class ExampleTransportsTests: XCTestCase
                         }
                     }))
                     
-                    connection.receive(completion:
+                    connection.receive(minimumIncompleteLength: 1, maximumLength: 1500, completion:
                     {
                         (maybeData, maybeContext, connectionComplete, maybeError) in
                         

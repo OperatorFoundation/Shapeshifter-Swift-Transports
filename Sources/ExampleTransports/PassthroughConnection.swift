@@ -72,7 +72,7 @@ open class PassthroughConnection: Connection
     
     public func receive(completion: @escaping (Data?, NWConnection.ContentContext?, Bool, NWError?) -> Void)
     {
-        network.receive(completion: completion)
+        network.receive(minimumIncompleteLength: 1, maximumLength: 1500, completion: completion)
     }
     
     public func receive(minimumIncompleteLength: Int, maximumLength: Int, completion: @escaping (Data?, NWConnection.ContentContext?, Bool, NWError?) -> Void)

@@ -31,6 +31,7 @@ import Transport
 import Network
 import Protean
 import ProteanSwift
+import Logging
 
 @testable import Protean
 
@@ -65,7 +66,7 @@ class ProteanTests: XCTestCase
         
         let host = NWEndpoint.Host.ipv4(ipv4Address)
         let connected = expectation(description: "Connected to server.")
-        let connectionFactory = ProteanConnectionFactory(host: host, port: port, config: makeSampleProteanConfig())
+        let connectionFactory = ProteanConnectionFactory(host: host, port: port, config: makeSampleProteanConfig(), logger: Logger(label: "test"))
         
         guard var connection = connectionFactory.connect(using: .udp)
         else
@@ -132,7 +133,7 @@ class ProteanTests: XCTestCase
         let connected = expectation(description: "Connected to server.")
         let wrote = expectation(description: "Wrote data to server.")
         
-        let connectionFactory = ProteanConnectionFactory(host: host, port: port, config: makeSampleProteanConfig())
+        let connectionFactory = ProteanConnectionFactory(host: host, port: port, config: makeSampleProteanConfig(), logger: Logger(label: "test"))
         
         guard var connection = connectionFactory.connect(using: .udp)
             else
@@ -216,7 +217,7 @@ class ProteanTests: XCTestCase
         let read = expectation(description: "Read data from the server.")
         let host = NWEndpoint.Host.ipv4(ipv4Address)
         let message = "Hello Hello"
-        let connectionFactory = ProteanConnectionFactory(host: host, port: port, config: makeSampleProteanConfig())
+        let connectionFactory = ProteanConnectionFactory(host: host, port: port, config: makeSampleProteanConfig(), logger: Logger(label: "test"))
         
         guard var connection = connectionFactory.connect(using: .udp)
             else
@@ -257,7 +258,7 @@ class ProteanTests: XCTestCase
                 }))
                 
                 //Receive
-                connection.receive(completion:
+                connection.receive(minimumIncompleteLength: 1, maximumLength: 1500, completion:
                 {
                     (maybeData, maybeContext, connectionComplete, maybeError) in
                     

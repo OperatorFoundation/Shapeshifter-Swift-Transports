@@ -32,7 +32,7 @@ import Elligator
 import NetworkExtension
 import Transport
 import Network
-
+import Logging
 
 @testable import Wisp
 
@@ -57,7 +57,7 @@ class Shapeshifter_WispTests: XCTestCase
     
     func testWispEncoderInit()
     {
-        if let encoder = WispEncoder(withKey: secretKeyMaterial)
+        if let encoder = WispEncoder(withKey: secretKeyMaterial, logger: Logger(label: "test"))
         {
             XCTAssertEqual(encoder.secretBoxKey.count, keyLength)
             XCTAssertEqual(encoder.nonce.counter, 0)
@@ -79,7 +79,7 @@ class Shapeshifter_WispTests: XCTestCase
          Next Block:
          [236, 69, 46, 10, 77, 178, 64, 212]
          */
-        var wispEncoder = WispEncoder(withKey: secretKeyMaterial)
+        var wispEncoder = WispEncoder(withKey: secretKeyMaterial, logger: Logger(label: "test"))
         let expectedOutcome = Data(bytes: [236, 69, 46, 10, 77, 178, 64, 212])
         let nextBlock = wispEncoder!.drbg.nextBlock()
         XCTAssertEqual(nextBlock, expectedOutcome)
@@ -87,7 +87,7 @@ class Shapeshifter_WispTests: XCTestCase
     
     func testEncodePayload()
     {
-        var wispEncoder = WispEncoder(withKey: secretKeyMaterial)
+        var wispEncoder = WispEncoder(withKey: secretKeyMaterial, logger: Logger(label: "test"))
         let encoded = wispEncoder?.encode(payload: toEncode)
         XCTAssertNotNil(encoded)
         XCTAssertNotEqual(toEncode, encoded)
@@ -99,7 +99,7 @@ class Shapeshifter_WispTests: XCTestCase
     
     func testDecodePayloadLength()
     {
-        var wispEncoder = WispEncoder(withKey: secretKeyMaterial)
+        var wispEncoder = WispEncoder(withKey: secretKeyMaterial, logger: Logger(label: "test"))
         let knownCorrectLength = UInt16(toEncode.count + 16)
         let encoded = wispEncoder?.encode(payload: toEncode)
         XCTAssertNotNil(encoded)
@@ -107,7 +107,7 @@ class Shapeshifter_WispTests: XCTestCase
         XCTAssertEqual(encoded!.count, toEncode.count + 16 + 2)
         
         
-        var wispDecoder = WispDecoder(withKey: secretKeyMaterial)
+        var wispDecoder = WispDecoder(withKey: secretKeyMaterial, logger: Logger(label: "test"))
         let lengthData = encoded![0 ..< lengthLength]
         let unobfuscatedLength = wispDecoder?.unobfuscate(obfuscatedLength: lengthData)
 
@@ -123,8 +123,8 @@ class Shapeshifter_WispTests: XCTestCase
     func testLengthObfuscation()
     {
         let testLength: UInt16 = 300
-        var wispDecoder = WispDecoder(withKey: secretKeyMaterial)
-        var wispEncoder = WispEncoder(withKey: secretKeyMaterial)
+        var wispDecoder = WispDecoder(withKey: secretKeyMaterial, logger: Logger(label: "test"))
+        var wispEncoder = WispEncoder(withKey: secretKeyMaterial, logger: Logger(label: "test"))
         let obfuscatedLength = wispEncoder?.obfuscate(length: testLength)
         let unobfuscatedLength = wispDecoder?.unobfuscate(obfuscatedLength: obfuscatedLength!)
         
@@ -133,8 +133,8 @@ class Shapeshifter_WispTests: XCTestCase
     
     func testDecodeFramesBuffer()
     {
-        var wispDecoder = WispDecoder(withKey: secretKeyMaterial)
-        var wispEncoder = WispEncoder(withKey: secretKeyMaterial)
+        var wispDecoder = WispDecoder(withKey: secretKeyMaterial, logger: Logger(label: "test"))
+        var wispEncoder = WispEncoder(withKey: secretKeyMaterial, logger: Logger(label: "test"))
         let encodedTestData = wispEncoder?.encode(payload: toEncode)
         let decodedResult = wispDecoder?.decode(framesBuffer: encodedTestData!)
         XCTAssertNotNil(decodedResult)
@@ -155,7 +155,7 @@ class Shapeshifter_WispTests: XCTestCase
     
     func testRandomInRange()
     {
-        guard let decoder = WispDecoder(withKey: secretKeyMaterial)
+        guard let decoder = WispDecoder(withKey: secretKeyMaterial, logger: Logger(label: "test"))
         else
         {
             print("Unable to init decoder for test.")
@@ -241,7 +241,7 @@ class Shapeshifter_WispTests: XCTestCase
                     }
                 }))
                 
-                connection.receive(completion:
+                connection.receive(minimumIncompleteLength: 1, maximumLength: 1500, completion:
                 {
                     (maybeData, maybeContext, connectionComplete, maybeError) in
                     
@@ -507,7 +507,7 @@ class Shapeshifter_WispTests: XCTestCase
                     }
                 }))
 
-                connection.receive(completion:
+                connection.receive(minimumIncompleteLength: 1, maximumLength: 1500, completion:
                 {
                     (maybeData, maybeContext, connectionComplete, maybeError) in
                     
@@ -697,7 +697,7 @@ class Shapeshifter_WispTests: XCTestCase
         
         let connected = expectation(description: "Connected to server.")
         let host = NWEndpoint.Host.ipv4(ipv4Address)
-        let wispFactory = WispConnectionFactory(host: host, port: port, cert: certString, iatMode: false)
+        let wispFactory = WispConnectionFactory(host: host, port: port, cert: certString, iatMode: false, logger: Logger(label: "test"))
         var maybeConnection = wispFactory.connect(using: .tcp)
         XCTAssertNotNil(maybeConnection)
 
@@ -760,7 +760,7 @@ class Shapeshifter_WispTests: XCTestCase
         let connected = expectation(description: "Connected to server.")
         let wrote = expectation(description: "Wrote data to server.")
         let host = NWEndpoint.Host.ipv4(ipv4Address)
-        let wispFactory = WispConnectionFactory(host: host, port: port, cert: certString, iatMode: false)
+        let wispFactory = WispConnectionFactory(host: host, port: port, cert: certString, iatMode: false, logger: Logger(label: "test"))
         let maybeConnection = wispFactory.connect(using: .tcp)
         XCTAssertNotNil(maybeConnection)
 
@@ -846,7 +846,7 @@ class Shapeshifter_WispTests: XCTestCase
         let wrote = expectation(description: "Wrote data to server.")
         let read = expectation(description: "Read data from the server.")
         let host = NWEndpoint.Host.ipv4(ipv4Address)
-        let wispFactory = WispConnectionFactory(host: host, port: port, cert: certString, iatMode: false)
+        let wispFactory = WispConnectionFactory(host: host, port: port, cert: certString, iatMode: false, logger: Logger(label: "test"))
         let maybeConnection = wispFactory.connect(using: .tcp)
         XCTAssertNotNil(maybeConnection)
         
@@ -888,7 +888,7 @@ class Shapeshifter_WispTests: XCTestCase
                 }))
                 
                 //Receive
-                connection.receive(completion:
+                connection.receive(minimumIncompleteLength: 1, maximumLength: 1500, completion:
                 {
                     (maybeData, maybeContext, connectionComplete, maybeError) in
                     
@@ -929,7 +929,7 @@ class Shapeshifter_WispTests: XCTestCase
     
     func testNewKeypair()
     {
-        let maybeKeypair = newKeypair()
+        let maybeKeypair = newKeypair(logger: Logger(label: "test"))
         XCTAssertNotNil(maybeKeypair)
         
         if let new1stKeypair = maybeKeypair
@@ -939,7 +939,7 @@ class Shapeshifter_WispTests: XCTestCase
             
             // Do it all again!
             
-            let maybe2ndKeypair = newKeypair()
+            let maybe2ndKeypair = newKeypair(logger: Logger(label: "test"))
             XCTAssertNotNil(maybe2ndKeypair)
             
             if let new2ndKeypair = maybe2ndKeypair
@@ -956,7 +956,7 @@ class Shapeshifter_WispTests: XCTestCase
     func testClientHandshakeData()
     {
         let sessionKey = Keypair(publicKey: Shapeshifter_WispTests.publicKey, privateKey: Shapeshifter_WispTests.privateKey, representative: Shapeshifter_WispTests.elligatorRepresentative)
-        let clientHandshake = ClientHandshake(certString: certString, sessionKey: sessionKey)
+        let clientHandshake = ClientHandshake(certString: certString, sessionKey: sessionKey, logger: Logger(label: "test"))
         
         // Did we init the handshake?
         XCTAssertNotNil(clientHandshake)

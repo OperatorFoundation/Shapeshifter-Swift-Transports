@@ -34,6 +34,7 @@ import ReplicantSwift
 import SwiftQueue
 import CryptoKit
 import Song
+import Logging
 
 class ReplicantTests: XCTestCase
 {
@@ -103,7 +104,7 @@ class ReplicantTests: XCTestCase
         }
         
         // Make a Client Connection
-        guard let replicantClientConfig = ReplicantConfig(polish: nil, toneBurst: nil)
+        guard let replicantClientConfig = ReplicantConfig<SilverClientConfig>(polish: nil, toneBurst: nil)
             else
         {
             print("\nUnable to create ReplicantClient config.\n")
@@ -111,7 +112,7 @@ class ReplicantTests: XCTestCase
             return
         }
         
-        let clientConnectionFactory = ReplicantConnectionFactory(host: host, port: port, config: replicantClientConfig)
+        let clientConnectionFactory = ReplicantConnectionFactory(host: host, port: port, config: replicantClientConfig, log: Logging.Logger(label: "test"))
         guard var clientConnection = clientConnectionFactory.connect(using: .tcp)
             else
         {
@@ -164,7 +165,7 @@ class ReplicantTests: XCTestCase
         // Make a Client Connection
         
         // FIXME: PolishClientConfig
-        guard let replicantClientConfig = ReplicantConfig(polish: nil, toneBurst: nil)
+        guard let replicantClientConfig = ReplicantConfig<SilverClientConfig>(polish: nil, toneBurst: nil)
             else
         {
             print("\nUnable to create ReplicantClient config.\n")
@@ -172,7 +173,7 @@ class ReplicantTests: XCTestCase
             return
         }
         
-        let clientConnectionFactory = ReplicantConnectionFactory(host: host, port: port, config: replicantClientConfig)
+        let clientConnectionFactory = ReplicantConnectionFactory(host: host, port: port, config: replicantClientConfig, log: Logger(label: "test"))
         guard var clientConnection = clientConnectionFactory.connect(using: .tcp)
             else
         {

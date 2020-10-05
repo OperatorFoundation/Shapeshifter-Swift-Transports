@@ -29,6 +29,7 @@ import Foundation
 import Logging
 import Network
 import Transport
+import Datable
 
 open class Rot13Connection: Connection
 {
@@ -150,48 +151,25 @@ open class Rot13Connection: Connection
     
     func encode(_ data: Data) -> Data?
     {
-        var mutdata = data
-        mutdata.withUnsafeMutableBytes
-            {
-                (bytePtr: UnsafeMutablePointer<UInt8>) in
-                
-                let byteBuffer = UnsafeMutableBufferPointer(start: bytePtr,
-                                                            count: data.count/MemoryLayout<Int8>.stride)
-                
-                for index in 0..<byteBuffer.count
-                {
-                    byteBuffer[index] = UInt8((Int(byteBuffer[index]) + rotkey) % rotkey)
-                }
-        }
-        
-        return mutdata
+        let array: [UInt8] = data.array
+        let result: [UInt8] = array.map({return UInt8((Int($0) + rotkey) % rotkey)})
+        return Data(array: result)
     }
-    
+
     func decode(_ data: Data) -> Data?
     {
-        var mutdata = data
-        mutdata.withUnsafeMutableBytes
+        let array: [UInt8] = data.array
+        let result: [UInt8] = array.map({
+            let byteAtIndex = Int($0)
+            var rotatedByte = byteAtIndex - rotkey
+
+            if rotatedByte < 0
             {
-                (bytePtr: UnsafeMutablePointer<UInt8>) in
-                
-                let byteBuffer = UnsafeMutableBufferPointer(start: bytePtr,
-                                                            count: data.count/MemoryLayout<Int8>.stride)
-                
-                for index in 0..<byteBuffer.count
-                {
-                    let byteAtIndex = Int(byteBuffer[index])
-                    var rotatedByte = byteAtIndex - rotkey
-                    
-                    if rotatedByte < 0
-                    {
-                        rotatedByte += 256
-                    }
-                    
-                    byteBuffer[index] = UInt8(rotatedByte)
-                }
-        }
-        
-        return mutdata
-    }
-    
+                rotatedByte += 256
+            }
+
+            return UInt8(rotatedByte)
+        })
+        return Data(array: result)
+    }    
 }
