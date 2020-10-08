@@ -40,23 +40,61 @@ let package = Package(
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
         // Targets can depend on other targets in this package, and on products in packages which this package depends on.
 
-        .target(name: "Wisp", dependencies: ["Transport", "Sodium", "CryptoSwift", "HKDF", "Elligator", "SwiftQueue", .product(name: "Logging", package: "swift-log"), "Datable"]),
-        .target(name: "Shadow", dependencies: ["Transport", "Datable", "Chord", .product(name: "Logging", package: "swift-log")]),
-        .target(name: "Flow", dependencies: ["Flower", .product(name: "Logging", package: "swift-log"), "Datable"]),
-        .target(name: "Protean", dependencies: ["Transport", "ProteanSwift", "SwiftQueue", .product(name: "Logging", package: "swift-log"), "Datable"]),
-        .target(name: "Replicant", dependencies: ["Transport", "ReplicantSwift", "SwiftQueue", "Datable", "Flower", .product(name: "Logging", package: "swift-log")]),
+        .target(name: "Wisp", dependencies: ["Transport", "Sodium", "CryptoSwift", "HKDF", "Elligator", "SwiftQueue", .product(name: "Logging", package: "swift-log"), "Datable",
+            .product(name: "NetworkLinux", package: "NetworkLinux", condition: .when(platforms: [.linux])),
+        ]),
+        .target(name: "Shadow", dependencies: [
+            "Transport",
+            "Datable",
+            "Chord",
+            .product(name: "Logging", package: "swift-log"),
+            .product(name: "NetworkLinux", package: "NetworkLinux", condition: .when(platforms: [.linux])),
+        ]),
+        .target(name: "Flow", dependencies: [
+            "Flower",
+            .product(name: "Logging", package: "swift-log"),
+            "Datable",
+            .product(name: "NetworkLinux", package: "NetworkLinux", condition: .when(platforms: [.linux])),
+        ]),
+        .target(name: "Protean", dependencies: [
+            "Transport",
+            "ProteanSwift",
+            "SwiftQueue",
+            .product(name: "Logging", package: "swift-log"),
+            "Datable",
+            .product(name: "NetworkLinux", package: "NetworkLinux", condition: .when(platforms: [.linux])),
+        ]),
+        .target(name: "Replicant", dependencies: [
+            "Transport",
+            "ReplicantSwift",
+            "SwiftQueue",
+            "Datable",
+            "Flower",
+            .product(name: "Logging", package: "swift-log"),
+            .product(name: "NetworkLinux", package: "NetworkLinux", condition: .when(platforms: [.linux])),
+        ]),
         .target(name: "Optimizer", dependencies: [
-		"Transport", "SwiftQueue",
-		.product(name: "Logging", package: "swift-log"),
-		.product(name: "NetworkLinux", package: "NetworkLinux", condition: .when(platforms: [.linux])),
-	]),
-        .target(name: "LoggerQueue", dependencies: [.product(name: "Logging", package: "swift-log"), "Datable"]),
-        .target(name: "ExampleTransports", dependencies: ["Transport", .product(name: "Logging", package: "swift-log"), "Datable"]),
+            "Replicant", "Transport", "SwiftQueue",
+            .product(name: "Logging", package: "swift-log"),
+            .product(name: "NetworkLinux", package: "NetworkLinux", condition: .when(platforms: [.linux])),
+        ]),
+        .target(name: "LoggerQueue", dependencies: [
+            .product(name: "Logging", package: "swift-log"),
+            "Datable",
+            .product(name: "NetworkLinux", package: "NetworkLinux", condition: .when(platforms: [.linux])),
+        ]),
+        .target(name: "ExampleTransports", dependencies: [
+            "Transport",
+            .product(name: "Logging", package: "swift-log"),
+            "Datable",
+            .product(name: "NetworkLinux", package: "NetworkLinux", condition: .when(platforms: [.linux])),
+        ]),
+        
         .testTarget(name: "WispTests", dependencies: ["Wisp", .product(name: "Logging", package: "swift-log"), "Datable"]),
         .testTarget(name: "ShadowTests", dependencies: ["Shadow", "SwiftHexTools", .product(name: "Logging", package: "swift-log"), "Datable"]),
         .testTarget(name: "ProteanTests", dependencies: ["Protean", .product(name: "Logging", package: "swift-log"), "Datable"]),
         .testTarget(name: "ReplicantTests", dependencies: ["Replicant", .product(name: "Logging", package: "swift-log"), "Datable"]),
-        .testTarget(name: "OptimizerTests", dependencies: ["Optimizer", "Wisp", "Protean", .product(name: "Logging", package: "swift-log"), "Datable"]),
+        .testTarget(name: "OptimizerTests", dependencies: ["Optimizer", "Wisp", "Protean", .product(name: "Logging", package: "swift-log"), "Datable", "Replicant"]),
         .testTarget(name: "ExampleTransportsTests", dependencies: ["ExampleTransports", .product(name: "Logging", package: "swift-log"), "Datable"])
         ],
     swiftLanguageVersions: [.v5]
