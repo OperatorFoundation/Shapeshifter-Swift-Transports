@@ -75,6 +75,7 @@ class Cipher
     
     static func createSalt() -> Data?
     {
+        // FIXME: Salt size shoud be 16 bytes for aes128
         var bytes = [Int8](repeating: 0, count: 32)
         let status = SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes)
 
@@ -138,17 +139,7 @@ class Cipher
         print("\nsalt")
         print(salt.array)
         let info = Data(string: "ss-subkey")
-        var outputSize = 0
-        
-        switch cipherMode
-        {
-            case .AES_128_GCM:
-                outputSize = 32
-            case .AES_256_GCM:
-                outputSize = 16
-            case .CHACHA20_IETF_POLY1305:
-                outputSize = 32
-        }
+        var outputSize = secret.count
         
         let iterations = UInt8(ceil(Double(outputSize) / Double(Insecure.SHA1.byteCount)))
         guard iterations <= 255 else {return nil}

@@ -330,7 +330,7 @@ open class ShadowConnection: Connection
     
     func sendSalt(completion: @escaping (Bool) -> Void)
     {
-        print("Sending Salt : \(salt[0]), \(salt[31])")
+        print("Sending Salt : \(salt.array)")
         network.send(content: salt, contentContext: .defaultMessage, isComplete: false, completion: NWConnection.SendCompletion.contentProcessed(
         {
             (maybeError) in
