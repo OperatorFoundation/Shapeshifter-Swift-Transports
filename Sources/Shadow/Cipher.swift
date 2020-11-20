@@ -67,16 +67,27 @@ class Cipher
             return nil
         }
              
-        print("Created key data: \(actualKey[0]), \(actualKey[31])")
         self.log = logger
         self.key = SymmetricKey(data: actualKey)
         self.mode = config.mode
     }
     
-    static func createSalt() -> Data?
+    static func createSalt(mode: CipherMode) -> Data?
     {
-        // FIXME: Salt size shoud be 16 bytes for aes128
-        var bytes = [Int8](repeating: 0, count: 32)
+        // Salt size shoud be 16 bytes for aes128
+        let saltSize: Int
+        
+        switch mode
+        {
+        case .AES_128_GCM:
+            saltSize = 16
+        case .AES_256_GCM:
+            saltSize = 32
+        case .CHACHA20_IETF_POLY1305:
+            saltSize = 32
+        }
+        
+        var bytes = [Int8](repeating: 0, count: saltSize)
         let status = SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes)
 
         guard status == errSecSuccess
@@ -139,7 +150,7 @@ class Cipher
         print("\nsalt")
         print(salt.array)
         let info = Data(string: "ss-subkey")
-        var outputSize = secret.count
+        let outputSize = secret.count
         
         let iterations = UInt8(ceil(Double(outputSize) / Double(Insecure.SHA1.byteCount)))
         guard iterations <= 255 else {return nil}

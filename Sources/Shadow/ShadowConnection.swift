@@ -65,7 +65,7 @@ open class ShadowConnection: Connection
 
     public init?(connection: Connection, parameters: NWParameters, config: ShadowConfig, logger: Logger)
     {
-        guard let actualSalt = Cipher.createSalt()
+        guard let actualSalt = Cipher.createSalt(mode: config.mode)
             else
         {
             return nil
