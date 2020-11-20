@@ -10,6 +10,12 @@ import Foundation
 
 public struct ShadowConfig
 {
-    let mode: CipherMode
-    let password: String
+    public let password: String
+    public let mode: CipherMode
+    
+    public init(password: String, mode: CipherMode)
+    {
+        self.password = password
+        self.mode = mode
+    }
 }
