@@ -6,7 +6,8 @@ import PackageDescription
 let package = Package(
     name: "Shapeshifter-Swift-Transports",
     platforms: [
-        .macOS(.v10_15)
+        .macOS(.v10_15),
+        .iOS(.v13)
     ],
     products: [
         // Products define the executables and libraries produced by a package, and make them visible to other packages.
@@ -22,7 +23,7 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-log.git", from: "1.4.0"),
         .package(url: "https://github.com/OperatorFoundation/ProteanSwift.git", from: "1.2.0"),
         .package(url: "https://github.com/OperatorFoundation/ReplicantSwiftClient.git", from: "0.2.2"),
-        .package(url: "https://github.com/OperatorFoundation/Transport.git", from: "2.2.0"),
+        .package(url: "https://github.com/OperatorFoundation/Transport.git", from: "2.2.3"),
         .package(name: "Sodium", url: "https://github.com/OperatorFoundation/swift-sodium", from: "0.8.4"),
         .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", from: "1.3.0"),
         .package(url: "https://github.com/OperatorFoundation/HKDF.git", from: "3.0.2"),
