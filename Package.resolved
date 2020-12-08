@@ -42,8 +42,8 @@
         "repositoryURL": "https://github.com/krzyzanowskim/CryptoSwift.git",
         "state": {
           "branch": null,
-          "revision": "04500de6c2d4f42dc6adcbb9aa54581219b32d5c",
-          "version": "1.3.5"
+          "revision": "5669f222e46c8134fb1f399c745fa6882b43532e",
+          "version": "1.3.8"
         }
       },
       {
@@ -83,6 +83,24 @@
         }
       },
       {
+        "package": "Keychain",
+        "repositoryURL": "https://github.com/OperatorFoundation/Keychain.git",
+        "state": {
+          "branch": null,
+          "revision": "64c2e570f0cdb15beb879bdf1b3a9e01916f85d0",
+          "version": "0.1.2"
+        }
+      },
+      {
+        "package": "KeychainLinux",
+        "repositoryURL": "https://github.com/OperatorFoundation/KeychainLinux.git",
+        "state": {
+          "branch": null,
+          "revision": "9be9dbf0a3492444a770ef22da18d0ff544713f7",
+          "version": "0.1.1"
+        }
+      },
+      {
         "package": "Monolith",
         "repositoryURL": "https://github.com/OperatorFoundation/Monolith.git",
         "state": {
@@ -114,17 +132,8 @@
         "repositoryURL": "https://github.com/OperatorFoundation/ReplicantSwift.git",
         "state": {
           "branch": null,
-          "revision": "8903b8daad17d466c49bf43aedde6fa46d2b6c91",
-          "version": "0.6.0"
-        }
-      },
-      {
-        "package": "ReplicantSwiftClient",
-        "repositoryURL": "https://github.com/OperatorFoundation/ReplicantSwiftClient.git",
-        "state": {
-          "branch": null,
-          "revision": "818198286fe2faf80e32ddd50239ae4b4138339d",
-          "version": "0.2.2"
+          "revision": "69b7eff3383b3df6fcac9690059bcf9d831e927c",
+          "version": "0.8.3"
         }
       },
       {
@@ -143,6 +152,15 @@
           "branch": null,
           "revision": "e8507d78b32dbd33ea5ea975bbbc82b7613870a1",
           "version": "0.19.9"
+        }
+      },
+      {
+        "package": "swift-crypto",
+        "repositoryURL": "https://github.com/apple/swift-crypto.git",
+        "state": {
+          "branch": null,
+          "revision": "9680b7251cd2be22caaed8f1468bd9e8915a62fb",
+          "version": "1.1.2"
         }
       },
       {
@@ -186,8 +204,8 @@
         "repositoryURL": "https://github.com/OperatorFoundation/Transport.git",
         "state": {
           "branch": null,
-          "revision": "589b4027f565680245e868d4feabeffc66e352c1",
-          "version": "2.2.3"
+          "revision": "1070dc19d3ceba8041b35e61ef322c72c3f3a5b9",
+          "version": "2.3.0"
         }
       }
     ]

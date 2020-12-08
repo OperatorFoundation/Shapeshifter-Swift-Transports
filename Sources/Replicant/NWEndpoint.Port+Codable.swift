@@ -28,6 +28,8 @@
 import Foundation
 import Network
 
+import ReplicantSwift
+
 extension NWEndpoint.Port: Encodable
 {
     public func encode(to encoder: Encoder) throws

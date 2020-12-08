@@ -15,6 +15,7 @@ let package = Package(
         .library(name: "Shadow", targets: ["Shadow"]),
         .library(name: "Protean", targets: ["Protean"]),
         .library(name: "Optimizer", targets: ["Optimizer"]),
+        .library(name: "Replicant", targets: ["Replicant"]),
         .library(name: "LoggerQueue", targets: ["LoggerQueue"]),
         .library(name: "ExampleTransports", targets: ["ExampleTransports"])
     ],
@@ -22,7 +23,7 @@ let package = Package(
         // Dependencies declare other packages that this package depends on.
         .package(url: "https://github.com/apple/swift-log.git", from: "1.4.0"),
         .package(url: "https://github.com/OperatorFoundation/ProteanSwift.git", from: "1.2.0"),
-        .package(url: "https://github.com/OperatorFoundation/ReplicantSwiftClient.git", from: "0.2.2"),
+        .package(url: "https://github.com/OperatorFoundation/ReplicantSwift.git", from: "0.8.3"),
         .package(url: "https://github.com/OperatorFoundation/Transport.git", from: "2.2.3"),
         .package(name: "Sodium", url: "https://github.com/OperatorFoundation/swift-sodium", from: "0.8.4"),
         .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", from: "1.3.0"),
@@ -39,8 +40,16 @@ let package = Package(
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
         // Targets can depend on other targets in this package, and on products in packages which this package depends on.
 
-        .target(name: "Wisp", dependencies: ["Transport", "Sodium", "CryptoSwift", "HKDF", "Elligator", "SwiftQueue", .product(name: "Logging", package: "swift-log"), "Datable",
-                                             .product(name: "NetworkLinux", package: "NetworkLinux", condition: .when(platforms: [.linux])),
+        .target(name: "Wisp", dependencies: [
+            "Transport",
+            "Sodium",
+            "CryptoSwift",
+            "HKDF",
+            "Elligator",
+            "SwiftQueue",
+            "Datable",
+            .product(name: "Logging", package: "swift-log"),
+            .product(name: "NetworkLinux", package: "NetworkLinux", condition: .when(platforms: [.linux])),
         ]),
         .target(name: "Shadow", dependencies: [
             "Transport",
@@ -58,9 +67,13 @@ let package = Package(
             .product(name: "NetworkLinux", package: "NetworkLinux", condition: .when(platforms: [.linux])),
         ]),
         .target(name: "Optimizer", dependencies: [
-            .product(name: "Replicant", package: "ReplicantSwiftClient"), "Transport", "SwiftQueue",
+            "Transport",
+            "SwiftQueue",
             .product(name: "Logging", package: "swift-log"),
             .product(name: "NetworkLinux", package: "NetworkLinux", condition: .when(platforms: [.linux])),
+        ]),
+        .target(name:"Replicant", dependencies:[
+            "ReplicantSwift"
         ]),
         .target(name: "LoggerQueue", dependencies: [
             .product(name: "Logging", package: "swift-log"),
@@ -74,11 +87,29 @@ let package = Package(
             .product(name: "NetworkLinux", package: "NetworkLinux", condition: .when(platforms: [.linux])),
         ]),
 
-        .testTarget(name: "WispTests", dependencies: ["Wisp", .product(name: "Logging", package: "swift-log"), "Datable"]),
-        .testTarget(name: "ShadowTests", dependencies: ["Shadow", "SwiftHexTools", .product(name: "Logging", package: "swift-log"), "Datable"]),
-        .testTarget(name: "ProteanTests", dependencies: ["Protean", .product(name: "Logging", package: "swift-log"), "Datable"]),
-        .testTarget(name: "OptimizerTests", dependencies: ["Optimizer", "Wisp", "Protean", .product(name: "Logging", package: "swift-log"), "Datable", .product(name: "Replicant", package: "ReplicantSwiftClient")]),
-        .testTarget(name: "ExampleTransportsTests", dependencies: ["ExampleTransports", .product(name: "Logging", package: "swift-log"), "Datable"])
+        .testTarget(name: "WispTests", dependencies: [
+                        "Wisp",
+                        .product(name: "Logging", package: "swift-log"),
+                        "Datable"]),
+        .testTarget(name: "ShadowTests", dependencies: [
+                        "Shadow",
+                        "SwiftHexTools",
+                        .product(name: "Logging", package: "swift-log"),
+                        "Datable"]),
+        .testTarget(name: "ProteanTests", dependencies: [
+                        "Protean",
+                        .product(name: "Logging", package: "swift-log"),
+                        "Datable"]),
+        .testTarget(name: "OptimizerTests", dependencies: [
+                        "Optimizer",
+                        "Wisp",
+                        "Protean",
+                        "Replicant",
+                        .product(name: "Logging", package: "swift-log"), "Datable"]),
+        .testTarget(name: "ExampleTransportsTests", dependencies: [
+                        "ExampleTransports",
+                        .product(name: "Logging", package: "swift-log"),
+                        "Datable"])
     ],
     swiftLanguageVersions: [.v5]
 )
