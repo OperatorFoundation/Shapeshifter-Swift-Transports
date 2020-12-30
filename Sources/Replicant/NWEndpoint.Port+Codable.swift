@@ -26,9 +26,14 @@
 // SOFTWARE.
 
 import Foundation
-import Network
 
 import ReplicantSwift
+
+#if os(Linux)
+import NetworkLinux
+#else
+import Network
+#endif
 
 extension NWEndpoint.Port: Encodable
 {

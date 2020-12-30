@@ -28,11 +28,16 @@
 import CryptoKit
 import Foundation
 import Logging
-import Network
 
 import Chord
 import Datable
 import Transport
+
+#if os(Linux)
+import NetworkLinux
+#else
+import Network
+#endif
 
 open class ShadowConnection: Connection
 {

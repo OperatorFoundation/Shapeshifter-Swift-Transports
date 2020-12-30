@@ -26,7 +26,12 @@
 // SOFTWARE.
 
 import Foundation
+
+#if os(Linux)
+import NetworkLinux
+#else
 import Network
+#endif
 
 extension NWEndpoint.Host: Encodable
 {

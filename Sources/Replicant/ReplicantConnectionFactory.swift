@@ -27,10 +27,15 @@
 
 import Foundation
 import Transport
-import Network
 import ReplicantSwift
 import Logging
 import SwiftQueue
+
+#if os(Linux)
+import NetworkLinux
+#else
+import Network
+#endif
 
 open class ReplicantConnectionFactory: ConnectionFactory
 {

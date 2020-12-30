@@ -26,11 +26,17 @@
 // SOFTWARE.
 
 import Foundation
-import Network
 import Logging
 import CryptoKit
+
 import Transport
 import ReplicantSwift
+
+#if os(Linux)
+import NetworkLinux
+#else
+import Network
+#endif
 
 open class ReplicantConnection: Connection
 {

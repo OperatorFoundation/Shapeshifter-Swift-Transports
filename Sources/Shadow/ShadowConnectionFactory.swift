@@ -27,7 +27,12 @@
 
 import Foundation
 import Logging
+
+#if os(Linux)
+import NetworkLinux
+#else
 import Network
+#endif
 
 import Transport
 

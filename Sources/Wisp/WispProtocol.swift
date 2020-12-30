@@ -38,7 +38,12 @@ import CryptoSwift
 import Elligator
 import HKDF
 import Transport
+
+#if os(Linux)
+import NetworkLinux
+#else
 import Network
+#endif
 
 enum WispPacketType: UInt8
 {

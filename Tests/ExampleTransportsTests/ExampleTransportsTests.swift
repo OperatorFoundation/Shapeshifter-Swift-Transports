@@ -29,7 +29,12 @@ import Foundation
 import Logging
 import XCTest
 import Transport
+
+#if os(Linux)
+import NetworkLinux
+#else
 import Network
+#endif
 
 
 @testable import ExampleTransports
@@ -235,6 +240,8 @@ class ExampleTransportsTests: XCTestCase
                                 print("Received a tls error: \(tlsError)")
                             case .dns(let dnsError):
                                 print("Received a dns error: \(dnsError)")
+                            default:
+                                print("received an error: \(maybeError!)")
                             }
                         }
                         

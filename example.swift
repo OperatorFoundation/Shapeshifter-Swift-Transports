@@ -6,12 +6,17 @@
 //
 
 import Foundation
-import Network
 
 import Datable
 import Protean
 import ProteanSwift
 import Optimizer
+
+#if os(Linux)
+import NetworkLinux
+#else
+import Network
+#endif
 
 /// This is example code to help illustrate how to use the transports provided in this library.
 /// This is an ongoing work in progress :)

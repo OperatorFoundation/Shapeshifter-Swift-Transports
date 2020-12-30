@@ -31,8 +31,13 @@ import Sodium
 import Elligator
 import NetworkExtension
 import Transport
-import Network
 import Logging
+
+#if os(Linux)
+import NetworkLinux
+#else
+import Network
+#endif
 
 @testable import Wisp
 
@@ -42,9 +47,9 @@ class Shapeshifter_WispTests: XCTestCase
     let ipAddressString = ""
     let portString = "1234"
     let secretKeyMaterial = Data(repeating: 0x0A, count: keyMaterialLength)
-    static let publicKey = Data(bytes: [139, 210, 37, 89, 10, 47, 113, 85, 13, 53, 118, 181, 28, 8, 202, 146, 220, 206, 224, 143, 24, 159, 235, 136, 173, 194, 120, 171, 201, 54, 238, 76])
-    static let privateKey = Data(bytes: [198, 167, 133, 212, 83, 74, 53, 24, 178, 34, 178, 148, 128, 202, 15, 70, 247, 196, 26, 159, 184, 238, 185, 113, 19, 137, 138, 135, 39, 137, 55, 15])
-    static let elligatorRepresentative = Data(bytes: [95, 226, 105, 55, 70, 208, 53, 164, 16, 88, 68, 55, 89, 16, 147, 91, 38, 140, 125, 101, 237, 25, 154, 12, 82, 12, 4, 158, 252, 206, 79, 1])
+    static let publicKey = Data([139, 210, 37, 89, 10, 47, 113, 85, 13, 53, 118, 181, 28, 8, 202, 146, 220, 206, 224, 143, 24, 159, 235, 136, 173, 194, 120, 171, 201, 54, 238, 76])
+    static let privateKey = Data([198, 167, 133, 212, 83, 74, 53, 24, 178, 34, 178, 148, 128, 202, 15, 70, 247, 196, 26, 159, 184, 238, 185, 113, 19, 137, 138, 135, 39, 137, 55, 15])
+    static let elligatorRepresentative = Data([95, 226, 105, 55, 70, 208, 53, 164, 16, 88, 68, 55, 89, 16, 147, 91, 38, 140, 125, 101, 237, 25, 154, 12, 82, 12, 4, 158, 252, 206, 79, 1])
     
     let maxWaitSeconds: Double = 25
     let toEncode = Data(repeating: 0x0A, count: 50)
@@ -80,7 +85,7 @@ class Shapeshifter_WispTests: XCTestCase
          [236, 69, 46, 10, 77, 178, 64, 212]
          */
         var wispEncoder = WispEncoder(withKey: secretKeyMaterial, logger: Logger(label: "test"))
-        let expectedOutcome = Data(bytes: [236, 69, 46, 10, 77, 178, 64, 212])
+        let expectedOutcome = Data([236, 69, 46, 10, 77, 178, 64, 212])
         let nextBlock = wispEncoder!.drbg.nextBlock()
         XCTAssertEqual(nextBlock, expectedOutcome)
     }
@@ -532,6 +537,8 @@ class Shapeshifter_WispTests: XCTestCase
                             print("\n⛑  Received a tls error: \(tlsError)")
                         case .dns(let dnsError):
                             print("\n⛑  Received a dns error: \(dnsError)")
+                        default:
+                            print("received an error: \(maybeError!)")
                         }
                     }
                     
