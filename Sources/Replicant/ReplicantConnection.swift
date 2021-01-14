@@ -232,7 +232,12 @@ open class ReplicantConnection: Connection
                 // Start the timer
                 if self.sendBuffer.count > 0
                 {
-                    self.sendTimer = Timer(timeInterval: TimeInterval(polishConnection.chunkTimeout), target: self, selector: #selector(self.chunkTimeout), userInfo: nil, repeats: true)
+                    self.sendTimer = Timer(timeInterval: TimeInterval(polishConnection.chunkTimeout), repeats: true)
+                    {
+                        (timer) in
+                        
+                        self.chunkTimeout()
+                    }
                 }
                 
                 switch completion
