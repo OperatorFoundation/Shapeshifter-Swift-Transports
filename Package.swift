@@ -135,10 +135,6 @@ let package = Package(
         .package(url: "https://github.com/OperatorFoundation/ProteanSwift.git", from: "1.2.0"),
         .package(url: "https://github.com/OperatorFoundation/ReplicantSwift.git", from: "0.8.3"),
         .package(url: "https://github.com/OperatorFoundation/Transport.git", from: "2.3.3"),
-        .package(name: "Sodium", url: "https://github.com/OperatorFoundation/swift-sodium", from: "0.8.4"),
-        .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", from: "1.3.0"),
-        .package(url: "https://github.com/OperatorFoundation/HKDF.git", from: "3.0.2"),
-        .package(url: "https://github.com/OperatorFoundation/Elligator.git", from: "0.1.0"),
         .package(url: "https://github.com/OperatorFoundation/SwiftQueue.git", from: "0.0.3"),
         .package(url: "https://github.com/OperatorFoundation/Datable.git", from: "3.0.2"),
         .package(url: "https://github.com/OperatorFoundation/Chord.git", from: "0.0.5"),
@@ -200,7 +196,6 @@ let package = Package(
         
         .testTarget(name: "OptimizerTests", dependencies: [
                         "Optimizer",
-                        "Wisp",
                         "Protean",
                         "Replicant",
                         .product(name: "Logging", package: "swift-log"), "Datable"]),
