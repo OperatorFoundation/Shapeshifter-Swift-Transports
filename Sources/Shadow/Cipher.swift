@@ -246,7 +246,7 @@ class Cipher
         let ciphertext = encrypted[0..<expectedCiphertextLength]
         let tag = encrypted[expectedCiphertextLength...]
         
-        // Sanity Check
+        // Quality Check
         guard tag.count == Cipher.tagSize
             else
         {
