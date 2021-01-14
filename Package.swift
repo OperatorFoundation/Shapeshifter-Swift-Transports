@@ -124,7 +124,6 @@ let package = Package(
     name: "Shapeshifter-Swift-Transports",
     products: [
         .library(name: "Shadow", targets: ["Shadow"]),
-        .library(name: "Protean", targets: ["Protean"]),
         .library(name: "Optimizer", targets: ["Optimizer"]),
         .library(name: "Replicant", targets: ["Replicant"]),
         .library(name: "LoggerQueue", targets: ["LoggerQueue"]),
@@ -132,7 +131,6 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-log.git", from: "1.4.0"),
-        .package(url: "https://github.com/OperatorFoundation/ProteanSwift.git", from: "1.2.0"),
         .package(url: "https://github.com/OperatorFoundation/ReplicantSwift.git", from: "0.8.3"),
         .package(url: "https://github.com/OperatorFoundation/Transport.git", from: "2.3.3"),
         .package(url: "https://github.com/OperatorFoundation/SwiftQueue.git", from: "0.0.3"),
@@ -146,15 +144,6 @@ let package = Package(
             "Transport",
             "Datable",
             "Chord",
-            .product(name: "Logging", package: "swift-log"),
-            .product(name: "NetworkLinux", package: "NetworkLinux", condition: .when(platforms: [.linux])),
-        ]),
-        
-        .target(name: "Protean", dependencies: [
-            "Transport",
-            "ProteanSwift",
-            "SwiftQueue",
-            "Datable",
             .product(name: "Logging", package: "swift-log"),
             .product(name: "NetworkLinux", package: "NetworkLinux", condition: .when(platforms: [.linux])),
         ]),
@@ -189,14 +178,8 @@ let package = Package(
                         "SwiftHexTools",
                         .product(name: "Logging", package: "swift-log")]),
         
-        .testTarget(name: "ProteanTests", dependencies: [
-                        "Datable",
-                        "Protean",
-                        .product(name: "Logging", package: "swift-log")]),
-        
         .testTarget(name: "OptimizerTests", dependencies: [
                         "Optimizer",
-                        "Protean",
                         "Replicant",
                         .product(name: "Logging", package: "swift-log"), "Datable"]),
         
