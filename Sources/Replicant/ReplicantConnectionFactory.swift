@@ -49,15 +49,8 @@ open class ReplicantConnectionFactory: ConnectionFactory
         
     public init?(ipString: String, portInt: UInt16, config: ReplicantConfig<SilverClientConfig>, logger: Logger)
     {
-        guard let port = NWEndpoint.Port(rawValue: portInt)
-        else
-        {
-            logger.error("Unable to initialize ReplicantConnectionFactory, a port could not be resolved from the provided UInt16: \(portInt)")
-            return nil
-        }
-        
         self.host = NWEndpoint.Host(ipString)
-        self.port = port
+        self.port = NWEndpoint.Port(integerLiteral: portInt)
         self.config = config
         self.log = logger
     }
@@ -88,7 +81,7 @@ open class ReplicantConnectionFactory: ConnectionFactory
             guard let currentHost = host, let currentPort = port
                 else
             {
-                log.error("Unable to connect, host or port is nil.\n\(host ?? "nil host")\n\(port?.debugDescription ?? "nil port")")
+                log.error("Unable to connect, host or port is nil.")
                 return nil
             }
             
