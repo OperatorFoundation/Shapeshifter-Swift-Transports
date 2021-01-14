@@ -25,7 +25,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import CryptoKit
 import Foundation
 import Logging
 
@@ -33,10 +32,12 @@ import Chord
 import Datable
 import Transport
 
-#if os(Linux)
-import NetworkLinux
-#else
+#if (os(macOS) || os(iOS) || os(watchOS) || os(tvOS))
+import CryptoKit
 import Network
+#else
+import Crypto
+import NetworkLinux
 #endif
 
 open class ShadowConnection: Connection

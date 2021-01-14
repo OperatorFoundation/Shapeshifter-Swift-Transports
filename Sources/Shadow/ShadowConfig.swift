@@ -8,6 +8,12 @@
 import CryptoKit
 import Foundation
 
+#if (os(macOS) || os(iOS) || os(watchOS) || os(tvOS))
+import CryptoKit
+#else
+import Crypto
+#endif
+
 public struct ShadowConfig
 {
     public let password: String

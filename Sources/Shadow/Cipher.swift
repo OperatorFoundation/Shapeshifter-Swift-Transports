@@ -26,8 +26,13 @@
 // SOFTWARE.
 
 import Foundation
-import CryptoKit
 import Logging
+
+#if (os(macOS) || os(iOS) || os(watchOS) || os(tvOS))
+import CryptoKit
+#else
+import Crypto
+#endif
 
 import Datable
 

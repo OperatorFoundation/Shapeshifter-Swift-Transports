@@ -6,16 +6,17 @@
 //
 
 import XCTest
-import CryptoKit
 import Logging
 
 import Datable
 import SwiftHexTools
 
-#if os(Linux)
-import NetworkLinux
-#else
+#if (os(macOS) || os(iOS) || os(watchOS) || os(tvOS))
+import CryptoKit
 import Network
+#else
+import Crypto
+import NetworkLinux
 #endif
 
 @testable import Shadow
