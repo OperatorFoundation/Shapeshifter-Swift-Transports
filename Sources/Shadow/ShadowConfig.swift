@@ -5,7 +5,6 @@
 //  Created by Mafalda on 8/18/20.
 //
 
-import CryptoKit
 import Foundation
 
 #if (os(macOS) || os(iOS) || os(watchOS) || os(tvOS))
