@@ -131,6 +131,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-log.git", from: "1.4.0"),
+        .package(url: "https://github.com/apple/swift-crypto.git", from: "1.1.2"),
         .package(url: "https://github.com/OperatorFoundation/ReplicantSwift.git", from: "0.8.3"),
         .package(url: "https://github.com/OperatorFoundation/Transport.git", from: "2.3.3"),
         .package(url: "https://github.com/OperatorFoundation/SwiftQueue.git", from: "0.0.3"),
@@ -144,6 +145,7 @@ let package = Package(
             "Transport",
             "Datable",
             "Chord",
+            .product(name: "Crypto", package: "swift-crypto"),
             .product(name: "Logging", package: "swift-log"),
             .product(name: "NetworkLinux", package: "NetworkLinux", condition: .when(platforms: [.linux])),
         ]),
@@ -156,7 +158,8 @@ let package = Package(
         ]),
         
         .target(name:"Replicant", dependencies:[
-            "ReplicantSwift"
+            "ReplicantSwift",
+            .product(name: "Crypto", package: "swift-crypto")
         ]),
         
         .target(name: "LoggerQueue", dependencies: [
