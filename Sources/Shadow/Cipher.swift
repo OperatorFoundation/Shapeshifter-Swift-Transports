@@ -92,17 +92,7 @@ class Cipher
             saltSize = 32
         }
         
-        var bytes = [Int8](repeating: 0, count: saltSize)
-        let status = SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes)
-
-        guard status == errSecSuccess
-        else { return nil }
-        
-        return Data(array: bytes.map({
-            (element) in
-            
-            UInt8(bitPattern: element)
-        }))
+        return generateRandomBytes(count: saltSize)
     }
     
     /*
@@ -321,6 +311,17 @@ class Cipher
         counter += 1
 
         return counterData
+    }
+    
+    static func generateRandomBytes(count: Int) -> Data
+    {
+        var bytes = [UInt8]()
+        for _ in 1...count
+        {
+            bytes.append(UInt8.random(in: 0...255))
+        }
+        
+        return Data(bytes)
     }
 }
 
