@@ -55,10 +55,10 @@ open class ReplicantConnectionFactory: ConnectionFactory
         self.log = logger
     }
 
-    public init(host: NWEndpoint.Host, port: NWEndpoint.Port, config: ReplicantConfig<SilverClientConfig>, log: Logger)
+    public init(host: String, port: UInt16, config: ReplicantConfig<SilverClientConfig>, log: Logger)
     {
-        self.host = host
-        self.port = port
+        self.host = NWEndpoint.Host(host)
+        self.port = NWEndpoint.Port(integerLiteral: port)
         self.config = config
         self.log = log
     }
