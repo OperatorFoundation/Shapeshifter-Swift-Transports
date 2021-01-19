@@ -86,10 +86,8 @@ open class ReplicantConnection: Connection
                 config: ReplicantConfig<SilverClientConfig>,
                 logger: Logger)
     {
-        //TODO: Replace logQueue with logger in Replicant library
         let newReplicant = ReplicantClientModel(withConfig: config, logger: logger)
         
-        //self.logQueue = logQueue
         self.network = connection
         self.config = config
         self.replicantClientModel = newReplicant
@@ -114,18 +112,19 @@ open class ReplicantConnection: Connection
             }
             
             logger.debug("\nNew Replicant connection is ready. 🎉 \n")
-            //logQueue.enqueue("\nNew Replicant connection is ready. 🎉 \n")
         }
     }
     
     public func start(queue: DispatchQueue)
     {
+        log.debug("\n🏁 Start called on Replicant connection.")
         network.stateUpdateHandler = self.stateUpdateHandler
         network.start(queue: queue)
     }
     
     public func send(content: Data?, contentContext: NWConnection.ContentContext, isComplete: Bool, completion: NWConnection.SendCompletion)
     {
+        log.debug("\n💌 Send called on Replicant connection.")
         if let polishConnection = replicantClientModel.polish
         {
             // Lock so that the timer cannot fire and change the buffer. Unlock in the network send() callback.
@@ -397,6 +396,7 @@ open class ReplicantConnection: Connection
                 else
             {
                 self.stateUpdateHandler?(NWConnection.State.cancelled)
+                self.log.error("Toneburst error: \(maybeVKError!)")
                 completion(maybeVKError)
                 return
             }
@@ -424,6 +424,7 @@ open class ReplicantConnection: Connection
             }
             else
             {
+                self.log.debug("No need to perform the Replicant handshake with the server, the Polish connection is nil.")
                 completion(nil)
             }
         }
