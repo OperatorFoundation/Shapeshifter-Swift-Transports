@@ -44,7 +44,7 @@ class ShadowTests: XCTestCase
         let logger = Logger(label: "Shadow Logger")
         LoggingSystem.bootstrap(StreamLogHandler.standardError)
         
-        let shadowConfig = ShadowConfig(mode: .CHACHA20_IETF_POLY1305, password: "1234")
+        let shadowConfig = ShadowConfig(password: "1234", mode: .CHACHA20_IETF_POLY1305)
         
         let shadowFactory = ShadowConnectionFactory(host: host, port: port, config: shadowConfig, logger: logger)
         
@@ -95,7 +95,7 @@ class ShadowTests: XCTestCase
         let logger = Logger(label: "Shadow Logger")
         LoggingSystem.bootstrap(StreamLogHandler.standardError)
         
-        let shadowConfig = ShadowConfig(mode: .CHACHA20_IETF_POLY1305, password: "1234")
+        let shadowConfig = ShadowConfig(password: "1234", mode: .CHACHA20_IETF_POLY1305)
         
         let shadowFactory = ShadowConnectionFactory(host: host, port: port, config: shadowConfig, logger: logger)
         
@@ -179,7 +179,7 @@ class ShadowTests: XCTestCase
         
         let logger = Logger(label: "Shadow Logger")
         LoggingSystem.bootstrap(StreamLogHandler.standardError)
-        let shadowConfig = ShadowConfig(mode: .CHACHA20_IETF_POLY1305, password: "1234")
+        let shadowConfig = ShadowConfig(password: "1234", mode: .CHACHA20_IETF_POLY1305)
         let shadowFactory = ShadowConnectionFactory(host: host, port: port, config: shadowConfig, logger: logger)
         
         guard var shadowConnection = shadowFactory.connect(using: .tcp)
@@ -284,7 +284,7 @@ class ShadowTests: XCTestCase
         
         let logger = Logger(label: "Shadow Logger")
         LoggingSystem.bootstrap(StreamLogHandler.standardError)
-        let shadowConfig = ShadowConfig(mode: .CHACHA20_IETF_POLY1305, password: "1234")
+        let shadowConfig = ShadowConfig(password: "1234", mode: .CHACHA20_IETF_POLY1305)
         let shadowFactory = ShadowConnectionFactory(host: host, port: port, config: shadowConfig, logger: logger)
         
         guard var shadowConnection = shadowFactory.connect(using: .tcp)
