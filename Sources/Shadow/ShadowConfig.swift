@@ -7,8 +7,6 @@
 
 import Foundation
 
-import Song
-
 #if (os(macOS) || os(iOS) || os(watchOS) || os(tvOS))
 import CryptoKit
 #else
@@ -32,7 +30,7 @@ public struct ShadowConfig: Decodable
         do
         {
             let decoded = try decoder.decode(ShadowConfig.self, from: data)
-            self.init(password: decoded.password, mode: decoded.mode)
+            self = decoded
         }
         catch let decodeError
         {
