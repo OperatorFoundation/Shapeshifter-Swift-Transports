@@ -28,10 +28,10 @@ public struct ShadowConfig: Decodable
     
     init?(from data: Data)
     {
-        let songDecoder = SongDecoder()
+        let decoder = JSONDecoder()
         do
         {
-            let decoded = try songDecoder.decode(ShadowConfig.self, from: data)
+            let decoded = try decoder.decode(ShadowConfig.self, from: data)
             self.init(password: decoded.password, mode: decoded.mode)
         }
         catch let decodeError
