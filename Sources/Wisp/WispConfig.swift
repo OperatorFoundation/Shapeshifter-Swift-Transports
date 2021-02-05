@@ -1,32 +1,26 @@
 //
-//  ShadowConfig.swift
-//  Shadow
+//  File.swift
+//  
 //
-//  Created by Mafalda on 8/18/20.
+//  Created by Mafalda on 2/4/21.
 //
 
 import Foundation
 
-#if (os(macOS) || os(iOS) || os(watchOS) || os(tvOS))
-import CryptoKit
-#else
-import Crypto
-#endif
-
-public struct ShadowConfig: Codable
+public struct WispConfig: Codable
 {
-    public let password: String
-    public let mode: CipherMode
+    public let cert: String
+    public let iatMode: Bool
     
     private enum CodingKeys : String, CodingKey
     {
-        case password, mode = "cipherName"
+        case cert, iatMode = "iat-mode"
     }
     
-    public init(password: String, mode: CipherMode)
+    public init(cert: String, iatMode: Bool)
     {
-        self.password = password
-        self.mode = mode
+        self.cert = cert
+        self.iatMode = iatMode
     }
     
     init?(from data: Data)
@@ -34,12 +28,12 @@ public struct ShadowConfig: Codable
         let decoder = JSONDecoder()
         do
         {
-            let decoded = try decoder.decode(ShadowConfig.self, from: data)
+            let decoded = try decoder.decode(WispConfig.self, from: data)
             self = decoded
         }
         catch let decodeError
         {
-            print("Error decoding Shadow Config data: \(decodeError)")
+            print("Error decoding Wisp Config data: \(decodeError)")
             return nil
         }
     }
@@ -57,7 +51,6 @@ public struct ShadowConfig: Codable
         {
             print("Failed to get data from path \(url.path). \nError: \(error)")
             return nil
-        }        
+        }
     }
-    
 }

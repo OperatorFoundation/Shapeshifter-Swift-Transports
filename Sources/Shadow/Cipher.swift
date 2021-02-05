@@ -148,7 +148,12 @@ class Cipher
         let outputSize = secret.count
         
         let iterations = UInt8(ceil(Double(outputSize) / Double(Insecure.SHA1.byteCount)))
-        guard iterations <= 255 else {return nil}
+        guard iterations <= 255
+        else
+        {
+            print("Key derviation failure: Too many iterations - \(iterations)")
+            return nil
+        }
         
         let prk = HMAC<Insecure.SHA1>.authenticationCode(for: secret, using: SymmetricKey(data: salt))
         let key = SymmetricKey(data: prk)

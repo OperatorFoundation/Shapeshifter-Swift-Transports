@@ -47,15 +47,20 @@ open class WispConnectionFactory: ConnectionFactory
     
     let log: Logger
     
-    public init?(hostString: String, portInt: UInt16, cert: String, iatMode: Bool, logger: Logger)
+    public convenience init?(hostString: String, portInt: UInt16, cert: String, iatMode: Bool, logger: Logger)
     {
         guard let port = NWEndpoint.Port(rawValue: portInt)
             else { return nil }
-        self.host = NWEndpoint.Host(hostString)
-        self.port = port
-        self.cert = cert
-        self.iatMode = iatMode
-        self.log = logger
+        
+        self.init(host: NWEndpoint.Host(hostString), port: port, cert: cert, iatMode: iatMode, logger: logger)
+    }
+    
+    public convenience init?(hostString: String, portInt: UInt16, config: WispConfig, logger: Logger)
+    {
+        guard let port = NWEndpoint.Port(rawValue: portInt)
+            else { return nil }
+        
+        self.init(host: NWEndpoint.Host(hostString), port: port, cert: config.cert, iatMode: config.iatMode, logger: logger)
     }
     
     public init(host: NWEndpoint.Host, port: NWEndpoint.Port, cert: String, iatMode: Bool, logger: Logger)
