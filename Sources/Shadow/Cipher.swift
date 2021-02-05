@@ -325,7 +325,7 @@ class Cipher
     }
 }
 
-public enum CipherMode: String, Decodable
+public enum CipherMode: String, Codable
 {
     // AES 196 is not currently supported by go-shadowsocks2.
     // We are not supporting it at this time either.

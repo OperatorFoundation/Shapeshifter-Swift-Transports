@@ -495,6 +495,23 @@ class ShadowTests: XCTestCase
         }
     }
     
+    func testJSONConfig()
+    {
+        let shadowConfig = ShadowConfig(password: "password", mode: .CHACHA20_IETF_POLY1305)
+        let encoder = JSONEncoder()
+        let json = try? encoder.encode(shadowConfig)
+        
+        let filePath = "/Users/mafalda/Documents/Operator/Canary/Sources/Resources/Configs/shadowsockscopy.json"
+        FileManager.default.createFile(atPath: filePath, contents: json)
+        
+        
+        guard let decodedShadowConfig = ShadowConfig(path:filePath )
+        else
+        {
+            XCTFail()
+            return
+        }
+    }
     
 //    func testHKDF()
 //    {

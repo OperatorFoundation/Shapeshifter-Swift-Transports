@@ -13,10 +13,14 @@ import CryptoKit
 import Crypto
 #endif
 
-public struct ShadowConfig: Decodable
+public struct ShadowConfig: Codable
 {
     public let password: String
     public let mode: CipherMode
+    
+    private enum CodingKeys : String, CodingKey {
+            case password, mode = "cipherName"
+        }
     
     public init(password: String, mode: CipherMode)
     {
