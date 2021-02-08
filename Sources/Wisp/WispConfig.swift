@@ -38,6 +38,13 @@ public struct WispConfig: Codable
         }
     }
     
+    public init(from decoder: Decoder) throws
+    {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        iatMode = try container.decode(Bool.self, forKey: .iatMode, transformFrom: String.self)
+        cert = try container.decode(String.self, forKey: .cert)
+    }
+    
     public init?(path: String)
     {
         let url = URL(fileURLWithPath: path)
@@ -52,5 +59,28 @@ public struct WispConfig: Codable
             print("Failed to get data from path \(url.path). \nError: \(error)")
             return nil
         }
+    }
+}
+
+extension KeyedDecodingContainer
+{
+    
+    func decodeIfPresent(_ type: Bool.Type, forKey key: K, transformFrom: String.Type) throws -> Bool?
+    {
+        guard let value = try decodeIfPresent(transformFrom, forKey: key)
+        else { return nil }
+        return Bool(value)
+    }
+    
+    func decode(_ type: Bool.Type, forKey key: K, transformFrom: String.Type) throws -> Bool
+    {
+        guard let str = try? decode(transformFrom, forKey: key),
+              let value = Bool(str)
+        else
+        {
+            throw DecodingError.typeMismatch(Int.self, DecodingError.Context(codingPath: codingPath, debugDescription: "Decoding of \(type) from \(transformFrom) failed"))
+        }
+        
+        return value
     }
 }
