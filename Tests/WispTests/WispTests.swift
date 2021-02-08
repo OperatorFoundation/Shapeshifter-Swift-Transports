@@ -58,6 +58,17 @@ class Shapeshifter_WispTests: XCTestCase
     
     var wispConnection: WispConnection?
     
+    func testJSONConfig()
+    {
+        let fileURL = NSURL.fileURL(withPath: Bundle.module.path(forResource: "obfs4ConfigExample", ofType: "json")!)
+        guard let _ = WispConfig(path: fileURL.path)
+        else
+        {
+            XCTFail()
+            return
+        }
+    }
+    
     //MARK: WispCoding
     
     func testWispEncoderInit()

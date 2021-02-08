@@ -89,10 +89,13 @@ let package = Package(
             .product(name: "NetworkLinux", package: "NetworkLinux", condition: .when(platforms: [.linux])),
         ]),
 
-        .testTarget(name: "WispTests", dependencies: [
+        .testTarget(name: "WispTests",
+                    dependencies: [
                         "Wisp",
                         "Datable",
-                        .product(name: "Logging", package: "swift-log")]),
+                        .product(name: "Logging", package: "swift-log")],
+                    resources: [.process("Resources")]
+        ),
         
         .testTarget(name: "ShadowTests", dependencies: [
                         "Datable",

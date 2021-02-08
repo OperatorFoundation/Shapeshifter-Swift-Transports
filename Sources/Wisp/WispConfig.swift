@@ -41,7 +41,7 @@ public struct WispConfig: Codable
     public init(from decoder: Decoder) throws
     {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        iatMode = try container.decode(Bool.self, forKey: .iatMode, transformFrom: Int.self)
+        iatMode = try container.decode(Bool.self, forKey: .iatMode, transformFrom: String.self)
         cert = try container.decode(String.self, forKey: .cert)
     }
     
@@ -65,21 +65,23 @@ public struct WispConfig: Codable
 extension KeyedDecodingContainer
 {
     
-    func decodeIfPresent(_ type: Bool.Type, forKey key: K, transformFrom: Int.Type) throws -> Bool?
+    func decodeIfPresent(_ type: Bool.Type, forKey key: K, transformFrom: String.Type) throws -> Bool?
     {
         guard let value = try decodeIfPresent(transformFrom, forKey: key)
         else { return nil }
-        return value != 0
+        return Int(value) != 0
     }
     
-    func decode(_ type: Bool.Type, forKey key: K, transformFrom: Int.Type) throws -> Bool
+    func decode(_ type: Bool.Type, forKey key: K, transformFrom: String.Type) throws -> Bool
     {
-        guard let int = try? decode(transformFrom, forKey: key)
-        else
+        do
         {
-            throw DecodingError.typeMismatch(Int.self, DecodingError.Context(codingPath: codingPath, debugDescription: "Decoding of \(type) from \(transformFrom) failed"))
+            let str = try decode(transformFrom, forKey: key)
+            return Int(str) != 0
         }
-        
-        return int != 0
+        catch
+        {
+            throw error
+        }
     }
 }
