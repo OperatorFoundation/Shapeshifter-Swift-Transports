@@ -225,7 +225,7 @@ public class WispConnection: Connection
         
         networkConnection.send(content: frame,
                                contentContext: contentContext,
-                               isComplete: isComplete,
+                               isComplete: false,
                                completion: sendCompletion)
     }
     

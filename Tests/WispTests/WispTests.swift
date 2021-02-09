@@ -44,7 +44,7 @@ import Network
 class Shapeshifter_WispTests: XCTestCase
 {
     let certString = "60RNHBMRrf+aOSPzSj8bD4ASGyyPl0mkaOUAQsAYljSkFB0G8B8m9fGvGJCpOxwoXS1baA"
-    let ipAddressString = ""
+    let ipAddressString = "159.203.158.90"
     let portString = "1234"
     let secretKeyMaterial = Data(repeating: 0x0A, count: keyMaterialLength)
     static let publicKey = Data([139, 210, 37, 89, 10, 47, 113, 85, 13, 53, 118, 181, 28, 8, 202, 146, 220, 206, 224, 143, 24, 159, 235, 136, 173, 194, 120, 171, 201, 54, 238, 76])
@@ -422,7 +422,17 @@ class Shapeshifter_WispTests: XCTestCase
                     if error == nil
                     {
                         wrote.fulfill()
-                        print("No ERROR")
+                        print("No ERROR, sending again.")
+                        maybeConnection?.send(content: message.data(using: String.Encoding.ascii),
+                                              contentContext: .defaultMessage,
+                                              isComplete: true,
+                                              completion: .contentProcessed(
+                                                {
+                                                    maybeError in
+                                                    
+                                                    print("Send completion for second send reached.")
+                                                    
+                                                }))
                     }
                     
                     else
@@ -451,7 +461,9 @@ class Shapeshifter_WispTests: XCTestCase
         maybeConnection?.start(queue: DispatchQueue(label: "TestQueue"))
         
         waitForExpectations(timeout: maxWaitSeconds)
-        { (maybeError) in
+        {
+            (maybeError) in
+            
             if let error = maybeError
             {
                 print("Expectation completed with error: \(error.localizedDescription)")

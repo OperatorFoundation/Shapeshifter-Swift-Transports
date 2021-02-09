@@ -23,6 +23,7 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-log.git", from: "1.4.0"),
         .package(url: "https://github.com/OperatorFoundation/ProteanSwift.git", from: "1.2.0"),
         .package(url: "https://github.com/OperatorFoundation/ReplicantSwift.git", from: "0.8.3"),
+        .package(url: "https://github.com/OperatorFoundation/Transmission.git", from: "0.1.12"),
         .package(url: "https://github.com/OperatorFoundation/Transport.git", from: "2.3.3"),
         .package(name: "Sodium", url: "https://github.com/OperatorFoundation/swift-sodium", from: "0.8.4"),
         .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", from: "1.3.0"),
@@ -37,6 +38,7 @@ let package = Package(
     ],
     targets: [
         .target(name: "Wisp", dependencies: [
+            "Transmission",
             "Transport",
             "Sodium",
             "CryptoSwift",
@@ -49,6 +51,7 @@ let package = Package(
         ]),
         
         .target(name: "Shadow", dependencies: [
+            "Transmission",
             "Transport",
             "Datable",
             "Chord",

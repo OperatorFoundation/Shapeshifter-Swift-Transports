@@ -53,29 +53,41 @@ open class ShadowConnectionFactory: ConnectionFactory
         self.config = config
         self.log = logger
     }
-
-    public init(connection: Connection, config: ShadowConfig, logger: Logger)
-    {
-        self.connection = connection
-        self.config = config
-        self.log = logger
-    }
     
     public func connect(using parameters: NWParameters) -> Connection?
     {
-        if let currentConnection = connection
+        guard let currentHost = host, let currentPort = port
+            else
         {
-            return ShadowConnection(connection: currentConnection, parameters: parameters, config: config, logger: log)
+            return nil
         }
-        else
-        {
-            guard let currentHost = host, let currentPort = port
-                else
-            {
-                return nil
-            }
 
-            return ShadowConnection(host: currentHost, port: currentPort, parameters: parameters, config: config, logger: log)
-        }
+        return ShadowConnection(host: currentHost, port: currentPort, parameters: parameters, config: config, logger: log)
     }
+
+//    public init(connection: Connection, config: ShadowConfig, logger: Logger)
+//    {
+//        self.connection = connection
+//        self.config = config
+//        self.log = logger
+//    }
+    
+//    public func connect(using parameters: NWParameters) -> Connection?
+//    {
+//        if let currentConnection = connection
+//        {
+//            return ShadowConnection(connection: currentConnection, parameters: parameters, config: config, logger: log)
+//        }
+//        else
+//        {
+//            guard let currentHost = host, let currentPort = port
+//                else
+//            {
+//                return nil
+//            }
+//
+//            return ShadowConnection(host: currentHost, port: currentPort, parameters: parameters, config: config, logger: log)
+//        }
+//    }
+    
 }

@@ -23,12 +23,12 @@ import NetworkLinux
 
 class ShadowTests: XCTestCase
 {
+    let testIPString = "159.203.158.90"
+    let testPort: UInt16 = 2345
     let plainText = Data(array: [0, 1, 2, 3, 4])
     
     func testShadowConnection()
     {
-        let testIPString = "127.0.0.1"
-        let testPort: UInt16 = 1234
         let connected = expectation(description: "Connection callback called")
         //let sent = expectation(description: "TCP data sent")
         
@@ -78,8 +78,7 @@ class ShadowTests: XCTestCase
     
     func testShadowSend()
     {
-        let testIPString = "127.0.0.1"
-        let testPort: UInt16 = 1234
+        let shadowQueue = DispatchQueue(label: "ShadowQueue")
         let connected = expectation(description: "Connection callback called")
         let sent = expectation(description: "TCP data sent")
         
@@ -135,10 +134,10 @@ class ShadowTests: XCTestCase
             }
         }
         
-        shadowConnection.start(queue: .global())
+        shadowConnection.start(queue: shadowQueue)
         
-        let godot = expectation(description: "forever")
-        wait(for: [connected, sent, godot], timeout: 3000)
+        //let godot = expectation(description: "forever")
+        wait(for: [connected, sent], timeout: 3000)
     }
     
     func testShadowReceive()
@@ -163,11 +162,7 @@ class ShadowTests: XCTestCase
         }
         
         wait(for: [serverListening], timeout: 20)
-        
-        let testIPString = "127.0.0.1"
-        let testPort: UInt16 = 1234
-        
-        
+
         let host = NWEndpoint.Host(testIPString)
         guard let port = NWEndpoint.Port(rawValue: testPort)
             else
@@ -199,7 +194,7 @@ class ShadowTests: XCTestCase
                 print("\nConnected state ready\n")
                 connected.fulfill()
                 
-                shadowConnection.send(content: Data("1234"), contentContext: .defaultMessage, isComplete: true, completion: NWConnection.SendCompletion.contentProcessed(
+                shadowConnection.send(content: Data("GET / HTTP/1.0\r\n\r\n"), contentContext: .defaultMessage, isComplete: true, completion: NWConnection.SendCompletion.contentProcessed(
                 {
                     (maybeError) in
                     
@@ -268,11 +263,7 @@ class ShadowTests: XCTestCase
         }
         
         wait(for: [serverListening], timeout: 20)
-        
-        let testIPString = "127.0.0.1"
-        let testPort: UInt16 = 1234
-        
-        
+
         let host = NWEndpoint.Host(testIPString)
         guard let port = NWEndpoint.Port(rawValue: testPort)
             else

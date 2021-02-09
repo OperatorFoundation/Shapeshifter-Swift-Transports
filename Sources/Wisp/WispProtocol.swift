@@ -416,7 +416,7 @@ class WispProtocol
             }
             else
             {
-                log.error("Parse server handshake error: Mark not found yet.")
+                log.info("Parse server handshake: Mark not found yet.")
                 return .retry
             }
         }
