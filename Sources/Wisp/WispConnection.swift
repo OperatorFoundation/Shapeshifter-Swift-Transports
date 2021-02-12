@@ -34,6 +34,7 @@
 import Foundation
 import Logging
 
+import Transmission
 import Transport
 
 #if os(Linux)
@@ -45,14 +46,13 @@ import Network
 let certKey = "cert"
 let iatKey = "iatMode"
 
-public class WispConnection: Connection
+public class WispConnection: Transport.Connection
 {
     public var stateUpdateHandler: ((NWConnection.State) -> Void)?
     public var viabilityUpdateHandler: ((Bool) -> Void)?
     public var endpoint: NWEndpoint?
     public var remoteAddress: NWEndpoint?
     public var localAddress: NWEndpoint?
-    //public var connectedPath: NWPath?
     public var cert: String
     public var iatMode: Bool
     public var txtRecord: Data?
@@ -60,7 +60,7 @@ public class WispConnection: Connection
     
     let log: Logger
     
-    var networkConnection: Connection
+    var networkConnection: Transmission.Connection
     var writeClosed = false
     var wisp: WispProtocol
     var handshakeDone = false
@@ -76,10 +76,10 @@ public class WispConnection: Connection
         self.iatMode = iatMode
         self.log = logger
         
-        let connectionFactory = NetworkConnectionFactory(host: host, port: port)
-        guard let newConnection = connectionFactory.connect(using: parameters)
+        guard let newConnection = Transmission.Connection(host: "\(host)", port: Int(port.rawValue))
         else
         {
+            logger.error("Failed to initialize a ShadowConnection because we could not create a Network Connection using host \(host) and port \(Int(port.rawValue)).")
             return nil
         }
         
@@ -94,7 +94,7 @@ public class WispConnection: Connection
         wisp = newWisp
     }
     
-    public init?(connection: Connection,
+    public init?(connection: Transmission.Connection,
                  using parameters: NWParameters,
                  cert: String,
                  iatMode: Bool,
@@ -118,8 +118,6 @@ public class WispConnection: Connection
     
     public func start(queue: DispatchQueue)
     {
-        networkConnection.start(queue: queue)
-        
         wisp.connectWithHandshake(certString: cert, sessionKey: wisp.sessionKey)
         {
             (maybeError) in
@@ -156,7 +154,8 @@ public class WispConnection: Connection
     
     public func cancel()
     {
-        networkConnection.cancel()
+        // FIXME: We need to add Connection.close() to Transmission library
+        // networkConnection.cancel()
         
         if let stateUpdate = self.stateUpdateHandler
         {
@@ -203,30 +202,22 @@ public class WispConnection: Connection
             return
         }
         
-        let sendCompletion = NWConnection.SendCompletion.contentProcessed
+        guard networkConnection.write(data: frame)
+        else
         {
-            (maybeError) in
-            
-            if let error = maybeError
-            {
-                self.log.error("\(error)")
-            }
-            
-            self.log.debug("\nWisp Received Completion on Network Connection Send.\n")
-            switch completion
-            {
-            case .contentProcessed(let handler):
-                handler(nil)
-            default:
-                self.log.error("\nWisp: an unexpected response was received on network connection send.\n")
-                return
-            }
+            self.log.error("Wisp Connection write failure.")
+            return
         }
         
-        networkConnection.send(content: frame,
-                               contentContext: contentContext,
-                               isComplete: false,
-                               completion: sendCompletion)
+        self.log.debug("\nWisp Received Completion on Network Connection Send.\n")
+        switch completion
+        {
+        case .contentProcessed(let handler):
+            handler(nil)
+        default:
+            self.log.error("\nWisp: an unexpected response was received on network connection send.\n")
+            return
+        }
     }
     
     public func receive(completion: @escaping (Data?, NWConnection.ContentContext?, Bool, NWError?) -> Void)

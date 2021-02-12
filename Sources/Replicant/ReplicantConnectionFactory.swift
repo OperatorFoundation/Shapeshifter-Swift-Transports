@@ -26,10 +26,11 @@
 // SOFTWARE.
 
 import Foundation
-import Transport
-import ReplicantSwift
 import Logging
+
+import ReplicantSwift
 import SwiftQueue
+import Transport
 
 #if os(Linux)
 import NetworkLinux
@@ -62,30 +63,16 @@ open class ReplicantConnectionFactory: ConnectionFactory
         self.config = config
         self.log = log
     }
-
-    public init(connection: Connection, config: ReplicantConfig<SilverClientConfig>, log: Logger)
-    {
-        self.connection = connection
-        self.config = config
-        self.log = log
-    }
     
     public func connect(using parameters: NWParameters) -> Connection?
     {
-        if let currentConnection = connection
+        guard let currentHost = host, let currentPort = port
+            else
         {
-            return ReplicantConnection(connection: currentConnection, parameters: parameters, config: config, logger: log)
+            log.error("Unable to connect, host or port is nil.")
+            return nil
         }
-        else
-        {
-            guard let currentHost = host, let currentPort = port
-                else
-            {
-                log.error("Unable to connect, host or port is nil.")
-                return nil
-            }
-            
-            return ReplicantConnection(host: currentHost, port: currentPort, parameters: parameters, config: config, logger: log)
-        }
+        
+        return ReplicantConnection(host: currentHost, port: currentPort, parameters: parameters, config: config, logger: log)
     }
 }

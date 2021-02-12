@@ -28,6 +28,10 @@
 import Foundation
 import Logging
 
+import ReplicantSwift
+import Transmission
+import Transport
+
 #if (os(macOS) || os(iOS) || os(watchOS) || os(tvOS))
 import CryptoKit
 import Network
@@ -36,10 +40,8 @@ import Crypto
 import NetworkLinux
 #endif
 
-import Transport
-import ReplicantSwift
 
-open class ReplicantConnection: Connection
+open class ReplicantConnection: Transport.Connection
 {
     public let aesOverheadSize = 113
     public let payloadLengthOverhead = 2
@@ -49,16 +51,12 @@ open class ReplicantConnection: Connection
     public var replicantClientModel: ReplicantClientModel
     public var log: Logger
     
-    // FIXME: unencrypted chunk size for non-polish
-    var unencryptedChunkSize: UInt16 = 400
-    
+    var unencryptedChunkSize: UInt16 = 400 // FIXME: unencrypted chunk size for non-polish
     var sendTimer: Timer?
     var networkQueue = DispatchQueue(label: "Replicant Queue")
     var sendBufferQueue = DispatchQueue(label: "SendBuffer Queue")
-    //var sendBufferLock = DispatchGroup()
-    //var receiveBufferLock = DispatchGroup()
     var bufferLock = DispatchGroup()
-    var network: Connection
+    var network: Transmission.Connection
     var decryptedReceiveBuffer: Data
     var sendBuffer: Data
     
@@ -70,8 +68,7 @@ open class ReplicantConnection: Connection
     {
         logger.debug("Initialized a Replicant Client Connection")
         
-        let connectionFactory = NetworkConnectionFactory(host: host, port: port)
-        guard let newConnection = connectionFactory.connect(using: parameters)
+        guard let newConnection = Transmission.Connection(host: "\(host)", port: Int(port.rawValue))
             else
         {
             logger.error("Failed to create replicant connection. NetworkConnectionFactory.connect returned nil.")
@@ -81,7 +78,7 @@ open class ReplicantConnection: Connection
         self.init(connection: newConnection, parameters: parameters, config: config, logger: logger)
     }
     
-    public init?(connection: Connection,
+    public init?(connection: Transmission.Connection,
                 parameters: NWParameters,
                 config: ReplicantConfig<SilverClientConfig>,
                 logger: Logger)
@@ -118,8 +115,15 @@ open class ReplicantConnection: Connection
     public func start(queue: DispatchQueue)
     {
         log.debug("\n🏁 Start called on Replicant connection.")
-        network.stateUpdateHandler = self.stateUpdateHandler
-        network.start(queue: queue)
+        
+        guard let updateHandler = stateUpdateHandler
+        else
+        {
+            log.info("Called start when there is no stateUpdateHandler.")
+            return
+        }
+        
+        updateHandler(.ready)
     }
     
     public func send(content: Data?, contentContext: NWConnection.ContentContext, isComplete: Bool, completion: NWConnection.SendCompletion)
@@ -149,9 +153,35 @@ open class ReplicantConnection: Connection
             self.sendBuffer.append(someData)
             sendBufferChunks(polishConnection: polishConnection, contentContext: contentContext, isComplete: isComplete, completion: completion)
         }
-        else
+        else // No Polish needed, send the data if it's provided
         {
-            network.send(content: content, contentContext: contentContext, isComplete: isComplete, completion: completion)
+            guard let someData = content
+                else
+            {
+                log.error("Received a send command with no content.")
+                switch completion
+                {
+                    case .contentProcessed(let handler):
+                        handler(nil)
+                        bufferLock.leave()
+                        return
+                    default:
+                        bufferLock.leave()
+                        return
+                }
+            }
+            
+            let written = network.write(data: someData)
+            
+            switch completion
+            {
+                case .contentProcessed(let handler):
+                    if written { handler(nil) }
+                    else { handler(NWError.posix(.EIO)) }
+                    return
+                default:
+                    return
+            }
         }
     }
     
@@ -195,63 +225,59 @@ open class ReplicantConnection: Connection
             self.sendTimer = nil
         }
         
-        // Keep calling network.send if the leftover data is at least chunk size
-        self.network.send(content: polishedData, contentContext: contentContext, isComplete: isComplete, completion: NWConnection.SendCompletion.contentProcessed(
+        // Keep calling network.write if the leftover data is at least chunk size
+        guard network.write(data: polishedData)
+        else
         {
-            (maybeError) in
-            
-            if let error = maybeError
+            self.log.error("Replicant write failed.")
+            if self.sendTimer != nil
             {
-                self.log.error("Received an error on Send:\(error)")
-                if self.sendTimer != nil
-                {
-                    self.sendTimer!.invalidate()
-                    self.sendTimer = nil
-                }
-                
-                switch completion
-                {
-                    case .contentProcessed(let handler):
-                        handler(error)
-                        self.bufferLock.leave()
-                        return
-                    default:
-                        self.bufferLock.leave()
-                        return
-                }
+                self.sendTimer!.invalidate()
+                self.sendTimer = nil
             }
             
-            if self.sendBuffer.count >= (self.unencryptedChunkSize)
+            switch completion
             {
-                // Play it again Sam
-                self.sendBufferChunks(polishConnection: polishConnection, contentContext: contentContext, isComplete: isComplete, completion: completion)
+                case .contentProcessed(let handler):
+                    handler(NWError.posix(.EIO))
+                    self.bufferLock.leave()
+                    return
+                default:
+                    self.bufferLock.leave()
+                    return
             }
-            else
+        }
+        
+        if self.sendBuffer.count >= (self.unencryptedChunkSize)
+        {
+            // Play it again Sam
+            self.sendBufferChunks(polishConnection: polishConnection, contentContext: contentContext, isComplete: isComplete, completion: completion)
+        }
+        else
+        {
+            // Start the timer
+            if self.sendBuffer.count > 0
             {
-                // Start the timer
-                if self.sendBuffer.count > 0
+                self.sendTimer = Timer(timeInterval: TimeInterval(polishConnection.chunkTimeout), repeats: true)
                 {
-                    self.sendTimer = Timer(timeInterval: TimeInterval(polishConnection.chunkTimeout), repeats: true)
-                    {
-                        (timer) in
-                        
-                        self.chunkTimeout()
-                    }
-                }
-                
-                switch completion
-                {
-                    // FIXME: There might be data in the buffer
-                    case .contentProcessed(let handler):
-                        handler(nil)
-                        self.bufferLock.leave()
-                        return
-                    default:
-                        self.bufferLock.leave()
-                        return
+                    (timer) in
+                    
+                    self.chunkTimeout()
                 }
             }
-        }))
+            
+            switch completion
+            {
+                // FIXME: There might be data in the buffer
+                case .contentProcessed(let handler):
+                    handler(nil)
+                    self.bufferLock.leave()
+                    return
+                default:
+                    self.bufferLock.leave()
+                    return
+            }
+        }
     }
     
     public func receive(completion: @escaping (Data?, NWConnection.ContentContext?, Bool, NWError?) -> Void)
@@ -285,36 +311,44 @@ open class ReplicantConnection: Connection
             }
             else
             {
-                network.receive(minimumIncompleteLength: Int(polishConnection.chunkSize), maximumLength: Int(polishConnection.chunkSize))
+                // Read ChunkSize amount of data
+                // Check to see if we got data, and that it is the right size
+                guard let someData = network.read(size: Int(polishConnection.chunkSize)), someData.count == polishConnection.chunkSize
+                else
                 {
-                    (maybeData, maybeContext, connectionComplete, maybeError) in
-                    
-                    // Check to see if we got data
-                    guard let someData = maybeData, someData.count == polishConnection.chunkSize
-                        else
-                    {
-                        self.log.error("\n🙋‍♀️  Receive called with no content.\n")
-                        completion(maybeData, maybeContext, connectionComplete, maybeError)
-                        return
-                    }
-                    
-                    let maybeReturnData = self.handleReceivedData(polishConnection: polishConnection, minimumIncompleteLength: minimumIncompleteLength, maximumLength: maximumLength, encryptedData: someData)
-                    
-                    completion(maybeReturnData, maybeContext, connectionComplete, maybeError)
-                    self.bufferLock.leave()
+                    self.log.error("\n🙋‍♀️  Read called but no data was receieved.\n")
+                    completion(nil, .defaultMessage, false, NWError.posix(.ENODATA))
                     return
                 }
+                
+                let maybeReturnData = self.handleReceivedData(polishConnection: polishConnection, minimumIncompleteLength: minimumIncompleteLength, maximumLength: maximumLength, encryptedData: someData)
+                
+                completion(maybeReturnData, .defaultMessage, false, nil)
+                self.bufferLock.leave()
+                return
             }
         }
         else
         {
-            network.receive(minimumIncompleteLength: minimumIncompleteLength, maximumLength: maximumLength, completion: completion)
+            // FIXME: Read some amount of data
+            // Check to see if we got data
+            guard let someData = network.read(size: maximumLength)
+            else
+            {
+                self.log.error("\n🙋‍♀️  Read called but no data was receieved.\n")
+                completion(nil, .defaultMessage, false, NWError.posix(.ENODATA))
+                return
+            }
+                        
+            completion(someData, .defaultMessage, false, nil)
+            self.bufferLock.leave()
+            return
         }
     }
     
     public func cancel()
     {
-        network.cancel()
+        // TODO: network.cancel()
         
         if let stateUpdate = self.stateUpdateHandler
         {
@@ -373,7 +407,7 @@ open class ReplicantConnection: Connection
         // Tone Burst
         if var toneBurst = self.replicantClientModel.toneBurst
         {
-            toneBurst.play(connection: self.network)
+            toneBurst.play(connection: self)
             {
                 maybeError in
                 
@@ -403,7 +437,7 @@ open class ReplicantConnection: Connection
             
             if var polishConnection = self.replicantClientModel.polish
             {
-                polishConnection.handshake(connection: self.network)
+                polishConnection.handshake(connection: self)
                 {
                     (maybeHandshakeError) in
                     
@@ -461,24 +495,21 @@ open class ReplicantConnection: Connection
             self.sendBuffer = Data()
             
             // Keep calling network.send if the leftover data is at least chunk size
-            self.network.send(content: maybeEncryptedData, contentContext: .defaultMessage, isComplete: false, completion: NWConnection.SendCompletion.contentProcessed(
+            if let encryptedData = maybeEncryptedData
             {
-                (maybeError) in
-                
-                if let error = maybeError
-                {
-                    self.log.error("Received an error on Send:\(error)")
-                    self.bufferLock.leave()
-                    return
-                }
+                guard network.write(data: encryptedData)
                 else
                 {
+                    self.log.error("Replicant Connection write failed.")
                     self.bufferLock.leave()
                     return
                 }
-            }))
+                
+                self.bufferLock.leave()
+                return
+            }
         }
-        else /// eplicant without polish
+        else // Replicant without polish
         {
             guard payloadSize > 0
             else
@@ -496,22 +527,16 @@ open class ReplicantConnection: Connection
             self.sendBuffer = Data()
             
             // Keep calling network.send if the leftover data is at least chunk size
-            self.network.send(content: dataChunk, contentContext: .defaultMessage, isComplete: false, completion: NWConnection.SendCompletion.contentProcessed(
+            guard network.write(data: dataChunk)
+            else
             {
-                (maybeError) in
-                
-                if let error = maybeError
-                {
-                    self.log.error("Received an error on Send:\(error)")
-                    self.bufferLock.leave()
-                    return
-                }
-                else
-                {
-                    self.bufferLock.leave()
-                    return
-                }
-            }))
+                self.log.error("Replicant Connection write failed.")
+                self.bufferLock.leave()
+                return
+            }
+            
+            self.bufferLock.leave()
+            return
         }
     }
     

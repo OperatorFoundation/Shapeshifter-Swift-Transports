@@ -276,39 +276,6 @@ open class ShadowConnection: Transport.Connection
     
     // End of Connection Protocol
     
-//    func networkStateUpdate(networkState: NWConnection.State)
-//    {
-//        switch networkState
-//        {
-//        case .ready:
-//
-//        case .cancelled:
-//            if let actualStateupdateHandler = stateUpdateHandler
-//            {
-//                actualStateupdateHandler(.cancelled)
-//            }
-//
-//            if let actualViabilityHandler = viabilityUpdateHandler
-//            {
-//                actualViabilityHandler(false)
-//            }
-//        case .failed(let networkError):
-//            if let actualStateupdateHandler = stateUpdateHandler
-//            {
-//                actualStateupdateHandler(.failed(networkError))
-//            }
-//
-//            if let actualViabilityHandler = viabilityUpdateHandler
-//            {
-//                actualViabilityHandler(false)
-//            }
-//        default:
-//            guard let actualStateUpdateHandler = self.stateUpdateHandler
-//                else { return }
-//            actualStateUpdateHandler(networkState)
-//        }
-//    }
-    
     func handshake()
     {
         let saltSent = sendSalt()

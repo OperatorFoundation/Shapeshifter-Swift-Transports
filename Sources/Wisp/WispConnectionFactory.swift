@@ -72,31 +72,15 @@ open class WispConnectionFactory: ConnectionFactory
         self.log = logger
     }
     
-    public init(connection: NWConnection, cert: String, iatMode: Bool, logger: Logger)
-    {
-        self.connection = connection
-        self.cert = cert
-        self.iatMode = iatMode
-        self.log = logger
-    }
-    
     public func connect(using: NWParameters) -> Connection?
     {
-        if let currentConnection = connection
-        {
-            return WispConnection(connection: currentConnection, using: using, cert: cert, iatMode: iatMode, logger: log)
-        }
+        guard let currentHost = host, let currentPort = port
         else
         {
-            guard let currentHost = host, let currentPort = port
-            else
-            {
-                return nil
-            }
-            
-            return WispConnection(host: currentHost, port: currentPort, using: using, cert: cert, iatMode: iatMode, logger: log)
+            return nil
         }
-
+        
+        return WispConnection(host: currentHost, port: currentPort, using: using, cert: cert, iatMode: iatMode, logger: log)
     }
     
 }
