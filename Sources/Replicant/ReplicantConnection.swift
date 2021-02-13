@@ -332,7 +332,7 @@ open class ReplicantConnection: Transport.Connection
         {
             // FIXME: Read some amount of data
             // Check to see if we got data
-            guard let someData = network.read(size: maximumLength)
+            guard let someData = network.read(size: minimumIncompleteLength)
             else
             {
                 self.log.error("\n🙋‍♀️  Read called but no data was receieved.\n")
