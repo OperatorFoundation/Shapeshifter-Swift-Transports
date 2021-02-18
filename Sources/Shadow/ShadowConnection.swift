@@ -39,7 +39,7 @@ import Transmission
 #else
 import Crypto
 import NetworkLinux
-import Transmission
+import TransmissionLinux
 #endif
 
 open class ShadowConnection: Transport.Connection
