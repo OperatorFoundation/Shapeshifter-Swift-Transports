@@ -151,24 +151,24 @@ let package = Package(
         .target(name: "Shadow", dependencies: [
             "Chord",
             "Datable",
-            "Transmission",
             "Transport",
             .product(name: "Crypto", package: "swift-crypto"),
             .product(name: "Logging", package: "swift-log"),
-            .product(name: "NetworkLinux", package: "NetworkLinux", condition: .when(platforms: [.linux])),
+            .product(name: "NetworkLinux", package: "NetworkLinux"),
+            .product(name: "TransmissionLinux", package: "Transmission"),
         ]),
         
         .target(name: "Optimizer", dependencies: [
             "SwiftQueue",
             "Transport",
             .product(name: "Logging", package: "swift-log"),
-            .product(name: "NetworkLinux", package: "NetworkLinux", condition: .when(platforms: [.linux])),
+            .product(name: "NetworkLinux", package: "NetworkLinux"),
         ]),
         
         .target(name:"Replicant", dependencies:[
             "ReplicantSwift",
-            "Transmission",
-            .product(name: "Crypto", package: "swift-crypto")
+            .product(name: "Crypto", package: "swift-crypto"),
+            .product(name: "TransmissionLinux", package: "Transmission"),
         ]),
         
         .target(name: "LoggerQueue", dependencies: [
