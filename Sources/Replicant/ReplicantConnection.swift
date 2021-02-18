@@ -57,9 +57,14 @@ open class ReplicantConnection: Transport.Connection
     var networkQueue = DispatchQueue(label: "Replicant Queue")
     var sendBufferQueue = DispatchQueue(label: "SendBuffer Queue")
     var bufferLock = DispatchGroup()
-    var network: Transmission.Connection
     var decryptedReceiveBuffer: Data
     var sendBuffer: Data
+    
+    #if (os(macOS) || os(iOS) || os(watchOS) || os(tvOS))
+    var network: Transmission.Connection
+    #else
+    var network: TransmissionLinux.Connection
+    #endif
     
     public convenience init?(host: NWEndpoint.Host,
                  port: NWEndpoint.Port,
@@ -69,16 +74,26 @@ open class ReplicantConnection: Transport.Connection
     {
         logger.debug("Initialized a Replicant Client Connection")
         
+        #if (os(macOS) || os(iOS) || os(watchOS) || os(tvOS))
         guard let newConnection = Transmission.Connection(host: "\(host)", port: Int(port.rawValue))
-            else
+        else
         {
             logger.error("Failed to create replicant connection. NetworkConnectionFactory.connect returned nil.")
             return nil
         }
+        #else
+        guard let newConnection = TransmissionLinux.Connection(host: "\(host)", port: Int(port.rawValue))
+        else
+        {
+            logger.error("Failed to create replicant connection. NetworkConnectionFactory.connect returned nil.")
+            return nil
+        }
+        #endif
         
         self.init(connection: newConnection, parameters: parameters, config: config, logger: logger)
     }
     
+    #if (os(macOS) || os(iOS) || os(watchOS) || os(tvOS))
     public init?(connection: Transmission.Connection,
                 parameters: NWParameters,
                 config: ReplicantConfig<SilverClientConfig>,
@@ -112,6 +127,41 @@ open class ReplicantConnection: Transport.Connection
             logger.debug("\nNew Replicant connection is ready. 🎉 \n")
         }
     }
+    #else
+    public init?(connection: TransmissionLinux.Connection,
+                parameters: NWParameters,
+                config: ReplicantConfig<SilverClientConfig>,
+                logger: Logger)
+    {
+        let newReplicant = ReplicantClientModel(withConfig: config, logger: logger)
+        
+        self.network = connection
+        self.config = config
+        self.replicantClientModel = newReplicant
+        self.decryptedReceiveBuffer = Data()
+        self.sendBuffer = Data()
+        self.log = logger
+        
+        if let polishConnection = replicantClientModel.polish
+        {
+            self.unencryptedChunkSize = polishConnection.chunkSize - UInt16(payloadLengthOverhead)
+        }
+        
+        introductions
+        {
+            (maybeIntroError) in
+            
+            guard maybeIntroError == nil
+                else
+            {
+                logger.error("Error attempting to meet the server during Replicant Connection Init.")
+                return
+            }
+            
+            logger.debug("\nNew Replicant connection is ready. 🎉 \n")
+        }
+    }
+    #endif
     
     public func start(queue: DispatchQueue)
     {
