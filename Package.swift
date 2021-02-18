@@ -155,7 +155,7 @@ let package = Package(
             .product(name: "Crypto", package: "swift-crypto"),
             .product(name: "Logging", package: "swift-log"),
             .product(name: "NetworkLinux", package: "NetworkLinux"),
-            .product(name: "TransmissionLinux", package: "Transmission"),
+            .product(name: "TransmissionLinux", package: "Transmission")
         ]),
         
         .target(name: "Optimizer", dependencies: [

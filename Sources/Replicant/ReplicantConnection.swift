@@ -29,15 +29,16 @@ import Foundation
 import Logging
 
 import ReplicantSwift
-import Transmission
 import Transport
 
 #if (os(macOS) || os(iOS) || os(watchOS) || os(tvOS))
 import CryptoKit
 import Network
+import Transmission
 #else
 import Crypto
 import NetworkLinux
+import TransmissionLinux
 #endif
 
 
