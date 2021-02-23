@@ -347,6 +347,7 @@ class WispProtocol
         }
     }
     
+    
     func parseServerHandshake(clientHandshake: ClientHandshake, response: Data) -> ParseServerHSResult
     {
         guard response.count > representativeLength * 2
@@ -468,17 +469,6 @@ class WispProtocol
     
     func readPackets(minRead: Int, maxRead: Int, completion: @escaping (Data?, NWError?) -> Void)
     {
-        // Attempt to read off the network.
-        // FIXME: min & max read
-        guard let receivedData = network.read(size: minRead)
-        else
-        {
-            completion(nil, NWError.posix(POSIXErrorCode.ECONNABORTED))
-            return
-        }
-        
-        self.receivedBuffer.append(receivedData)
-        
         guard self.decoder != nil
             else
         {
@@ -486,7 +476,7 @@ class WispProtocol
             return
         }
         
-        let result = self.decoder!.decode(framesBuffer: self.receivedBuffer)
+        let result = self.decoder!.decode(network: network)
         
         switch result
         {
