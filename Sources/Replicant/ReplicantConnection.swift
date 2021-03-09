@@ -381,7 +381,6 @@ open class ReplicantConnection: Transport.Connection
         }
         else
         {
-            // FIXME: Read some amount of data
             // Check to see if we got data
             guard let someData = network.read(size: minimumIncompleteLength)
             else
@@ -392,7 +391,6 @@ open class ReplicantConnection: Transport.Connection
             }
                         
             completion(someData, .defaultMessage, false, nil)
-            self.bufferLock.leave()
             return
         }
     }

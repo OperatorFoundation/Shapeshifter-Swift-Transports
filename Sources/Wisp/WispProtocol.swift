@@ -290,7 +290,6 @@ class WispProtocol
         }
         
         // Consume the server handshake.
-        // FIXME: minimumIncompleteLength: serverMinHandshakeLength, maximumLength: maxHandshakeLength
         let maybeReadData = self.network.read(size: serverMinHandshakeLength)
 
         guard let readData = maybeReadData
@@ -314,8 +313,7 @@ class WispProtocol
             completion(WispError.invalidServerHandshake)
             return
         case .retry:
-            // FIXME: Handshakes size less than max
-            guard let readData = self.network.read(size: serverMinHandshakeLength)
+            guard let readData = self.network.read(size: 1)
             else
             {
                 completion(WispError.invalidResponse)
@@ -504,6 +502,7 @@ class WispProtocol
                 {
                     /// Slice
                     completion(self.receivedDecodedBuffer[0 ..< maxRead], nil)
+                    return
                 }
                 else
                 {
