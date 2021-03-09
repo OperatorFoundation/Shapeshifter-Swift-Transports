@@ -32,7 +32,7 @@ let package = Package(
         .package(url: "https://github.com/OperatorFoundation/Datable.git", from: "3.0.2"),
         .package(url: "https://github.com/OperatorFoundation/Chord.git", from: "0.0.5"),
         .package(url: "https://github.com/OperatorFoundation/SwiftHexTools.git", from: "1.2.2"),
-        .package(url: "https://github.com/OperatorFoundation/NetworkLinux.git", from: "0.2.4"),
+        .package(url: "https://github.com/OperatorFoundation/NetworkLinux.git", from: "0.3.0"),
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
