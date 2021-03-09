@@ -356,8 +356,8 @@ class WispProtocol
         }
         
         // Pull out the representative/AUTH.
-        let serverRepresentative = response[0 ..< representativeLength]
-        let serverAuth = response[representativeLength ..< representativeLength * 2]
+        let serverRepresentative = Data(response[0 ..< representativeLength])
+        let serverAuth = Data(response[representativeLength ..< representativeLength * 2])
         
         // Derive the mark.
         guard let macOfRepresentativeBytes = try? clientHandshake.mac.authenticate(serverRepresentative.bytes)
