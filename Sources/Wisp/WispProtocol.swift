@@ -403,11 +403,15 @@ class WispProtocol
         // Validate the MAC.
         let prefixIncludingMark = response[0 ..< serverMarkRange.upperBound]
         let epochHour = clientHandshake.epochHour
-        let providedMac = response[serverMarkRange.upperBound ..< serverMarkRange.upperBound + macLength]
+        
+        guard let providedMac = self.network.read(size: macLength)
+        else
+        {
+            print("Failed to read data after the server mark.")
+            return .failed
+        }
+        
         let thingToMac = prefixIncludingMark.bytes + epochHour.utf8
-        
-        
-        
         guard let calculatedMacBytes = try? clientHandshake.mac.authenticate(thingToMac)
         else
         {
