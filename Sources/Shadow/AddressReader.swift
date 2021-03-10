@@ -39,7 +39,7 @@ class AddressReader
             let hostLength = Int(buffer[1])
             let addrLength = typeLength + 1 + hostLength + portLength
             
-            // Sanity check to make sure that our address data is the right size
+            // Quality check to make sure that our address data is the right size
             guard buffer.count >= addrLength
             else
             {

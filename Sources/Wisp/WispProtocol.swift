@@ -31,14 +31,21 @@
 // Wisp is a new implementaiton of the obfs4 protocol and is not guaranteed to be identical in
 // implementation to other obfs4 implementations except when required for over-the-wire compatibility.
 
-import Foundation
 import Logging
-import Sodium
+import Foundation
+
 import CryptoSwift
 import Elligator
 import HKDF
+import Sodium
+import Transmission
 import Transport
+
+#if os(Linux)
+import NetworkLinux
+#else
 import Network
+#endif
 
 enum WispPacketType: UInt8
 {
@@ -226,13 +233,13 @@ class WispProtocol
     let sessionKey: Keypair
     let iatMode: Bool
     
-    var network: Connection
+    var network: Transmission.Connection
     var encoder: WispEncoder?
     var decoder: WispDecoder?
     var receivedBuffer = Data()
     var receivedDecodedBuffer = Data()
     
-    init?(connection: Connection, cert: String, iatMode enableIAT: Bool, logger: Logger)
+    init?(connection: Transmission.Connection, cert: String, iatMode enableIAT: Bool, logger: Logger)
     {
         log = logger
         network = connection
@@ -274,46 +281,26 @@ class WispProtocol
             return
         }
         
-        let context = NWConnection.ContentContext(identifier: "Context")
-        let sendCompletion = NWConnection.SendCompletion.contentProcessed(
+        guard network.write(data: clientHandshakeBytes)
+        else
         {
-            (maybeWriteError) in
-            
-            if let writeError = maybeWriteError
-            {
-                self.log.error("Received an error when writing client handshake to the network:")
-                self.log.error("\(writeError.debugDescription)")
-                completion(writeError)
-                return
-            }
-            
-            // Consume the server handshake.
-            self.network.receive(minimumIncompleteLength: serverMinHandshakeLength, maximumLength: maxHandshakeLength, completion:
-                {
-                    (maybeReadData, maybeContentContext, connectionComplete, maybeReadError) in
-                    
-                    if let readError = maybeReadError
-                    {
-                        self.log.error("Error reading from network:")
-                        self.log.error("\(readError.localizedDescription)")
-                        
-                        completion(readError)
-                        return
-                    }
-                    
-                    guard let readData = maybeReadData
-                        else
-                    {
-                        completion(WispError.invalidResponse)
-                        self.log.error("No data received when attempting to read server handshake 🤔")
-                        return
-                    }
-                    
-                    self.readServerHandshake(clientHandshake: newHandshake, buffer: readData, completion: completion)
-            })
-        })
+            self.log.error("Failed to send the client handshake.")
+            completion(WispError.failedWrite)
+            return
+        }
         
-        network.send(content: clientHandshakeBytes, contentContext: context, isComplete: false, completion: sendCompletion)
+        // Consume the server handshake.
+        let maybeReadData = self.network.read(size: serverMinHandshakeLength)
+
+        guard let readData = maybeReadData
+            else
+        {
+            completion(WispError.invalidResponse)
+            self.log.error("No data received when attempting to read server handshake 🤔")
+            return
+        }
+        
+        self.readServerHandshake(clientHandshake: newHandshake, buffer: readData, completion: completion)
     }
     
     func readServerHandshake(clientHandshake: ClientHandshake, buffer: Data, completion:  @escaping (Error?) -> Void)
@@ -326,30 +313,16 @@ class WispProtocol
             completion(WispError.invalidServerHandshake)
             return
         case .retry:
-            self.network.receive(minimumIncompleteLength: 1, maximumLength: maxHandshakeLength - buffer.count)
+            guard let readData = self.network.read(size: 1)
+            else
             {
-                (maybeReadData, maybeReadContext, connectionComplete, maybeReadError) in
-                
-                if let readError = maybeReadError
-                {
-                    self.log.error("Error reading from network:")
-                    self.log.error("\(readError.localizedDescription)")
-                    
-                    completion(readError)
-                    return
-                }
-                
-                guard let readData = maybeReadData
-                    else
-                {
-                    completion(WispError.invalidResponse)
-                    return
-                }
-                
-                let newBuffer = buffer + readData
-                self.readServerHandshake(clientHandshake: clientHandshake, buffer: newBuffer, completion: completion)
+                completion(WispError.invalidResponse)
                 return
             }
+            
+            let newBuffer = buffer + readData
+            self.readServerHandshake(clientHandshake: clientHandshake, buffer: newBuffer, completion: completion)
+            return
 
         case let .success(seed):
             /// TODO: Test, We are assuming that count refers to desired output size in bytes not bits. <------
@@ -372,6 +345,7 @@ class WispProtocol
         }
     }
     
+    
     func parseServerHandshake(clientHandshake: ClientHandshake, response: Data) -> ParseServerHSResult
     {
         guard response.count > representativeLength * 2
@@ -382,8 +356,8 @@ class WispProtocol
         }
         
         // Pull out the representative/AUTH.
-        let serverRepresentative = response[0 ..< representativeLength]
-        let serverAuth = response[representativeLength ..< representativeLength * 2]
+        let serverRepresentative = Data(response[0 ..< representativeLength])
+        let serverAuth = Data(response[representativeLength ..< representativeLength * 2])
         
         // Derive the mark.
         guard let macOfRepresentativeBytes = try? clientHandshake.mac.authenticate(serverRepresentative.bytes)
@@ -411,7 +385,7 @@ class WispProtocol
             }
             else
             {
-                log.error("Parse server handshake error: Mark not found yet.")
+                log.info("Parse server handshake: Mark not found yet.")
                 return .retry
             }
         }
@@ -429,11 +403,15 @@ class WispProtocol
         // Validate the MAC.
         let prefixIncludingMark = response[0 ..< serverMarkRange.upperBound]
         let epochHour = clientHandshake.epochHour
-        let providedMac = response[serverMarkRange.upperBound ..< serverMarkRange.upperBound + macLength]
+        
+        guard let providedMac = self.network.read(size: macLength)
+        else
+        {
+            print("Failed to read data after the server mark.")
+            return .failed
+        }
+        
         let thingToMac = prefixIncludingMark.bytes + epochHour.utf8
-        
-        
-        
         guard let calculatedMacBytes = try? clientHandshake.mac.authenticate(thingToMac)
         else
         {
@@ -493,144 +471,56 @@ class WispProtocol
     
     func readPackets(minRead: Int, maxRead: Int, completion: @escaping (Data?, NWError?) -> Void)
     {
-        // Attempt to read off the network.
-        network.receive(minimumIncompleteLength: 1, maximumLength: maxFrameLength)
+        guard self.decoder != nil
+            else
         {
-            (maybeData, maybeContext, receiveComplete, maybeError) in
-            
-            if let error = maybeError
-            {
-                completion(nil, error)
-                return
-            }
-            
-            guard let receivedData = maybeData
-                else
-            {
-                completion(nil, NWError.posix(POSIXErrorCode.ECONNABORTED))
-                return
-            }
-            
-            self.receivedBuffer.append(receivedData)
-            
-            guard self.decoder != nil
-                else
-            {
-                completion(nil, NWError.posix(POSIXErrorCode.EPROTO))
-                return
-            }
-            
-            let result = self.decoder!.decode(framesBuffer: self.receivedBuffer)
-            
-            switch result
-            {
-            case .failed:
-                completion(nil, NWError.posix(POSIXErrorCode.EPROTO))
-                return
-            case .retry:
-                self.readPackets(minRead: minRead, maxRead: maxRead, completion: completion)
-                return
-            case let .success(decodedData, leftovers):
-                if leftovers != nil
-                {
-                    self.receivedBuffer = leftovers!
-                }
-                else
-                {
-                    self.receivedBuffer = Data()
-                }
-                
-                //Handle packet data writes to the decoded buffer
-                self.handlePacketData(data: decodedData)
-                if self.receivedDecodedBuffer.count >= minRead
-                {
-                    if self.receivedDecodedBuffer.count > maxRead
-                    {
-                        /// Slice
-                        completion(self.receivedDecodedBuffer[0 ..< maxRead], nil)
-                    }
-                    else
-                    {
-                        /// No Slice
-                        completion(self.receivedDecodedBuffer, nil)
-                    }
-                }
-                else
-                {
-                    self.readPackets(minRead: minRead, maxRead: maxRead, completion: completion)
-                }
-                return
-            }
+            completion(nil, NWError.posix(POSIXErrorCode.EPROTO))
+            return
         }
         
-//        network.readMinimumLength(1, maximumLength: maxFrameLength)
-//        {
-//            (maybeData, maybeError) in
-//
-//            if let error = maybeError
-//            {
-//                completion(nil, error)
-//                return
-//            }
-//
-//            guard let receivedData = maybeData
-//            else
-//            {
-//                completion(nil, WispError.connectionClosed)
-//                return
-//            }
-//
-//            self.receivedBuffer.append(receivedData)
-//
-//            guard self.decoder != nil
-//            else
-//            {
-//                completion(nil, WispError.decoderNotFound)
-//                return
-//            }
-//
-//            let result = self.decoder!.decode(framesBuffer: self.receivedBuffer)
-//
-//            switch result
-//            {
-//            case .failed:
-//                completion(nil, WispError.decoderFailure)
-//                return
-//            case .retry:
-//                self.readPackets(minRead: minRead, maxRead: maxRead, completion: completion)
-//                return
-//            case let .success(decodedData, leftovers):
-//                if leftovers != nil
-//                {
-//                    self.receivedBuffer = leftovers!
-//                }
-//                else
-//                {
-//                    self.receivedBuffer = Data()
-//                }
-//
-//                //Handle packet data writes to the decoded buffer
-//                self.handlePacketData(data: decodedData)
-//                if self.receivedDecodedBuffer.count >= minRead
-//                {
-//                    if self.receivedDecodedBuffer.count > maxRead
-//                    {
-//                        /// Slice
-//                        completion(self.receivedDecodedBuffer[0 ..< maxRead], nil)
-//                    }
-//                    else
-//                    {
-//                        /// No Slice
-//                        completion(self.receivedDecodedBuffer, nil)
-//                    }
-//                }
-//                else
-//                {
-//                    self.readPackets(minRead: minRead, maxRead: maxRead, completion: completion)
-//                }
-//                return
-//            }
-//        }
+        let result = self.decoder!.decode(network: network)
+        
+        switch result
+        {
+        case .failed:
+            completion(nil, NWError.posix(POSIXErrorCode.EPROTO))
+            return
+        case .retry:
+            self.readPackets(minRead: minRead, maxRead: maxRead, completion: completion)
+            return
+        case let .success(decodedData, leftovers):
+            if leftovers != nil
+            {
+                self.receivedBuffer = leftovers!
+            }
+            else
+            {
+                self.receivedBuffer = Data()
+            }
+            
+            //Handle packet data writes to the decoded buffer
+            self.handlePacketData(data: decodedData)
+            if self.receivedDecodedBuffer.count >= minRead
+            {
+                if self.receivedDecodedBuffer.count > maxRead
+                {
+                    /// Slice
+                    completion(self.receivedDecodedBuffer[0 ..< maxRead], nil)
+                    return
+                }
+                else
+                {
+                    /// No Slice
+                    completion(self.receivedDecodedBuffer, nil)
+                }
+            }
+            else
+            {
+                self.readPackets(minRead: minRead, maxRead: maxRead, completion: completion)
+            }
+            
+            return
+        }
     }
     
     func handlePacketData(data: Data)

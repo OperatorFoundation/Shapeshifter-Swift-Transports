@@ -26,8 +26,13 @@
 // SOFTWARE.
 
 import Foundation
-import CryptoKit
 import Logging
+
+#if (os(macOS) || os(iOS) || os(watchOS) || os(tvOS))
+import CryptoKit
+#else
+import Crypto
+#endif
 
 import Datable
 
@@ -67,25 +72,27 @@ class Cipher
             return nil
         }
              
-        print("Created key data: \(actualKey[0]), \(actualKey[31])")
         self.log = logger
         self.key = SymmetricKey(data: actualKey)
         self.mode = config.mode
     }
     
-    static func createSalt() -> Data?
+    static func createSalt(mode: CipherMode) -> Data?
     {
-        var bytes = [Int8](repeating: 0, count: 32)
-        let status = SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes)
-
-        guard status == errSecSuccess
-        else { return nil }
+        // Salt size shoud be 16 bytes for aes128
+        let saltSize: Int
         
-        return Data(array: bytes.map({
-            (element) in
-            
-            UInt8(bitPattern: element)
-        }))
+        switch mode
+        {
+        case .AES_128_GCM:
+            saltSize = 16
+        case .AES_256_GCM:
+            saltSize = 32
+        case .CHACHA20_IETF_POLY1305:
+            saltSize = 32
+        }
+        
+        return generateRandomBytes(count: saltSize)
     }
     
     /*
@@ -138,20 +145,15 @@ class Cipher
         print("\nsalt")
         print(salt.array)
         let info = Data(string: "ss-subkey")
-        var outputSize = 0
-        
-        switch cipherMode
-        {
-            case .AES_128_GCM:
-                outputSize = 32
-            case .AES_256_GCM:
-                outputSize = 16
-            case .CHACHA20_IETF_POLY1305:
-                outputSize = 32
-        }
+        let outputSize = secret.count
         
         let iterations = UInt8(ceil(Double(outputSize) / Double(Insecure.SHA1.byteCount)))
-        guard iterations <= 255 else {return nil}
+        guard iterations <= 255
+        else
+        {
+            print("Key derviation failure: Too many iterations - \(iterations)")
+            return nil
+        }
         
         let prk = HMAC<Insecure.SHA1>.authenticationCode(for: secret, using: SymmetricKey(data: salt))
         let key = SymmetricKey(data: prk)
@@ -249,7 +251,7 @@ class Cipher
         let ciphertext = encrypted[0..<expectedCiphertextLength]
         let tag = encrypted[expectedCiphertextLength...]
         
-        // Sanity Check
+        // Quality Check
         guard tag.count == Cipher.tagSize
             else
         {
@@ -315,9 +317,20 @@ class Cipher
 
         return counterData
     }
+    
+    static func generateRandomBytes(count: Int) -> Data
+    {
+        var bytes = [UInt8]()
+        for _ in 1...count
+        {
+            bytes.append(UInt8.random(in: 0...255))
+        }
+        
+        return Data(bytes)
+    }
 }
 
-enum CipherMode: String
+public enum CipherMode: String, Codable
 {
     // AES 196 is not currently supported by go-shadowsocks2.
     // We are not supporting it at this time either.

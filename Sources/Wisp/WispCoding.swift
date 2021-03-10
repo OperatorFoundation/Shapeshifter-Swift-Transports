@@ -60,7 +60,9 @@
 
 import Foundation
 import Logging
+
 import Sodium
+import Transmission
 
 struct Nonce
 {
@@ -199,7 +201,6 @@ struct WispDecoder
     
     var nonce: Nonce
     var nextNonce: Nonce?
-    var nextLength: UInt16?
     var nextLengthInvalid: Bool = false
     var drbg: HashDrbg
     
@@ -224,61 +225,34 @@ struct WispDecoder
     }
 
     /// Decode decodes a stream of data and returns it.
-    mutating func decode(framesBuffer: Data) -> DecodeResult
+    mutating func decode(network: Transmission.Connection) -> DecodeResult
     {
-        // A length of nil indicates that we do not know how big the next frame is going to be.
-        if nextLength == nil
-        {
-            // Attempt to pull out the next frame length.
-            if lengthLength > framesBuffer.count
-            {
-                // If the frame buffer only has one bite, we need to wait for another byte.
-                // ErrAgain
-                return .retry
-            }
-        
-        // Remove the length field from the buffer.
-        let obfsLength = framesBuffer[0 ..< lengthLength]
-        let unobfsLength = unobfuscate(obfuscatedLength: obfsLength)
-        nextLength = unobfsLength
-            
-            if maxFrameLength < nextLength! || minFrameLength > nextLength!
-            {
-                /*
-                Per "Plaintext Recovery Attacks Against SSH"
-                by Martin R. Albrecht, Kenneth G. Paterson and Gaven J. Watson,
-                there are a class of attacks againt protocols
-                that use similar sorts of framing schemes.
-                
-                While obfs4 should not allow plaintext recovery (CBC mode is not used),
-                attempt to mitigate out of bound frame length errors
-                by pretending that the length was a random valid range as per
-                the countermeasure suggested by Denis Bider in section 6 of the paper.
-                */
-                
-                self.nextLengthInvalid = true
-                nextLength = random(inRange: minFrameLength ..< maxFrameLength + 1)
-            }
-        }
-        
-        guard nextLength! <= framesBuffer.count + 2
+        // Get the length of the message
+        guard let obfsLength = network.read(size: lengthLength)
         else
         {
-            // ErrAgain
-            log.error("Decode error, next length: \(nextLength!) is greater than the buffer \(framesBuffer.count). We expected more data than we got!")
-            return .retry
+            return .failed
         }
+                
+        let unobfsLength = unobfuscate(obfuscatedLength: obfsLength)
         
-        // Unseal the frame.
-        let box = framesBuffer[UInt16(lengthLength) ..< nextLength! + 2]
-        assert(UInt16(box.count) == nextLength)
-        
-        var leftovers: Data?
-        if framesBuffer.count > nextLength! + 2
+        if maxFrameLength < unobfsLength || minFrameLength > unobfsLength
         {
-            leftovers = framesBuffer[lengthLength + Int(nextLength! + 2) ..< framesBuffer.count]
+            self.nextLengthInvalid = true
         }
         
+        guard !nextLengthInvalid
+            else
+        {
+            return .failed
+        }
+        
+        guard let box = network.read(size: Int(unobfsLength))
+        else
+        {
+            return .failed
+        }
+                
         log.debug("box: \(box.bytes)")
         log.debug("box count: \(box.count)")
         log.debug("secret Key: \(secretBoxKey.bytes)")
@@ -289,21 +263,10 @@ struct WispDecoder
         guard let decodedData = sodium.secretBox.open(authenticatedCipherText: box.bytes, secretKey: secretBoxKey.bytes, nonce: nonce.data.bytes)
             else
         {
-            nextLength = nil
             return .failed
         }
-        
-        guard !nextLengthInvalid
-            else
-        {
-            nextLength = nil
-            return .failed
-        }
-        
-        // Clean up and prepare for the next frame.
-        nextLength = nil
-        
-        return .success(decodedData: Data(decodedData), leftovers: leftovers)
+
+        return .success(decodedData: Data(decodedData), leftovers: nil)
     }
     
     mutating func unobfuscate(obfuscatedLength: Data) -> UInt16

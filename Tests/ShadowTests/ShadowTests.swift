@@ -6,23 +6,29 @@
 //
 
 import XCTest
-import CryptoKit
 import Logging
-import Network
 
 import Datable
 import SwiftHexTools
+
+#if (os(macOS) || os(iOS) || os(watchOS) || os(tvOS))
+import CryptoKit
+import Network
+#else
+import Crypto
+import NetworkLinux
+#endif
 
 @testable import Shadow
 
 class ShadowTests: XCTestCase
 {
+    let testIPString = "159.203.158.90"
+    let testPort: UInt16 = 2345
     let plainText = Data(array: [0, 1, 2, 3, 4])
     
     func testShadowConnection()
     {
-        let testIPString = "127.0.0.1"
-        let testPort: UInt16 = 1234
         let connected = expectation(description: "Connection callback called")
         //let sent = expectation(description: "TCP data sent")
         
@@ -38,7 +44,7 @@ class ShadowTests: XCTestCase
         let logger = Logger(label: "Shadow Logger")
         LoggingSystem.bootstrap(StreamLogHandler.standardError)
         
-        let shadowConfig = ShadowConfig(mode: .CHACHA20_IETF_POLY1305, password: "1234")
+        let shadowConfig = ShadowConfig(password: "1234", mode: .CHACHA20_IETF_POLY1305)
         
         let shadowFactory = ShadowConnectionFactory(host: host, port: port, config: shadowConfig, logger: logger)
         
@@ -72,8 +78,7 @@ class ShadowTests: XCTestCase
     
     func testShadowSend()
     {
-        let testIPString = "127.0.0.1"
-        let testPort: UInt16 = 1234
+        let shadowQueue = DispatchQueue(label: "ShadowQueue")
         let connected = expectation(description: "Connection callback called")
         let sent = expectation(description: "TCP data sent")
         
@@ -89,7 +94,7 @@ class ShadowTests: XCTestCase
         let logger = Logger(label: "Shadow Logger")
         LoggingSystem.bootstrap(StreamLogHandler.standardError)
         
-        let shadowConfig = ShadowConfig(mode: .CHACHA20_IETF_POLY1305, password: "1234")
+        let shadowConfig = ShadowConfig(password: "1234", mode: .CHACHA20_IETF_POLY1305)
         
         let shadowFactory = ShadowConnectionFactory(host: host, port: port, config: shadowConfig, logger: logger)
         
@@ -129,10 +134,10 @@ class ShadowTests: XCTestCase
             }
         }
         
-        shadowConnection.start(queue: .global())
+        shadowConnection.start(queue: shadowQueue)
         
-        let godot = expectation(description: "forever")
-        wait(for: [connected, sent, godot], timeout: 3000)
+        //let godot = expectation(description: "forever")
+        wait(for: [connected, sent], timeout: 3000)
     }
     
     func testShadowReceive()
@@ -157,11 +162,7 @@ class ShadowTests: XCTestCase
         }
         
         wait(for: [serverListening], timeout: 20)
-        
-        let testIPString = "127.0.0.1"
-        let testPort: UInt16 = 1234
-        
-        
+
         let host = NWEndpoint.Host(testIPString)
         guard let port = NWEndpoint.Port(rawValue: testPort)
             else
@@ -173,7 +174,7 @@ class ShadowTests: XCTestCase
         
         let logger = Logger(label: "Shadow Logger")
         LoggingSystem.bootstrap(StreamLogHandler.standardError)
-        let shadowConfig = ShadowConfig(mode: .CHACHA20_IETF_POLY1305, password: "1234")
+        let shadowConfig = ShadowConfig(password: "1234", mode: .CHACHA20_IETF_POLY1305)
         let shadowFactory = ShadowConnectionFactory(host: host, port: port, config: shadowConfig, logger: logger)
         
         guard var shadowConnection = shadowFactory.connect(using: .tcp)
@@ -193,7 +194,7 @@ class ShadowTests: XCTestCase
                 print("\nConnected state ready\n")
                 connected.fulfill()
                 
-                shadowConnection.send(content: Data("1234"), contentContext: .defaultMessage, isComplete: true, completion: NWConnection.SendCompletion.contentProcessed(
+                shadowConnection.send(content: Data("GET / HTTP/1.0\r\n\r\n"), contentContext: .defaultMessage, isComplete: true, completion: NWConnection.SendCompletion.contentProcessed(
                 {
                     (maybeError) in
                     
@@ -262,11 +263,7 @@ class ShadowTests: XCTestCase
         }
         
         wait(for: [serverListening], timeout: 20)
-        
-        let testIPString = "127.0.0.1"
-        let testPort: UInt16 = 1234
-        
-        
+
         let host = NWEndpoint.Host(testIPString)
         guard let port = NWEndpoint.Port(rawValue: testPort)
             else
@@ -278,7 +275,7 @@ class ShadowTests: XCTestCase
         
         let logger = Logger(label: "Shadow Logger")
         LoggingSystem.bootstrap(StreamLogHandler.standardError)
-        let shadowConfig = ShadowConfig(mode: .CHACHA20_IETF_POLY1305, password: "1234")
+        let shadowConfig = ShadowConfig(password: "1234", mode: .CHACHA20_IETF_POLY1305)
         let shadowFactory = ShadowConnectionFactory(host: host, port: port, config: shadowConfig, logger: logger)
         
         guard var shadowConnection = shadowFactory.connect(using: .tcp)
@@ -489,6 +486,23 @@ class ShadowTests: XCTestCase
         }
     }
     
+    func testJSONConfig()
+    {
+        let shadowConfig = ShadowConfig(password: "password", mode: .CHACHA20_IETF_POLY1305)
+        let encoder = JSONEncoder()
+        let json = try? encoder.encode(shadowConfig)
+        
+        let filePath = "/Users/mafalda/Documents/Operator/Canary/Sources/Resources/Configs/shadowsockscopy.json"
+        FileManager.default.createFile(atPath: filePath, contents: json)
+        
+        
+        guard let decodedShadowConfig = ShadowConfig(path:filePath )
+        else
+        {
+            XCTFail()
+            return
+        }
+    }
     
 //    func testHKDF()
 //    {

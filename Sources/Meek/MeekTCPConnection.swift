@@ -7,10 +7,14 @@
 //
 
 import Foundation
-import NetworkExtension
-//import SecurityFoundation
-import CryptoSwift
-//import ShapeshifterTesting
+//import NetworkExtension
+
+#if (os(macOS) || os(iOS) || os(watchOS) || os(tvOS))
+import CryptoKit
+#else
+import Crypto
+#endif
+
 import Transport
 import SwiftQueue
 

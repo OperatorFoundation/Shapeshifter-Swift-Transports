@@ -26,7 +26,6 @@
 // SOFTWARE.
 
 import XCTest
-import Network
 import Transport
 import Protean
 import ProteanSwift
@@ -34,8 +33,14 @@ import Wisp
 import ReplicantSwift
 import Replicant
 import SwiftQueue
-import ExampleTransports
+//import ExampleTransports
 import Logging
+
+#if os(Linux)
+import NetworkLinux
+#else
+import Network
+#endif
 
 @testable import Optimizer
 
@@ -122,15 +127,15 @@ class OptimizerTests: XCTestCase
         let ipAddressString = "10.10.10.10"
         let portString = "2222"
         let certString = "bD4ASGyyPl0mkaOUm9fGvGJCpOxwoXS1baAAQsAYljSkF60RNHBMRrf+aOSPzSj8B0G8B8"
-        let salt = "pepper".data
-        
-        guard let serverPublicKey = Data(base64Encoded: "3qXWmMkAHfiF11vA9d6rhiSjPBL7+Vd087+p/roRp6jSzIWzhk2S4aefLcYjwRtxGanWUoeoIGDL0WFGiSr/Et+wwG7gOrLf8yovmtgSJlooqa7lcMtipTxegPAYtd5yZg==")
-            else
-        {
-            print("Unable to get base64 encoded key from the provided string.")
-            XCTFail()
-            return
-        }
+//        let salt = "pepper".data
+//        
+//        guard let serverPublicKey = Data(base64Encoded: "3qXWmMkAHfiF11vA9d6rhiSjPBL7+Vd087+p/roRp6jSzIWzhk2S4aefLcYjwRtxGanWUoeoIGDL0WFGiSr/Et+wwG7gOrLf8yovmtgSJlooqa7lcMtipTxegPAYtd5yZg==")
+//            else
+//        {
+//            print("Unable to get base64 encoded key from the provided string.")
+//            XCTFail()
+//            return
+//        }
         
         let proteanConfig = Protean.Config(byteSequenceConfig: sampleSequenceConfig(),
                                            encryptionConfig: sampleEncryptionConfig(),
@@ -158,18 +163,18 @@ class OptimizerTests: XCTestCase
             return
         }
         
+        let logger = Logger(label: "test")
         let host = NWEndpoint.Host.ipv4(ipv4Address)
-        let wispTransport = WispConnectionFactory(host: host, port: port, cert: certString, iatMode: false, logger: Logger(label: "test"))
-        let replicantTransport = ReplicantConnectionFactory(host: host, port: port, config: replicantClientConfig, log: Logger(label: "test"))
-        let proteanTransport = ProteanConnectionFactory(host: host, port: port, config: proteanConfig, logger: Logger(label: "test"))
-        let passthroughTransport = PassthroughConnectionFactory(host: host, port: port, logger: Logger(label: "test"))
-        let rot13Transport = Rot13ConnectionFactory(host: host, port: port, logger: Logger(label: "test"))
-        
-        let possibleTransports:[ConnectionFactory] = [passthroughTransport, rot13Transport, wispTransport, replicantTransport, proteanTransport]
-        let strategy = CoreMLStrategy(transports: possibleTransports, logger: Logger(label: "test"))
+        let wispTransport = WispConnectionFactory(host: host, port: port, cert: certString, iatMode: false, logger: logger)
+        let replicantTransport = ReplicantConnectionFactory(host: "\(host)", port: port.rawValue, config: replicantClientConfig, log: logger)
+        let proteanTransport = ProteanConnectionFactory(host: host, port: port, config: proteanConfig, logger: logger)
+        //let passthroughTransport = PassthroughConnectionFactory(host: host, port: port, logger: logger)
+        //let rot13Transport = Rot13ConnectionFactory(host: host, port: port, logger: logger)
+        let possibleTransports:[ConnectionFactory] = [wispTransport, replicantTransport, proteanTransport]
+        let strategy = CoreMLStrategy(transports: possibleTransports, logger: logger)
         
         let connected1 = expectation(description: "Connected 1.")
-        let connectionFactory1 = OptimizerConnectionFactory(strategy: strategy, logger: Logger(label: "test"))
+        let connectionFactory1 = OptimizerConnectionFactory(strategy: strategy, logger: logger)
         guard var connection1 = connectionFactory1!.connect(using: .tcp)
             else
         {
@@ -188,8 +193,8 @@ class OptimizerTests: XCTestCase
                 connected1.fulfill()
                 
             case .failed(let error):
-                print("\n🐒💨  Connection 1 Failed  🐒💨")
-                print("Failure Error: \(error.localizedDescription)\n")
+                print("\n🚨  Connection 1 Failed")
+                print("🚨  Failure Error: \(error.localizedDescription)\n")
                 connected1.fulfill()
                 
             default:
