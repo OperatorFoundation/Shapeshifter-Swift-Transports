@@ -358,9 +358,17 @@ class WispProtocol
         // Pull out the representative/AUTH.
         let serverRepresentative = Data(response[0 ..< representativeLength])
         let serverAuth = Data(response[representativeLength ..< representativeLength * 2])
+
+        
+        let serverRepresentativeBytes = serverRepresentative.withUnsafeBytes
+        {
+            (bufferPointer) -> [UInt8] in
+            
+            return [UInt8](bufferPointer)
+        }
         
         // Derive the mark.
-        guard let macOfRepresentativeBytes = try? clientHandshake.mac.authenticate(serverRepresentative.bytes)
+        guard let macOfRepresentativeBytes = try? clientHandshake.mac.authenticate(serverRepresentativeBytes)
             else
         {
             log.error("Unable to derive mark from sever handshake.")
