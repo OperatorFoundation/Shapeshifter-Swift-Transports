@@ -28,7 +28,12 @@
 import Foundation
 import Logging
 import Transport
+
+#if os(Linux)
+import NetworkLinux
+#else
 import Network
+#endif
 
 open class WispConnectionFactory: ConnectionFactory
 {
@@ -42,15 +47,20 @@ open class WispConnectionFactory: ConnectionFactory
     
     let log: Logger
     
-    public init?(hostString: String, portInt: UInt16, cert: String, iatMode: Bool, logger: Logger)
+    public convenience init?(hostString: String, portInt: UInt16, cert: String, iatMode: Bool, logger: Logger)
     {
         guard let port = NWEndpoint.Port(rawValue: portInt)
             else { return nil }
-        self.host = NWEndpoint.Host(hostString)
-        self.port = port
-        self.cert = cert
-        self.iatMode = iatMode
-        self.log = logger
+        
+        self.init(host: NWEndpoint.Host(hostString), port: port, cert: cert, iatMode: iatMode, logger: logger)
+    }
+    
+    public convenience init?(hostString: String, portInt: UInt16, config: WispConfig, logger: Logger)
+    {
+        guard let port = NWEndpoint.Port(rawValue: portInt)
+            else { return nil }
+        
+        self.init(host: NWEndpoint.Host(hostString), port: port, cert: config.cert, iatMode: config.iatMode, logger: logger)
     }
     
     public init(host: NWEndpoint.Host, port: NWEndpoint.Port, cert: String, iatMode: Bool, logger: Logger)
@@ -62,31 +72,15 @@ open class WispConnectionFactory: ConnectionFactory
         self.log = logger
     }
     
-    public init(connection: NWConnection, cert: String, iatMode: Bool, logger: Logger)
-    {
-        self.connection = connection
-        self.cert = cert
-        self.iatMode = iatMode
-        self.log = logger
-    }
-    
     public func connect(using: NWParameters) -> Connection?
     {
-        if let currentConnection = connection
-        {
-            return WispConnection(connection: currentConnection, using: using, cert: cert, iatMode: iatMode, logger: log)
-        }
+        guard let currentHost = host, let currentPort = port
         else
         {
-            guard let currentHost = host, let currentPort = port
-            else
-            {
-                return nil
-            }
-            
-            return WispConnection(host: currentHost, port: currentPort, using: using, cert: cert, iatMode: iatMode, logger: log)
+            return nil
         }
-
+        
+        return WispConnection(host: currentHost, port: currentPort, using: using, cert: cert, iatMode: iatMode, logger: log)
     }
     
 }

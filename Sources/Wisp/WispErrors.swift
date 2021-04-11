@@ -44,14 +44,15 @@ enum DecodeResult
 
 enum WispError: Error
 {
-    case connectionError
-    case invalidServerHandshake
-    case invalidClientHandshake
-    case invalidCertString
-    case decoderNotFound
-    case decoderFailure
     case connectionClosed
+    case connectionError
+    case decoderFailure
+    case decoderNotFound
+    case failedWrite
+    case invalidCertString
+    case invalidClientHandshake
     case invalidResponse
+    case invalidServerHandshake
     case serverError
     case serverUnavailable
 }

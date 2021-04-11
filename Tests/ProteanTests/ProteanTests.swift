@@ -28,10 +28,15 @@
 import XCTest
 import Foundation
 import Transport
-import Network
 import Protean
 import ProteanSwift
 import Logging
+
+#if os(Linux)
+import NetworkLinux
+#else
+import Network
+#endif
 
 @testable import Protean
 
