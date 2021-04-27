@@ -11,7 +11,7 @@ let package = Package(
         .iOS(.v13)
     ],
     products: [
-//        .library(name: "Wisp", targets: ["Wisp"]),
+        .library(name: "Wisp", targets: ["Wisp"]),
         .library(name: "Shadow", targets: ["Shadow"]),
         .library(name: "Protean", targets: ["Protean"]),
         .library(name: "Optimizer", targets: ["Optimizer"]),
@@ -23,9 +23,8 @@ let package = Package(
         .package(url: "https://github.com/OperatorFoundation/Chord.git", from: "0.0.5"),
         .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", from: "1.3.0"),
         .package(url: "https://github.com/OperatorFoundation/Datable.git", from: "3.0.2"),
-//        .package(url: "https://github.com/OperatorFoundation/Elligator.git", from: "0.1.0"),
+        .package(url: "https://github.com/OperatorFoundation/Elligator.git", from: "0.1.1"),
         .package(url: "https://github.com/OperatorFoundation/HKDF.git", from: "3.0.2"),
-        .package(url: "https://github.com/OperatorFoundation/NetworkLinux.git", from: "0.3.0"),
         .package(url: "https://github.com/OperatorFoundation/ProteanSwift.git", from: "1.2.0"),
         .package(url: "https://github.com/OperatorFoundation/ReplicantSwift.git", from: "0.8.3"),
         .package(url: "https://github.com/apple/swift-log.git", from: "1.4.0"),
@@ -36,28 +35,24 @@ let package = Package(
         .package(url: "https://github.com/OperatorFoundation/Transport.git", from: "2.3.3")
     ],
     targets: [
-//        .target(name: "Wisp", dependencies: [
-//            "CryptoSwift",
-//            "Datable",
-//            "Elligator",
-//            "HKDF",
-//            "Sodium",
-//            "SwiftQueue",
-//            "Transmission",
-//            "Transport",
-//            .product(name: "Logging", package: "swift-log"),
-//            .product(name: "NetworkLinux", package: "NetworkLinux", condition: .when(platforms: [.linux])),
-//            .product(name: "TransmissionLinux", package: "TransmissionLinux", condition: .when(platforms: [.linux])),
-//        ]),
+        .target(name: "Wisp", dependencies: [
+            "CryptoSwift",
+            "Datable",
+            "Elligator",
+            "HKDF",
+            "Sodium",
+            "SwiftQueue",
+            "Transmission",
+            "Transport",
+            .product(name: "Logging", package: "swift-log")
+        ]),
         
         .target(name: "Shadow", dependencies: [
             "Chord",
             "Datable",
             "Transmission",
             "Transport",
-            .product(name: "Logging", package: "swift-log"),
-            .product(name: "NetworkLinux", package: "NetworkLinux", condition: .when(platforms: [.linux])),
-            .product(name: "TransmissionLinux", package: "TransmissionLinux", condition: .when(platforms: [.linux])),
+            .product(name: "Logging", package: "swift-log")
         ]),
         
         .target(name: "Protean", dependencies: [
@@ -65,36 +60,29 @@ let package = Package(
             "ProteanSwift",
             "SwiftQueue",
             "Transport",
-            .product(name: "Logging", package: "swift-log"),
-            .product(name: "NetworkLinux", package: "NetworkLinux", condition: .when(platforms: [.linux])),
-            .product(name: "TransmissionLinux", package: "TransmissionLinux", condition: .when(platforms: [.linux])),
+            .product(name: "Logging", package: "swift-log")
         ]),
         
         .target(name: "Optimizer", dependencies: [
             "SwiftQueue",
             "Transport",
-            .product(name: "Logging", package: "swift-log"),
-            .product(name: "NetworkLinux", package: "NetworkLinux", condition: .when(platforms: [.linux])),
-            .product(name: "TransmissionLinux", package: "TransmissionLinux", condition: .when(platforms: [.linux])),
+            .product(name: "Logging", package: "swift-log")
         ]),
         
         .target(name:"Replicant", dependencies:[
             "ReplicantSwift",
-            .product(name: "Transmission", package: "Transmission", condition: .when(platforms: [.macOS])),
-            .product(name: "TransmissionLinux", package: "TransmissionLinux", condition: .when(platforms: [.linux])),
+            .product(name: "Transmission", package: "Transmission", condition: .when(platforms: [.macOS]))
         ]),
         
         .target(name: "LoggerQueue", dependencies: [
             "Datable",
-            .product(name: "Logging", package: "swift-log"),
-            .product(name: "NetworkLinux", package: "NetworkLinux", condition: .when(platforms: [.linux])),
+            .product(name: "Logging", package: "swift-log")
         ]),
         
         .target(name: "ExampleTransports", dependencies: [
             "Datable",
             "Transport",
-            .product(name: "Logging", package: "swift-log"),
-            .product(name: "NetworkLinux", package: "NetworkLinux", condition: .when(platforms: [.linux])),
+            .product(name: "Logging", package: "swift-log")
         ]),
 
         .testTarget(name: "WispTests",
@@ -122,14 +110,16 @@ let package = Package(
                         "Protean",
                         .product(name: "Logging", package: "swift-log")]),
         
-        .testTarget(name: "OptimizerTests", exclude: ["Info.plist"], dependencies: [
+        .testTarget(name: "OptimizerTests",
+                    dependencies: [
                         "Optimizer",
                         "Protean",
                         "Replicant",
-                        "Wisp",
                         .product(name: "Logging", package: "swift-log"),
-			"Datable",
-	]),
+                        "Datable",
+                    ],
+                    exclude: ["Info.plist"]
+        ),
         
         .testTarget(name: "ExampleTransportsTests", dependencies: [
                         "Datable",
