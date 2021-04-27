@@ -115,6 +115,7 @@ let package = Package(
                         "Optimizer",
                         "Protean",
                         "Replicant",
+                        "Wisp",
                         .product(name: "Logging", package: "swift-log"),
                         "Datable",
                     ],
