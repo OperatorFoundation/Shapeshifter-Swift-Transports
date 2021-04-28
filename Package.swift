@@ -7,8 +7,8 @@ import PackageDescription
 let package = Package(
     name: "Shapeshifter-Swift-Transports",
     platforms: [
-        .macOS(.v10_15),
-        .iOS(.v13)
+        .macOS(.v11),
+        .iOS(.v14)
     ],
     products: [
         .library(name: "Wisp", targets: ["Wisp"]),
@@ -20,7 +20,7 @@ let package = Package(
         .library(name: "ExampleTransports", targets: ["ExampleTransports"])
     ],
     dependencies: [
-        .package(url: "https://github.com/OperatorFoundation/Chord.git", from: "0.0.5"),
+        .package(url: "https://github.com/OperatorFoundation/Chord.git", from: "0.0.11"),
         .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", from: "1.3.0"),
         .package(url: "https://github.com/OperatorFoundation/Datable.git", from: "3.0.2"),
         .package(url: "https://github.com/OperatorFoundation/Elligator.git", from: "0.1.1"),
@@ -31,7 +31,7 @@ let package = Package(
         .package(name: "Sodium", url: "https://github.com/OperatorFoundation/swift-sodium.git", from: "0.8.4"),
         .package(url: "https://github.com/OperatorFoundation/SwiftHexTools.git", from: "1.2.2"),
         .package(url: "https://github.com/OperatorFoundation/SwiftQueue.git", from: "0.0.3"),
-        .package(url: "https://github.com/OperatorFoundation/Transmission.git", from: "0.2.0"),
+        .package(url: "https://github.com/OperatorFoundation/Transmission.git", from: "0.2.2"),
         .package(url: "https://github.com/OperatorFoundation/Transport.git", from: "2.3.3")
     ],
     targets: [
@@ -140,7 +140,7 @@ let package = Package(
         .library(name: "ExampleTransports", targets: ["ExampleTransports"])
     ],
     dependencies: [
-        .package(url: "https://github.com/OperatorFoundation/Chord.git", from: "0.0.5"),
+        .package(url: "https://github.com/OperatorFoundation/Chord.git", from: "0.0.11"),
         .package(url: "https://github.com/OperatorFoundation/Datable.git", from: "3.0.2"),
         .package(url: "https://github.com/OperatorFoundation/NetworkLinux.git", from: "0.2.4"),
         .package(url: "https://github.com/OperatorFoundation/ReplicantSwift.git", from: "0.8.3"),
@@ -148,7 +148,7 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-log.git", from: "1.4.0"),
         .package(url: "https://github.com/OperatorFoundation/SwiftHexTools.git", from: "1.2.2"),
         .package(url: "https://github.com/OperatorFoundation/SwiftQueue.git", from: "0.0.3"),
-        .package(url: "https://github.com/OperatorFoundation/TransmissionLinux.git", from: "0.2.0"),
+        .package(url: "https://github.com/OperatorFoundation/TransmissionLinux.git", from: "0.2.2"),
         .package(url: "https://github.com/OperatorFoundation/Transport.git", from: "2.3.3"),
     ],
     targets: [
