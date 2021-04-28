@@ -159,7 +159,7 @@ let package = Package(
             .product(name: "Crypto", package: "swift-crypto"),
             .product(name: "Logging", package: "swift-log"),
             .product(name: "NetworkLinux", package: "NetworkLinux"),
-            .product(name: "TransmissionLinux", package: "TransmissionLinux", condition: .when(platforms: [.linux])),
+            .product(name: "TransmissionLinux", package: "TransmissionLinux")
         ]),
         
         .target(
@@ -170,7 +170,7 @@ let package = Package(
 			"Transport",
 			.product(name: "Logging", package: "swift-log"),
 			.product(name: "NetworkLinux", package: "NetworkLinux"),
-			.product(name: "TransmissionLinux", package: "TransmissionLinux", condition: .when(platforms: [.linux])),
+			.product(name: "TransmissionLinux", package: "TransmissionLinux")
 		],
 		exclude: ["Info.plist", "README.md"]
 	),
@@ -178,22 +178,22 @@ let package = Package(
         .target(name:"Replicant", dependencies:[
             "ReplicantSwift",
             .product(name: "Crypto", package: "swift-crypto"),
-            .product(name: "TransmissionLinux", package: "TransmissionLinux", condition: .when(platforms: [.linux])),
+            .product(name: "TransmissionLinux", package: "TransmissionLinux")
         ]),
         
         .target(name: "LoggerQueue", dependencies: [
             "Datable",
             .product(name: "Logging", package: "swift-log"),
-            .product(name: "NetworkLinux", package: "NetworkLinux", condition: .when(platforms: [.linux])),
-            .product(name: "TransmissionLinux", package: "TransmissionLinux", condition: .when(platforms: [.linux])),
+            .product(name: "NetworkLinux", package: "NetworkLinux"),
+            .product(name: "TransmissionLinux", package: "TransmissionLinux")
         ]),
         
         .target(name: "ExampleTransports", dependencies: [
             "Datable",
             "Transport",
             .product(name: "Logging", package: "swift-log"),
-            .product(name: "NetworkLinux", package: "NetworkLinux", condition: .when(platforms: [.linux])),
-            .product(name: "TransmissionLinux", package: "TransmissionLinux", condition: .when(platforms: [.linux])),
+            .product(name: "NetworkLinux", package: "NetworkLinux"),
+            .product(name: "TransmissionLinux", package: "TransmissionLinux")
         ]),
         
         .testTarget(
