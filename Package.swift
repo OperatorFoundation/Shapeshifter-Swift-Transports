@@ -28,7 +28,7 @@ let package = Package(
         .package(url: "https://github.com/OperatorFoundation/ProteanSwift.git", from: "1.2.0"),
         .package(url: "https://github.com/OperatorFoundation/ReplicantSwift.git", from: "0.8.6"),
         .package(url: "https://github.com/apple/swift-log.git", from: "1.4.2"),
-        .package(name: "Sodium", url: "https://github.com/OperatorFoundation/swift-sodium.git", from: "1.0.2"),
+        .package(name: "Sodium", url: "https://github.com/OperatorFoundation/swift-sodium.git", .branch("scalarMult")),
         .package(url: "https://github.com/OperatorFoundation/SwiftHexTools.git", from: "1.2.2"),
         .package(url: "https://github.com/OperatorFoundation/SwiftQueue.git", from: "0.1.0"),
         .package(url: "https://github.com/OperatorFoundation/Transmission.git", from: "0.2.3"),
