@@ -71,7 +71,7 @@ let package = Package(
         
         .target(name:"Replicant", dependencies:[
             "ReplicantSwift",
-            .product(name: "Transmission", package: "Transmission", condition: .when(platforms: [.macOS]))
+            .product(name: "Transmission", package: "Transmission")
         ]),
         
         .target(name: "LoggerQueue", dependencies: [
