@@ -29,7 +29,6 @@ import XCTest
 import Transport
 import Protean
 import ProteanSwift
-import Wisp
 import ReplicantSwift
 import Replicant
 import SwiftQueue
@@ -51,7 +50,6 @@ class OptimizerTests: XCTestCase
     {
         let ipAddressString = ""
         let portString = "1234"
-        let certString = ""
         let proteanConfig = Protean.Config(byteSequenceConfig: sampleSequenceConfig(),
                                            encryptionConfig: sampleEncryptionConfig(),
                                            headerConfig: sampleHeaderConfig())
@@ -74,9 +72,8 @@ class OptimizerTests: XCTestCase
         
         //let connected = expectation(description: "Connected to server.")
         let host = NWEndpoint.Host.ipv4(ipv4Address)
-        let wispTransport = WispConnectionFactory(host: host, port: port, cert: certString, iatMode: false, logger: Logger(label: "test"))
         let proteanTransport = ProteanConnectionFactory(host: host, port: port, config: proteanConfig, logger: Logger(label: "test"))
-        let possibleTransports:[ConnectionFactory] = [wispTransport, proteanTransport]
+        let possibleTransports:[ConnectionFactory] = [proteanTransport]
         let strategy = ChooseFirst(transports: possibleTransports)
         let connectionFactory = OptimizerConnectionFactory(strategy: strategy, logger: Logger(label: "test"))
         XCTAssert(connectionFactory != nil)
@@ -89,7 +86,6 @@ class OptimizerTests: XCTestCase
     {
         let ipAddressString = ""
         let portString = "1234"
-        let certString = ""
         let proteanConfig = Protean.Config(byteSequenceConfig: sampleSequenceConfig(),
                                            encryptionConfig: sampleEncryptionConfig(),
                                            headerConfig: sampleHeaderConfig())
@@ -111,9 +107,8 @@ class OptimizerTests: XCTestCase
         
         //let connected = expectation(description: "Connected to server.")
         let host = NWEndpoint.Host.ipv4(ipv4Address)
-        let wispTransport = WispConnectionFactory(host: host, port: port, cert: certString, iatMode: false, logger: Logger(label: "test"))
         let proteanTransport = ProteanConnectionFactory(host: host, port: port, config: proteanConfig, logger: Logger(label: "test"))
-        let possibleTransports:[ConnectionFactory] = [wispTransport, proteanTransport]
+        let possibleTransports:[ConnectionFactory] = [proteanTransport]
         let strategy = ChooseRandom(transports: possibleTransports)
         let connectionFactory = OptimizerConnectionFactory(strategy: strategy, logger: Logger(label: "test"))
         XCTAssert(connectionFactory != nil)
@@ -126,7 +121,6 @@ class OptimizerTests: XCTestCase
     {
         let ipAddressString = "10.10.10.10"
         let portString = "2222"
-        let certString = "bD4ASGyyPl0mkaOUm9fGvGJCpOxwoXS1baAAQsAYljSkF60RNHBMRrf+aOSPzSj8B0G8B8"
 //        let salt = "pepper".data
 //        
 //        guard let serverPublicKey = Data(base64Encoded: "3qXWmMkAHfiF11vA9d6rhiSjPBL7+Vd087+p/roRp6jSzIWzhk2S4aefLcYjwRtxGanWUoeoIGDL0WFGiSr/Et+wwG7gOrLf8yovmtgSJlooqa7lcMtipTxegPAYtd5yZg==")
@@ -165,12 +159,11 @@ class OptimizerTests: XCTestCase
         
         let logger = Logger(label: "test")
         let host = NWEndpoint.Host.ipv4(ipv4Address)
-        let wispTransport = WispConnectionFactory(host: host, port: port, cert: certString, iatMode: false, logger: logger)
         let replicantTransport = ReplicantConnectionFactory(host: "\(host)", port: port.rawValue, config: replicantClientConfig, log: logger)
         let proteanTransport = ProteanConnectionFactory(host: host, port: port, config: proteanConfig, logger: logger)
         //let passthroughTransport = PassthroughConnectionFactory(host: host, port: port, logger: logger)
         //let rot13Transport = Rot13ConnectionFactory(host: host, port: port, logger: logger)
-        let possibleTransports:[ConnectionFactory] = [wispTransport, replicantTransport, proteanTransport]
+        let possibleTransports:[ConnectionFactory] = [replicantTransport, proteanTransport]
         let strategy = CoreMLStrategy(transports: possibleTransports, logger: logger)
         
         let connected1 = expectation(description: "Connected 1.")
