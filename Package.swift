@@ -11,34 +11,19 @@ let package = Package(
         .iOS(.v14)],
     
     products: [
-        .library(name: "Shadow", targets: ["Shadow"]),
         .library(name: "Protean", targets: ["Protean"]),
         .library(name: "Optimizer", targets: ["Optimizer"]),
-        .library(name: "Replicant", targets: ["Replicant"]),
         .library(name: "LoggerQueue", targets: ["LoggerQueue"]),
         .library(name: "ExampleTransports", targets: ["ExampleTransports"])],
     
     dependencies: [
-        .package(url: "https://github.com/OperatorFoundation/Chord.git", from: "0.0.12"),
         .package(url: "https://github.com/OperatorFoundation/Datable.git", from: "3.0.4"),
         .package(url: "https://github.com/OperatorFoundation/ProteanSwift.git", from: "1.2.0"),
-        .package(url: "https://github.com/OperatorFoundation/ReplicantSwift.git", from: "0.8.6"),
         .package(url: "https://github.com/apple/swift-log.git", from: "1.4.2"),
-        .package(url: "https://github.com/OperatorFoundation/SwiftHexTools.git", from: "1.2.2"),
         .package(url: "https://github.com/OperatorFoundation/SwiftQueue.git", from: "0.1.0"),
-        .package(url: "https://github.com/OperatorFoundation/Transmission.git", from: "0.2.3"),
         .package(url: "https://github.com/OperatorFoundation/Transport.git", from: "2.3.5")],
     
     targets: [
-        .target(
-            name: "Shadow",
-            dependencies: [
-            "Chord",
-            "Datable",
-            "Transmission",
-            "Transport",
-            .product(name: "Logging", package: "swift-log")]),
-        
         .target(
             name: "Protean",
             dependencies: [
@@ -57,12 +42,6 @@ let package = Package(
             exclude: ["Info.plist", "README.md"]),
         
         .target(
-            name:"Replicant",
-            dependencies:[
-            "ReplicantSwift",
-            .product(name: "Transmission", package: "Transmission")]),
-        
-        .target(
             name: "LoggerQueue",
             dependencies: [
             "Datable",
@@ -74,15 +53,6 @@ let package = Package(
             "Datable",
             "Transport",
             .product(name: "Logging", package: "swift-log")]),
-        
-        .testTarget(
-            name: "ShadowTests",
-            dependencies: [
-                        "Datable",
-                        "Shadow",
-                        "SwiftHexTools",
-                        .product(name: "Logging", package: "swift-log")],
-            exclude: ["Info.plist"]),
         
         .testTarget(
             name: "ProteanTests",
@@ -97,7 +67,6 @@ let package = Package(
                 "Datable",
                 "Optimizer",
                 "Protean",
-                "Replicant",
                 .product(name: "Logging", package: "swift-log"),],
             exclude: ["Info.plist"]),
         
@@ -114,17 +83,13 @@ let package = Package(
 let package = Package(
     name: "Shapeshifter-Swift-Transports",
     products: [
-        .library(name: "Shadow", targets: ["Shadow"]),
         .library(name: "Optimizer", targets: ["Optimizer"]),
-        .library(name: "Replicant", targets: ["Replicant"]),
         .library(name: "LoggerQueue", targets: ["LoggerQueue"]),
         .library(name: "ExampleTransports", targets: ["ExampleTransports"])],
     
     dependencies: [
-        .package(url: "https://github.com/OperatorFoundation/Chord.git", from: "0.0.12"),
         .package(url: "https://github.com/OperatorFoundation/Datable.git", from: "3.0.4"),
         .package(url: "https://github.com/OperatorFoundation/NetworkLinux.git", from: "0.2.4"),
-        .package(url: "https://github.com/OperatorFoundation/ReplicantSwift.git", from: "0.8.3"),
         .package(url: "https://github.com/apple/swift-crypto.git", from: "1.1.2"),
         .package(url: "https://github.com/apple/swift-log.git", from: "1.4.0"),
         .package(url: "https://github.com/OperatorFoundation/SwiftHexTools.git", from: "1.2.2"),
@@ -134,17 +99,6 @@ let package = Package(
     
     targets: [
         .target(
-            name: "Shadow",
-            dependencies: [
-                "Chord",
-                "Datable",
-                "Transport",
-                .product(name: "Crypto", package: "swift-crypto"),
-                .product(name: "Logging", package: "swift-log"),
-                .product(name: "NetworkLinux", package: "NetworkLinux"),
-                .product(name: "TransmissionLinux", package: "TransmissionLinux")]),
-        
-        .target(
 		name: "Optimizer",
 		dependencies: [
 			"SwiftQueue",
@@ -153,13 +107,6 @@ let package = Package(
 			.product(name: "NetworkLinux", package: "NetworkLinux"),
 			.product(name: "TransmissionLinux", package: "TransmissionLinux")],
 		exclude: ["Info.plist", "README.md"]),
-        
-        .target(
-            name:"Replicant",
-            dependencies:[
-                "ReplicantSwift",
-                .product(name: "Crypto", package: "swift-crypto"),
-                .product(name: "TransmissionLinux", package: "TransmissionLinux")]),
         
         .target(
             name: "LoggerQueue",
@@ -179,20 +126,10 @@ let package = Package(
                 .product(name: "TransmissionLinux", package: "TransmissionLinux")]),
         
         .testTarget(
-            name: "ShadowTests",
-            dependencies: [
-                    "Datable",
-                    "Shadow",
-                    "SwiftHexTools",
-                    .product(name: "Logging", package: "swift-log")],
-            exclude: ["Info.plist"]),
-        
-        .testTarget(
             name: "OptimizerTests",
             dependencies: [
                 "Datable",
                 "Optimizer",
-                "Replicant",
                 .product(name: "Logging", package: "swift-log")],
             exclude: ["Info.plist"]),
         

@@ -29,10 +29,7 @@ import XCTest
 import Transport
 import Protean
 import ProteanSwift
-import ReplicantSwift
-import Replicant
 import SwiftQueue
-//import ExampleTransports
 import Logging
 
 #if os(Linux)
@@ -134,12 +131,6 @@ class OptimizerTests: XCTestCase
         let proteanConfig = Protean.Config(byteSequenceConfig: sampleSequenceConfig(),
                                            encryptionConfig: sampleEncryptionConfig(),
                                            headerConfig: sampleHeaderConfig())
-        guard let replicantClientConfig = ReplicantConfig<SilverClientConfig>(polish: nil, toneBurst: nil) else
-        {
-            print("\nUnable to create ReplicantClient config.\n")
-            XCTFail()
-            return
-        }
         
         guard let portUInt = UInt16(portString), let port = NWEndpoint.Port(rawValue: portUInt)
             else
@@ -159,11 +150,10 @@ class OptimizerTests: XCTestCase
         
         let logger = Logger(label: "test")
         let host = NWEndpoint.Host.ipv4(ipv4Address)
-        let replicantTransport = ReplicantConnectionFactory(host: "\(host)", port: port.rawValue, config: replicantClientConfig, log: logger)
         let proteanTransport = ProteanConnectionFactory(host: host, port: port, config: proteanConfig, logger: logger)
         //let passthroughTransport = PassthroughConnectionFactory(host: host, port: port, logger: logger)
         //let rot13Transport = Rot13ConnectionFactory(host: host, port: port, logger: logger)
-        let possibleTransports:[ConnectionFactory] = [replicantTransport, proteanTransport]
+        let possibleTransports:[ConnectionFactory] = [ proteanTransport]
         let strategy = CoreMLStrategy(transports: possibleTransports, logger: logger)
         
         let connected1 = expectation(description: "Connected 1.")
