@@ -17,11 +17,11 @@ let package = Package(
         .library(name: "ExampleTransports", targets: ["ExampleTransports"])],
     
     dependencies: [
-        .package(url: "https://github.com/OperatorFoundation/Datable.git", from: "3.0.4"),
-        .package(url: "https://github.com/OperatorFoundation/ProteanSwift.git", from: "1.2.0"),
+        .package(url: "https://github.com/OperatorFoundation/Datable.git", from: "3.0.6"),
+        .package(url: "https://github.com/OperatorFoundation/ProteanSwift.git", from: "1.2.3"),
         .package(url: "https://github.com/apple/swift-log.git", from: "1.4.2"),
         .package(url: "https://github.com/OperatorFoundation/SwiftQueue.git", from: "0.1.0"),
-        .package(url: "https://github.com/OperatorFoundation/Transport.git", from: "2.3.5")],
+        .package(url: "https://github.com/OperatorFoundation/Transport.git", from: "2.3.6")],
     
     targets: [
         .target(
@@ -88,14 +88,14 @@ let package = Package(
         .library(name: "ExampleTransports", targets: ["ExampleTransports"])],
     
     dependencies: [
-        .package(url: "https://github.com/OperatorFoundation/Datable.git", from: "3.0.4"),
-        .package(url: "https://github.com/OperatorFoundation/NetworkLinux.git", from: "0.2.4"),
+        .package(url: "https://github.com/OperatorFoundation/Datable.git", from: "3.0.6"),
+        .package(url: "https://github.com/OperatorFoundation/NetworkLinux.git", from: "0.4.1"),
         .package(url: "https://github.com/apple/swift-crypto.git", from: "1.1.2"),
-        .package(url: "https://github.com/apple/swift-log.git", from: "1.4.0"),
-        .package(url: "https://github.com/OperatorFoundation/SwiftHexTools.git", from: "1.2.2"),
+        .package(url: "https://github.com/apple/swift-log.git", from: "1.4.2"),
+        .package(url: "https://github.com/OperatorFoundation/SwiftHexTools.git", from: "1.2.3"),
         .package(url: "https://github.com/OperatorFoundation/SwiftQueue.git", from: "0.1.0"),
-        .package(url: "https://github.com/OperatorFoundation/TransmissionLinux.git", from: "0.2.2"),
-        .package(url: "https://github.com/OperatorFoundation/Transport.git", from: "2.3.3")],
+        .package(url: "https://github.com/OperatorFoundation/TransmissionLinux.git", from: "0.3.4"),
+        .package(url: "https://github.com/OperatorFoundation/Transport.git", from: "2.3.6")],
     
     targets: [
         .target(
