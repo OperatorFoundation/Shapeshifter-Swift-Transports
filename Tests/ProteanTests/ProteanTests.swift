@@ -32,11 +32,7 @@ import Protean
 import ProteanSwift
 import Logging
 
-#if os(Linux)
-import NetworkLinux
-#else
-import Network
-#endif
+import Net
 
 @testable import Protean
 

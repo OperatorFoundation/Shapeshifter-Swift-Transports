@@ -31,11 +31,7 @@ import Logging
 import Transport
 import ProteanSwift
 
-#if os(Linux)
-import NetworkLinux
-#else
-import Network
-#endif
+import Net
 
 open class ProteanConnection: Connection
 {

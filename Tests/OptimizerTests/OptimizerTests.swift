@@ -32,11 +32,7 @@ import ProteanSwift
 import SwiftQueue
 import Logging
 
-#if os(Linux)
-import NetworkLinux
-#else
-import Network
-#endif
+import Net
 
 @testable import Optimizer
 

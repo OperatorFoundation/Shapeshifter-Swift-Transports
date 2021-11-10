@@ -10,14 +10,9 @@ import Logging
 
 import Datable
 import SwiftHexTools
-
-#if (os(macOS) || os(iOS) || os(watchOS) || os(tvOS))
-import CryptoKit
-import Network
-#else
 import Crypto
-import NetworkLinux
-#endif
+import Net
+
 
 @testable import Shadow
 

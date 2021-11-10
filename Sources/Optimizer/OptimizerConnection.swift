@@ -29,11 +29,7 @@ import Foundation
 import Logging
 import Transport
 
-#if os(Linux)
-import NetworkLinux
-#else
-import Network
-#endif
+import Net
 
 open class OptimizerConnection: Connection
 {

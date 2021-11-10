@@ -12,11 +12,7 @@ import Protean
 import ProteanSwift
 import Optimizer
 
-#if os(Linux)
-import NetworkLinux
-#else
-import Network
-#endif
+import Net
 
 /// This is example code to help illustrate how to use the transports provided in this library.
 /// This is an ongoing work in progress :)

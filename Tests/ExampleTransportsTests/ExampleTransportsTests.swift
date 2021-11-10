@@ -30,11 +30,7 @@ import Logging
 import XCTest
 import Transport
 
-#if os(Linux)
-import NetworkLinux
-#else
-import Network
-#endif
+import Net
 
 
 @testable import ExampleTransports

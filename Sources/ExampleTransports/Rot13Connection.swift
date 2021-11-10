@@ -30,11 +30,7 @@ import Logging
 import Transport
 import Datable
 
-#if os(Linux)
-import NetworkLinux
-#else
-import Network
-#endif
+import Net
 
 open class Rot13Connection: Connection
 {
